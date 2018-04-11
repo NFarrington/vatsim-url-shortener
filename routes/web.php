@@ -12,3 +12,4 @@
 */
 
 Route::get('/', 'HomeController@index')->name('home');
+Route::get('{short_url}', 'UrlController@redirect')->name('short-url');
