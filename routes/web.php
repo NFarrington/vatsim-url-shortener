@@ -12,4 +12,7 @@
 */
 
 Route::get('/', 'HomeController@index')->name('home');
+Route::get('about', 'HomeController@about')->name('about');
+Route::get('contact', 'HomeController@contact')->name('contact');
+Route::get('dashboard', 'HomeController@dashboard')->name('dashboard');
 Route::get('{short_url}', 'UrlController@redirect')->name('short-url');
