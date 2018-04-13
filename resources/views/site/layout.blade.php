@@ -27,12 +27,18 @@
 <div id="app" class="cover-container d-flex p-3 mx-auto flex-column">
     <header class="masthead mb-auto">
         <div class="inner">
-            <h3 class="masthead-brand">{{ config('app.name') }}</h3>
+            <h3 class="masthead-brand"><a href="{{ route('site.home') }}">{{ config('app.name') }}</a></h3>
             <nav class="nav nav-masthead justify-content-center">
-                <a class="nav-link{{ Request::routeIs('home') ? ' active' : '' }}" href="{{ route('home') }}">Home</a>
-                <a class="nav-link{{ Request::routeIs('about') ? ' active' : '' }}" href="{{ route('about') }}">About</a>
-                <a class="nav-link{{ Request::routeIs('contact') ? ' active' : '' }}" href="{{ route('contact') }}">Contact</a>
-                <a class="nav-link" href="#">Login</a>
+                <a class="nav-link{{ Request::routeIs('site.home') ? ' active' : '' }}" href="{{ route('site.home') }}">Home</a>
+                <a class="nav-link{{ Request::routeIs('site.about') ? ' active' : '' }}" href="{{ route('site.about') }}">About</a>
+                <a class="nav-link{{ Request::routeIs('site.contact') ? ' active' : '' }}" href="{{ route('site.contact') }}">Contact</a>
+                <a href="{{ route('login.vatsim') }}" class="nav-link"
+                   onclick="event.preventDefault(); document.getElementById('vatsim-login-form').submit();">
+                    Login
+                </a>
+                <form id="vatsim-login-form" action="{{ route('login.vatsim') }}" method="POST" style="display: none;">
+                    {{ csrf_field() }}
+                </form>
             </nav>
         </div>
     </header>
