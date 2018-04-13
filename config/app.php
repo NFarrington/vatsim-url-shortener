@@ -150,6 +150,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Vatsim\OAuthLaravel\OAuthServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -208,6 +209,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+        'VatsimSso' => Vatsim\OAuthLaravel\SSOFacade::class,
     ],
 
 ];

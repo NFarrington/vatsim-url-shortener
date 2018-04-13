@@ -9,7 +9,8 @@
         "doctrine/dbal": "^2.7",
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.6.*",
-        "laravel/tinker": "^1.0"
+        "laravel/tinker": "^1.0",
+        "vatsim/sso-laravel": "3.*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.1",
@@ -55,11 +56,15 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover"
+            "@php artisan package:discover",
+            "@ide-helper-basic"
+        ],
+        "ide-helper-basic": [
+            "php artisan ide-helper:generate",
+            "php artisan ide-helper:meta"
         ],
         "ide-helper": [
-            "php artisan ide-helper:generate",
-            "php artisan ide-helper:meta",
+            "@ide-helper-basic",
             "php artisan ide-helper:models --reset --write"
         ],
         "deploy-prod": [
