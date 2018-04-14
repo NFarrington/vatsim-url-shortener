@@ -27,6 +27,8 @@
 <div id="app">
     @include('platform.layout-navbar')
 
+    @include('platform.layout-breadcrumbs')
+
     <main class="container" role="main">
         @include('platform.layout-alerts')
 

@@ -23,9 +23,28 @@ function app_key()
 function breadcrumbs()
 {
     $path = Request::decodedPath();
-    if ($path === '/') {
-        return 'Dashboard';
-    }
 
     return title_case(str_replace('/', ' / ', $path));
+}
+
+/**
+ * Obtain the breadcrumbs for the current URI.
+ *
+ * @return array
+ */
+function breadcrumbs_array()
+{
+    $path = Request::decodedPath();
+
+    $segments = [];
+    $uri = '';
+    foreach (explode('/', $path) as $segment) {
+        $uri .= '/'.$segment;
+        $segments[] = [
+            'name' => title_case($segment),
+            'path' => $uri,
+        ];
+    }
+
+    return $segments;
 }
