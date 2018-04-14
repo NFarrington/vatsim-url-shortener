@@ -64,13 +64,15 @@ class SettingsTest extends TestCase
     /** @test */
     public function user_can_remove_two_factor_auth()
     {
-        $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
+        $this->signIn($user = create(User::class, ['totp_secret' => str_random(16)]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.settings'));
         $this->delete(route('platform.settings.two-factor'))
             ->assertRedirect(route('platform.settings'))
-            ->assertSessionHas('success');
+            ->assertSessionHas('success')
+            ->assertSessionMissing(['auth.two-factor', 'totp-secret']);
+        $this->assertDatabaseHas($user->getTable(), ['id' => $user->id, 'totp_secret' => null]);
     }
 
     /** @test */

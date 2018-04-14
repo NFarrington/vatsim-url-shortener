@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Platform;
 
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
-
     /**
      * Create a new controller instance.
      *
@@ -29,12 +27,17 @@ class LoginController extends Controller
     }
 
     /**
-     * The redirect path.
+     * Log the user out of the application.
      *
-     * @return string
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
      */
-    protected function redirectTo()
+    public function logout(Request $request)
     {
-        return route('platform.dashboard');
+        auth()->guard()->logout();
+
+        $request->session()->invalidate();
+
+        return redirect('/');
     }
 }

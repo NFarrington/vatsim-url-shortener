@@ -3,6 +3,7 @@
 namespace Tests\Feature\Platform;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 
 class LoginTest extends TestCase
@@ -22,5 +23,16 @@ class LoginTest extends TestCase
         $this->signIn();
         $this->get(route('login'))
             ->assertRedirect();
+    }
+
+    /** @test */
+    public function user_can_logout()
+    {
+        $this->signIn();
+        Session::put('test', true);
+
+        $this->post(route('logout'))
+            ->assertRedirect()
+            ->assertSessionMissing('test');
     }
 }

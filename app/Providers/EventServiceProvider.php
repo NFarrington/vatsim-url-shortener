@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Events\EmailChangedEvent;
+use App\Events\EmailVerifiedEvent;
+use App\Listeners\DeleteEmailVerificationListener;
 use App\Listeners\VerifyEmailListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -16,6 +18,10 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         EmailChangedEvent::class => [
             VerifyEmailListener::class,
+        ],
+
+        EmailVerifiedEvent::class => [
+            DeleteEmailVerificationListener::class,
         ],
     ];
 

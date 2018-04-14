@@ -98,4 +98,15 @@ class RegistrationTest extends TestCase
         $response->assertSessionHas('error');
         $this->assertDatabaseHas($user->getTable(), ['id' => $user->id, 'email_verified' => 0]);
     }
+
+    /** @test */
+    public function user_cannot_attempt_verification_when_already_verified()
+    {
+        $user = create(User::class, ['email_verified' => 1]);
+        $this->signIn($user);
+
+        $response = $this->get(route('register.verify', str_random(40)));
+        $response->assertRedirect(route('platform.dashboard'));
+        $response->assertSessionHas('error');
+    }
 }

@@ -45,7 +45,7 @@ class SettingsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
@@ -76,19 +76,12 @@ class SettingsController extends Controller
      */
     public function show2FAForm(Request $request)
     {
-        $secret = $request->user()->totp_secret;
+        $secret = $request->session()->get('totp-secret')
+            ?: tap(app(Google2FA::class)->generateSecretKey(), function ($secret) use ($request) {
+                $request->session()->put('totp-secret', $secret);
+            });
 
-        if (!$secret) {
-            $secret = $request->session()->get('totp-secret');
-        }
-
-        if (!$secret) {
-            $secret = app()->make(Google2FA::class)->generateSecretKey();
-        }
-
-        $request->session()->put('totp-secret', $secret);
-
-        $qrCode = app()->make(Google2FA::class)->getQRCodeInline(
+        $qrCode = app(Google2FA::class)->getQRCodeInline(
             config('app.name'),
             $request->user()->email,
             $secret,
@@ -96,8 +89,8 @@ class SettingsController extends Controller
         );
 
         return view('platform.settings.two-factor')->with([
-            'qrCode' => $qrCode,
             'secret' => $secret,
+            'qrCode' => $qrCode,
         ]);
     }
 
@@ -109,31 +102,28 @@ class SettingsController extends Controller
      */
     public function register2FA(Request $request)
     {
-        $this->validate($request, [
+        $attributes = $this->validate($request, [
             'code' => 'required|numeric',
         ]);
 
-        $code = $request->input('code');
+        $valid = app(Google2FA::class)->verifyKey(
+            $secret = $request->session()->get('totp-secret'),
+            $attributes['code']
+        );
 
-        $valid = app()->make(Google2FA::class)
-            ->verifyKey($request->session()->get('totp-secret'), $code);
-
-        if ($valid) {
-            $secret = $request->session()->pull('totp-secret');
-            $user = $request->user();
-
-            $user->totp_secret = $secret;
-            $user->save();
-
-            $request->session()->put('auth.two-factor', new Carbon());
-
-            return redirect()->route('platform.settings')
-                ->with('success', 'Two factor authentication configured successfully.');
+        if (!$valid) {
+            throw ValidationException::withMessages([
+                'code' => ['Failed to verify code. Please try again.'],
+            ]);
         }
 
-        throw ValidationException::withMessages([
-            'code' => ['Failed to verify code. Please try again.'],
-        ]);
+        $request->session()->remove('totp-secret');
+
+        $request->user()->update(['totp_secret' => $secret]);
+        $request->session()->put('auth.two-factor', new Carbon());
+
+        return redirect()->route('platform.settings')
+            ->with('success', 'Two factor authentication configured successfully.');
     }
 
     /**
@@ -144,10 +134,7 @@ class SettingsController extends Controller
      */
     public function delete2FA(Request $request)
     {
-        $user = $request->user();
-        $user->totp_secret = null;
-        $user->save();
-
+        $request->user()->update(['totp_secret' => null]);
         $request->session()->forget(['auth.two-factor', 'totp-secret']);
 
         return redirect()->route('platform.settings')

@@ -52,17 +52,20 @@ class TwoFactorAuthController extends Controller
             'code' => 'required|numeric',
         ]);
 
-        $valid = app()->make(Google2FA::class)
-            ->verifyKey($request->user()->totp_secret, $attributes['code']);
-        if ($valid) {
-            $request->session()->put('auth.two-factor', new Carbon());
+        $valid = app(Google2FA::class)->verifyKey(
+            $request->user()->totp_secret,
+            $attributes['code']
+        );
 
-            return redirect()->intended(route('platform.dashboard'))
-                ->with('success', 'You are now logged in!');
+        if (!$valid) {
+            throw ValidationException::withMessages([
+                'code' => ['Failed to verify code. Please try again.'],
+            ]);
         }
 
-        throw ValidationException::withMessages([
-            'code' => ['Failed to verify code. Please try again.'],
-        ]);
+        $request->session()->put('auth.two-factor', new Carbon());
+
+        return redirect()->intended(route('platform.dashboard'))
+            ->with('success', 'You are now logged in!');
     }
 }

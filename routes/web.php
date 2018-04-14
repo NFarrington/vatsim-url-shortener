@@ -23,7 +23,7 @@ Route::post('login/two-factor', 'Platform\TwoFactorAuthController@login');
 
 Route::get('register', 'Platform\RegistrationController@showRegistrationForm')->name('register');
 Route::post('register', 'Platform\RegistrationController@register')->name('register');
-Route::get('register/verify/{token}', 'Platform\RegistrationController@verifyEmail')->name('register.verify');
+Route::get('register/verify/{token}', 'Platform\EmailVerificationController@verifyEmail')->name('register.verify');
 
 Route::post('logout', 'Platform\LoginController@logout')->name('logout');
 
