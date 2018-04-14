@@ -50,12 +50,13 @@ class SettingsController extends Controller
      */
     public function update(Request $request)
     {
-        $attributes = $this->validate($request, [
-            'email' => 'required|email|max:255',
-        ]);
-
         /** @var \App\Models\User $user */
         $user = $request->user();
+
+        $attributes = $this->validate($request, [
+            'email' => "required|email|max:255|unique:users,email,{$user->id}",
+        ]);
+
         $user->fill($attributes);
         $emailChanged = $user->isDirty('email');
         $user->save();

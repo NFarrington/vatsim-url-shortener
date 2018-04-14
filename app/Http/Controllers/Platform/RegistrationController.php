@@ -47,12 +47,15 @@ class RegistrationController extends Controller
      */
     public function register(Request $request)
     {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
         $attributes = $this->validate($request, [
-            'email' => 'required|email|max:255',
+            'email' => "required|email|max:255|unique:users,email,{$user->id}",
         ]);
 
-        $request->user()->update($attributes);
-        event(new EmailChangedEvent($request->user()));
+        $user->update($attributes);
+        event(new EmailChangedEvent($user));
 
         return redirect()->route('register')
             ->with('success', 'Please check your inbox for a verification email.');

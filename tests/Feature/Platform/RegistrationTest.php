@@ -6,6 +6,7 @@ use App\Models\EmailVerification;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -41,6 +42,21 @@ class RegistrationTest extends TestCase
         $this->post(route('register'), ['email' => $user->email])
             ->assertRedirect();
         $this->assertDatabaseHas($user->getTable(), ['email' => $user->email, 'email_verified' => 0]);
+    }
+
+    /** @test */
+    public function user_cannot_register_an_existing_email()
+    {
+        $this->expectException(ValidationException::class);
+
+        $this->signIn(create(User::class, ['email' => null]));
+
+        $email = create(User::class)->email;
+
+        $this->get(route('register'));
+        $this->post(route('register', ['email' => $email]))
+            ->assertRedirect(route('register'))
+            ->assertSessionHasErrors('email');
     }
 
     /** @test */

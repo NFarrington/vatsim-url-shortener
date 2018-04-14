@@ -38,6 +38,21 @@ class SettingsTest extends TestCase
     }
 
     /** @test */
+    public function user_cannot_use_an_existing_email()
+    {
+        $this->expectException(ValidationException::class);
+
+        $this->signIn();
+
+        $email = create(User::class)->email;
+
+        $this->get(route('platform.settings'));
+        $this->put(route('platform.settings', ['email' => $email]))
+            ->assertRedirect(route('platform.settings'))
+            ->assertSessionHasErrors('email');
+    }
+
+    /** @test */
     public function two_factor_auth_configuration_page_loads_successfully()
     {
         $this->signIn();
