@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class UrlSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,6 +11,6 @@ class UrlSeeder extends Seeder
      */
     public function run()
     {
-        create(\App\Models\Url::class, [], 100);
+        create(\App\Models\User::class, [], 20);
     }
 }
