@@ -18,6 +18,7 @@ class SettingsController extends Controller
      */
     public function __construct()
     {
+        $this->middleware('platform');
         $this->middleware(function ($request, Closure $next) {
             if ($request->user()->totp_secret) {
                 return redirect()->route('platform.settings')

@@ -93,6 +93,7 @@ class SettingsTest extends TestCase
     public function user_cannot_configure_two_factor_auth_if_already_configured()
     {
         $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
+        Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.settings.two-factor'))
             ->assertRedirect()

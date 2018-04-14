@@ -19,7 +19,6 @@ class TwoFactorAuthController extends Controller
     public function __construct()
     {
         $this->middleware('platform');
-
         $this->middleware(function ($request, Closure $next) {
             if ($request->session()->has('auth.two-factor')) {
                 return redirect()->intended(route('platform.dashboard'))

@@ -26,7 +26,7 @@ class RegistrationController extends Controller
             }
 
             return $next($request);
-        });
+        })->except('verifyEmail');
     }
 
     /**
@@ -73,7 +73,17 @@ class RegistrationController extends Controller
     {
         /** @var User $user */
         $user = $request->user();
+
         $verification = $user->emailVerification;
+
+        if ($user->email_verified) {
+            if ($verification) {
+                $verification->delete();
+            }
+
+            return redirect()->intended(route('platform.dashboard'))
+                ->with('error', 'Your email has already been verified.');
+        }
 
         if (!$verification || !Hash::check($token, $verification->token)) {
             return redirect()->route('register')
