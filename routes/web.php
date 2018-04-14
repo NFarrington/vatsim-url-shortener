@@ -28,6 +28,7 @@ Route::get('register/verify/{token}', 'Platform\EmailVerificationController@veri
 Route::post('logout', 'Platform\LoginController@logout')->name('logout');
 
 Route::get('dashboard', 'Platform\DashboardController@dashboard')->name('platform.dashboard');
+Route::resource('urls', 'Platform\UrlController', ['as' => 'platform'])->only(['index', 'create', 'store', 'destroy']);
 Route::get('settings', 'Platform\SettingsController@edit')->name('platform.settings');
 Route::put('settings', 'Platform\SettingsController@update');
 Route::get('settings/two-factor', 'Platform\SettingsController@show2FAForm')->name('platform.settings.two-factor');

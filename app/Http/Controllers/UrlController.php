@@ -15,7 +15,7 @@ class UrlController extends Controller
      */
     public function redirect($shortUrl)
     {
-        $url = Url::where('short_url', $shortUrl)->first();
+        $url = Url::where('url', $shortUrl)->first();
 
         if (!$url) {
             throw new NotFoundHttpException();

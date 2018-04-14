@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Url;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class UrlSeeder extends Seeder
@@ -11,6 +13,11 @@ class UrlSeeder extends Seeder
      */
     public function run()
     {
-        create(\App\Models\Url::class, [], 100);
+        $count = User::count();
+        foreach (User::inRandomOrder()->limit(ceil($count / 2)) as $user) {
+            create(Url::class, ['user_id' => $user->id], 10);
+        }
+
+        create(Url::class, [], 100);
     }
 }

@@ -10,11 +10,12 @@
                 <li class="nav-item {{ Request::routeIs('platform.dashboard') ? ' active' : '' }}">
                     <a class="nav-link" href="{{ route('platform.dashboard') }}">Dashboard</a>
                 </li>
-                <ul class="navbar-nav">
-                    <li class="nav-item {{ Request::routeIs('platform.settings') ? ' active' : '' }}">
-                        <a class="nav-link" href="{{ route('platform.settings') }}">Settings</a>
-                    </li>
-                </ul>
+                <li class="nav-item {{ Request::routeIs('platform.urls.*') ? ' active' : '' }}">
+                    <a class="nav-link" href="{{ route('platform.urls.index') }}">URLs</a>
+                </li>
+                <li class="nav-item {{ Request::routeIs('platform.settings') ? ' active' : '' }}">
+                    <a class="nav-link" href="{{ route('platform.settings') }}">Settings</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

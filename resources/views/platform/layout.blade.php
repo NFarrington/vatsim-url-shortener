@@ -29,7 +29,7 @@
 
     @include('platform.layout-breadcrumbs')
 
-    <main class="container" role="main">
+    <main class="container mb-4" role="main">
         @include('platform.layout-alerts')
 
         @yield('content')

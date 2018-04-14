@@ -17,7 +17,7 @@ class UrlTest extends TestCase
         /* @var \App\Models\Url $url */
         $url = create(Url::class);
 
-        $this->get(route('short-url', $url->short_url))
+        $this->get(route('short-url', $url->url))
             ->assertRedirect($url->redirect_url);
     }
 

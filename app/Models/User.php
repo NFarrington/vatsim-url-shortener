@@ -16,6 +16,7 @@ use Illuminate\Notifications\Notifiable;
  * @property string $last_name
  * @property string|null $email
  * @property bool $email_verified
+ * @property string|null $totp_secret
  * @property string|null $remember_token
  * @property array $vatsim_sso_data
  * @property array $vatsim_status_data
@@ -24,6 +25,7 @@ use Illuminate\Notifications\Notifiable;
  * @property-read \App\Models\EmailVerification $emailVerification
  * @property-read string $full_name
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereEmailVerified($value)
@@ -31,6 +33,7 @@ use Illuminate\Notifications\Notifiable;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereLastName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereRememberToken($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereTotpSecret($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereVatsimSsoData($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereVatsimStatusData($value)
@@ -41,6 +44,13 @@ class User extends Model implements
     AuthorizableContract
 {
     use Authenticatable, Authorizable, Notifiable;
+
+    /**
+     * Indicates if the IDs are auto-incrementing.
+     *
+     * @var bool
+     */
+    public $incrementing = false;
 
     /**
      * The attributes that should be hidden for arrays.
@@ -72,6 +82,16 @@ class User extends Model implements
     public function emailVerification()
     {
         return $this->hasOne(EmailVerification::class);
+    }
+
+    /**
+     * The user's short URLs.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function urls()
+    {
+        return $this->hasMany(Url::class);
     }
 
     /**
