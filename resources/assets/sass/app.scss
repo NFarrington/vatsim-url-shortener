@@ -1,6 +1,18 @@
 // Fonts
 @import url("https://fonts.googleapis.com/css?family=Raleway:300,400,600");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 // Variables
 @import "variables";
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+.material-icons { vertical-align: text-bottom; }
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+
+.text-link {
+  @extend a;
+  cursor: pointer;
+}

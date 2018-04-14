@@ -18,8 +18,20 @@ Route::get('contact', 'Site\SiteController@contact')->name('site.contact');
 Route::get('login', 'Platform\LoginController@showLoginForm')->name('login');
 Route::post('login/vatsim', 'Platform\VatsimLoginController@login')->name('login.vatsim');
 Route::get('login/vatsim/callback', 'Platform\VatsimLoginController@callback')->name('login.vatsim.callback');
+Route::get('login/two-factor', 'Platform\TwoFactorAuthController@showForm')->name('login.two-factor');
+Route::post('login/two-factor', 'Platform\TwoFactorAuthController@login');
+
+Route::get('register', 'Platform\RegistrationController@showRegistrationForm')->name('register');
+Route::post('register', 'Platform\RegistrationController@register')->name('register');
+Route::get('register/verify/{token}', 'Platform\RegistrationController@verifyEmail')->name('register.verify');
+
 Route::post('logout', 'Platform\LoginController@logout')->name('logout');
 
 Route::get('dashboard', 'Platform\DashboardController@dashboard')->name('platform.dashboard');
+Route::get('settings', 'Platform\SettingsController@edit')->name('platform.settings');
+Route::put('settings', 'Platform\SettingsController@update');
+Route::get('settings/two-factor', 'Platform\SettingsController@show2FAForm')->name('platform.settings.two-factor');
+Route::post('settings/two-factor', 'Platform\SettingsController@register2FA');
+Route::delete('settings/two-factor', 'Platform\SettingsController@delete2FA');
 
 Route::get('{short_url}', 'UrlController@redirect')->name('short-url');

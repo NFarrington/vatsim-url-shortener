@@ -67,20 +67,20 @@ class VatsimLoginController extends LoginController
     /**
      * Update and log in the user.
      *
-     * @param $user
+     * @param $ssoUser
      */
-    protected function processUser($user)
+    protected function processUser($ssoUser)
     {
-        /** @var User $user */
-        $user = User::updateOrCreate([
-            'id' => $user->id,
+        /* @var User $user */
+        User::updateOrCreate([
+            'id' => $ssoUser->id,
         ], [
-            'name_first' => $user->name_first ?? '',
-            'name_last' => $user->name_last ?? '',
-            'vatsim_sso_data' => $user,
+            'first_name' => $ssoUser->name_first ?? '',
+            'last_name' => $ssoUser->name_last ?? '',
+            'vatsim_sso_data' => $ssoUser,
         ]);
 
-        Auth::login($user, true);
+        Auth::loginUsingId($ssoUser->id, true);
     }
 
     /**
@@ -91,7 +91,8 @@ class VatsimLoginController extends LoginController
      */
     protected function sendFailedVatsimLoginResponse(SSOException $e)
     {
-        return redirect()->route('login')->with('error', 'SSO login failed: "'.$e->getMessage().'"');
+        return redirect()->route('login')
+            ->with('error', 'SSO login failed: "'.$e->getMessage().'"');
     }
 
     /**

@@ -15,10 +15,11 @@ class CreateUsersTable extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->unsignedInteger('id')->primary();
-            $table->string('name_first');
-            $table->string('name_last');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('email')->unique()->nullable();
             $table->boolean('email_verified')->default(0);
+            $table->string('totp_secret')->nullable();
             $table->rememberToken();
             $table->json('vatsim_sso_data')->nullable();
             $table->json('vatsim_status_data')->nullable();

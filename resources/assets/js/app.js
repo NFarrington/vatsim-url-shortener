@@ -15,7 +15,8 @@ window.Vue = require('vue');
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('example-component', require('./components/ExampleComponent.vue'));
+Vue.component('delete-resource', require('./components/ResourceDeleteForm.vue'));
+Vue.component('reveal-text', require('./components/RevealText.vue'));
 
 const app = new Vue({
     el: '#app'

@@ -10,6 +10,11 @@
                 <li class="nav-item {{ Request::routeIs('platform.dashboard') ? ' active' : '' }}">
                     <a class="nav-link" href="{{ route('platform.dashboard') }}">Dashboard</a>
                 </li>
+                <ul class="navbar-nav">
+                    <li class="nav-item {{ Request::routeIs('platform.settings') ? ' active' : '' }}">
+                        <a class="nav-link" href="{{ route('platform.settings') }}">Settings</a>
+                    </li>
+                </ul>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -18,7 +23,8 @@
                 </li>
             @else
                 <li class="nav-item">
-                    <a class="nav-link{{ Request::routeIs('site.home') ? ' active' : '' }}" href="{{ route('site.home') }}">Return to Main Site</a>
+                    <a class="nav-link{{ Request::routeIs('site.home') ? ' active' : '' }}"
+                       href="{{ route('site.home') }}">Return to Main Site</a>
                 </li>
                 <li class="nav-item{{ Request::routeIs('login') ? ' active' : '' }}">
                     <a class="nav-link" href="{{ route('login') }}">Login</a>
@@ -29,11 +35,11 @@
             {{ csrf_field() }}
         </form>
 
-        @auth
-            <form class="form-inline mt-2 mt-md-0">
-                <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
-        @endauth
+        {{--@auth--}}
+            {{--<form class="form-inline mt-2 mt-md-0">--}}
+                {{--<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">--}}
+                {{--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>--}}
+            {{--</form>--}}
+        {{--@endauth--}}
     </div>
 </nav>
