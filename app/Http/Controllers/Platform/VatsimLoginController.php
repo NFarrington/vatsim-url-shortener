@@ -113,7 +113,9 @@ class VatsimLoginController extends Controller
             'vatsim_sso_data' => $ssoUser,
         ]);
 
-        auth()->loginUsingId($ssoUser->id, true);
+        $guardName = config('auth.defaults.guard');
+        $remember = config("auth.guards.{$guardName}.remember", false);
+        auth()->loginUsingId($ssoUser->id, $remember);
     }
 
     /**

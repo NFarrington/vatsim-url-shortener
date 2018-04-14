@@ -39,6 +39,7 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+            'remember' => env('AUTH_REMEMBER', false),
         ],
 
         'api' => [
