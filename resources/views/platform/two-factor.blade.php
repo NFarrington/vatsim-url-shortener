@@ -13,9 +13,7 @@
                     <label for="code" class="control-label">Authentication Code</label>
 
                     <input id="code" type="number" class="form-control{{ $errors->has('code') ? ' is-invalid' : '' }}"
-                           name="code" min="0" max="999999"
-                           required autofocus>
-
+                           name="code" min="0" max="999999" required autofocus>
                     @if($errors->has('code'))
                         <div class="invalid-feedback">
                             {{ $errors->first('code') }}

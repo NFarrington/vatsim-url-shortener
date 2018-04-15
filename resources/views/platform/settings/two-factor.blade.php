@@ -25,16 +25,16 @@
                     <label for="code" class="control-label">Enter the six-digit code from your
                         authenticator</label>
 
-                    <input id="code" type="number" class="form-control{{ $errors->has('code') ? ' is-invalid' : '' }}" name="code" min="0" max="999999"
-                           placeholder="123456" required autofocus>
-
-                        @if($errors->has('code'))
-                            <div class="invalid-feedback">
-                                {{ $errors->first('code') }}
-                            </div>
-                        @endif
+                    <input id="code" type="number" class="form-control{{ $errors->has('code') ? ' is-invalid' : '' }}"
+                           name="code" min="0" max="999999" placeholder="123456" required autofocus>
+                    @if($errors->has('code'))
+                        <div class="invalid-feedback">
+                            {{ $errors->first('code') }}
+                        </div>
+                    @endif
                     <small class="form-text text-muted">
-                        After scanning the barcode image, the app will display a six-digit code that you can enter above.
+                        After scanning the barcode image, the app will display a six-digit code that you can enter
+                        above.
                     </small>
                 </div>
 

@@ -2,14 +2,14 @@
     <label for="inputUrl" class="col-sm-2 col-form-label">Short URL</label>
     <div class="col-sm-10 form-row">
         <div class="col-auto">
-            <select class="custom-select">
+            <select class="custom-select" autofocus>
                 <option selected>https://vats.im/</option>
             </select>
         </div>
         <div class="col">
             <input type="text" class="form-control{{ $errors->has('url') ? ' is-invalid' : '' }}"
                    id="inputUrl" name="url" value="{{ old('url') ?: $url->url }}"
-                   placeholder="my-short-url" maxlength="250">
+                   placeholder="my-short-url" maxlength="250" required>
             @if ($errors->has('url'))
                 <div class="invalid-feedback">
                     {{ $errors->first('url') }}

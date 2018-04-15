@@ -20,7 +20,8 @@
                     <li class="nav-item dropdown{{ Request::routeIs('platform.admin.*') ? ' active' : '' }}">
                         <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">Admin</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item{{ Request::routeIs('platform.admin.news.*') ? ' active' : '' }}" href="{{ route('platform.admin.news.index') }}">News</a>
+                            <a class="dropdown-item{{ Request::routeIs('platform.admin.news.*') ? ' active' : '' }}"
+                               href="{{ route('platform.admin.news.index') }}">News</a>
                         </div>
                     </li>
                 @endcan

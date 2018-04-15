@@ -49,6 +49,16 @@ class NewsTest extends TestCase
     }
 
     /** @test */
+    function show_page_redirects_to_edit_page()
+    {
+        $this->signInAdmin();
+        $news = create(News::class);
+
+        $this->get(route('platform.admin.news.show', $news))
+            ->assertRedirect(route('platform.admin.news.edit', $news));
+    }
+
+    /** @test */
     function edit_page_loads_successfully()
     {
         $this->signInAdmin();

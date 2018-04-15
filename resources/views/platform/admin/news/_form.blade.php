@@ -3,7 +3,7 @@
     <div class="col-sm-10">
         <input type="text" class="form-control{{ $errors->has('title') ? ' is-invalid' : '' }}"
                id="inputTitle" name="title" value="{{ old('title') ?: $news->title }}"
-               placeholder="Title" required maxlength="250">
+               placeholder="Title" required maxlength="250" autofocus>
         @if ($errors->has('title'))
             <div class="invalid-feedback">
                 {{ $errors->first('title') }}
@@ -33,7 +33,8 @@
     <div class="offset-sm-2 col-sm-10">
         <div class="custom-control custom-checkbox">
             <input class="custom-control-input{{ $errors->has('published') ? ' is-invalid' : '' }}" type="checkbox"
-                   id="inputPublished" name="published"{{ (old('published') ?: $news->published) ? ' checked' : '' }} value="1">
+                   id="inputPublished" name="published"
+                   value="1" {{ (old('published') ?: $news->published) ? ' checked' : '' }}>
             <label class="custom-control-label" for="inputPublished">Published</label>
             @if ($errors->has('published'))
                 <div class="invalid-feedback">

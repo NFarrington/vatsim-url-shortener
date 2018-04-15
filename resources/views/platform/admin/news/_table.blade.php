@@ -19,7 +19,8 @@
                     <td>{{ hyphen_nobreak($post->updated_at) }}</td>
                     <td><a href="{{ route('platform.admin.news.edit', $post) }}">Edit</a></td>
                     <td>
-                        <delete-resource link-only route="{{ route('platform.admin.news.destroy', $post) }}"></delete-resource>
+                        <delete-resource link-only route="{{ route('platform.admin.news.destroy', $post) }}">
+                        </delete-resource>
                     </td>
                 </tr>
             @endforeach

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Platform\Admin;
 
 use App\Models\News;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class NewsController extends Controller
 {
@@ -65,6 +66,19 @@ class NewsController extends Controller
 
         return redirect()->route('platform.admin.news.index')
             ->with('success', 'News article created.');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\News  $news
+     * @return \Illuminate\Http\Response
+     */
+    public function show(News $news)
+    {
+        Session::reflash();
+
+        return redirect()->route('platform.admin.news.edit', $news);
     }
 
     /**
