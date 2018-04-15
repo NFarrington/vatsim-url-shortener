@@ -11,6 +11,7 @@ namespace App\Models;
  * @property bool $published
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News published()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News whereContent($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News whereCreatedAt($value)

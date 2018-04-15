@@ -19,4 +19,24 @@ class UrlTest extends TestCase
         $url = create(Url::class, ['user_id' => $user->id]);
         $this->assertEquals($user->id, $url->user->id);
     }
+
+    /** @test */
+    function url_and_redirect_changes_are_tracked()
+    {
+        $url = create(Url::class);
+        $template = make(Url::class);
+        (clone $url)->update(['url' => $template->url, 'redirect_url' => $template->redirect_url]);
+        $this->assertDatabaseHas('revisions', [
+            'model_id' => $url->id,
+            'key' => 'url',
+            'old_value' => $url->url,
+            'new_value' => $template->url,
+        ]);
+        $this->assertDatabaseHas('revisions', [
+            'model_id' => $url->id,
+            'key' => 'redirect_url',
+            'old_value' => $url->redirect_url,
+            'new_value' => $template->redirect_url,
+        ]);
+    }
 }

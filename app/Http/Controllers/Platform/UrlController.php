@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Platform;
 use App\Http\Controllers\Controller;
 use App\Models\Url;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class UrlController extends Controller
 {
@@ -55,7 +56,14 @@ class UrlController extends Controller
     public function store(Request $request)
     {
         $attributes = $this->validate($request, [
-            'url' => 'required|string|max:250|unique:urls',
+            'url' => [
+                'required',
+                'string',
+                'max:250',
+                Rule::unique('urls')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
             'redirect_url' => 'required|url|max:1000',
         ]);
 

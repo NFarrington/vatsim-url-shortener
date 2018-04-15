@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Revisionable;
 use Illuminate\Database\Eloquent\Model as BaseModel;
 
 /**
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Model as BaseModel;
  */
 abstract class Model extends BaseModel
 {
+    use Revisionable;
+
     /**
      * The attributes that aren't mass assignable.
      *
