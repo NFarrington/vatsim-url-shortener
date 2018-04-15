@@ -48,3 +48,14 @@ function breadcrumbs_array()
 
     return $segments;
 }
+
+/**
+ * Replace hyphens with non-breaking hyphens.
+ *
+ * @param $text
+ * @return mixed
+ */
+function hyphen_nobreak($text)
+{
+    return str_replace('-', html_entity_decode('&#8209;'), $text);
+}

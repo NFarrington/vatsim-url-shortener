@@ -15,8 +15,8 @@
                     <td>{{ $post->id }}</td>
                     <td>{{ $post->title }}</td>
                     <td><i class="material-icons">{{ $post->published ? 'check' : 'close' }}</i></td>
-                    <td>{{ $post->created_at }}</td>
-                    <td>{{ $post->updated_at }}</td>
+                    <td>{{ hyphen_nobreak($post->created_at) }}</td>
+                    <td>{{ hyphen_nobreak($post->updated_at) }}</td>
                     <td><a href="{{ route('platform.admin.news.edit', $post) }}">Edit</a></td>
                     <td>
                         <delete-resource link-only route="{{ route('platform.admin.news.destroy', $post) }}"></delete-resource>

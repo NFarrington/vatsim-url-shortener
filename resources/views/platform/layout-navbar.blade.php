@@ -13,7 +13,7 @@
                 <li class="nav-item{{ Request::routeIs('platform.urls.*') ? ' active' : '' }}">
                     <a class="nav-link" href="{{ route('platform.urls.index') }}">URLs</a>
                 </li>
-                <li class="nav-item{{ Request::routeIs('platform.settings.*') ? ' active' : '' }}">
+                <li class="nav-item{{ Request::routeIs('platform.settings*') ? ' active' : '' }}">
                     <a class="nav-link" href="{{ route('platform.settings') }}">Settings</a>
                 </li>
                 @can('admin')
