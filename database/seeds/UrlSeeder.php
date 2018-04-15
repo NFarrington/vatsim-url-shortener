@@ -19,5 +19,6 @@ class UrlSeeder extends Seeder
         }
 
         create(Url::class, [], 100);
+        create(Url::class, ['user_id' => null], 10);
     }
 }

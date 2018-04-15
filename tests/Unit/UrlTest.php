@@ -2,7 +2,6 @@
 
 namespace Tests\Unit;
 
-use App\Models\EmailVerification;
 use App\Models\Url;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -38,5 +37,14 @@ class UrlTest extends TestCase
             'old_value' => $url->redirect_url,
             'new_value' => $template->redirect_url,
         ]);
+    }
+
+    /** @test */
+    function urls_without_users_are_public()
+    {
+        create(Url::class);
+        create(Url::class, ['user_id' => null]);
+
+        $this->assertEquals(1, Url::public()->count());
     }
 }

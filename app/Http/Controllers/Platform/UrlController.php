@@ -29,9 +29,11 @@ class UrlController extends Controller
         $urls = Url::where('user_id', $request->user()->id)
             ->orderBy('url')
             ->paginate(20);
+        $publicUrls = Url::public()->orderBy('url')->get();
 
         return view('platform.urls.index')->with([
             'urls' => $urls,
+            'publicUrls' => $publicUrls,
         ]);
     }
 

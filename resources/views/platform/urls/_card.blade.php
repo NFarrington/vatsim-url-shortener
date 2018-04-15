@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card mb-4">
     <div class="card-header">
         <span class="lead">URLs</span>
         <ul class="nav nav-tabs card-header-tabs float-right">
