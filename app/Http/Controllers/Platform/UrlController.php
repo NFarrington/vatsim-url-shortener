@@ -59,12 +59,16 @@ class UrlController extends Controller
             'url' => [
                 'required',
                 'string',
+                'min:3',
                 'max:250',
+                'regex:/^[0-9a-zA-Z_-]+$/',
                 Rule::unique('urls')->where(function ($query) {
                     return $query->whereNull('deleted_at');
                 }),
             ],
             'redirect_url' => 'required|url|max:1000',
+        ], [
+            'url.regex' => 'The url may only include alphanumeric characters, dashes and underscores.',
         ]);
 
         $url = new Url($attributes);
