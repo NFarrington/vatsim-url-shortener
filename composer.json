@@ -9,6 +9,7 @@
         "bacon/bacon-qr-code": "^1.0",
         "doctrine/dbal": "^2.7",
         "fideloper/proxy": "^4.0",
+        "graham-campbell/markdown": "^10.0",
         "laravel/framework": "5.6.*",
         "laravel/tinker": "^1.0",
         "pragmarx/google2fa": "^3.0",

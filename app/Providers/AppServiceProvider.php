@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +14,30 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Carbon::macro('diffForHumansAt', function () {
+            $diffDays = $this->diffInDays();
+            switch ($diffDays) {
+                case 0:
+                    $time = 'Today';
+                    break;
+                case 1:
+                    $time = 'Yesterday';
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    $time = "{$diffDays} days ago";
+                    break;
+                default:
+                    $time = $this->format('Y-m-d');
+            }
+
+            $time .= ' at '.$this->format('H:i');
+
+            return $time;
+        });
     }
 
     /**

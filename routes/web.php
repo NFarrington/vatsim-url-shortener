@@ -34,5 +34,7 @@ Route::put('settings', 'Platform\SettingsController@update');
 Route::get('settings/two-factor', 'Platform\SettingsController@show2FAForm')->name('platform.settings.two-factor');
 Route::post('settings/two-factor', 'Platform\SettingsController@register2FA');
 Route::delete('settings/two-factor', 'Platform\SettingsController@delete2FA');
+Route::get('admin', 'Platform\Admin\AdminController@admin')->name('platform.admin');
+Route::resource('admin/news', 'Platform\Admin\NewsController', ['as' => 'platform.admin'])->except('show');
 
 Route::get('{short_url}', 'UrlController@redirect')->name('short-url');

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Platform;
 
+use App\Models\News;
+
 class DashboardController extends Controller
 {
     /**
@@ -21,6 +23,10 @@ class DashboardController extends Controller
      */
     public function dashboard()
     {
-        return view('platform.dashboard');
+        $news = News::published()->orderByDesc('created_at')->paginate(5);
+
+        return view('platform.dashboard')->with([
+            'news' => $news,
+        ]);
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
+use App\Models\News;
 use Illuminate\Database\Seeder;
 
-class DatabaseSeeder extends Seeder
+class NewsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,8 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(NewsSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(UrlSeeder::class);
+        create(News::class, [], 50);
+        create(News::class, ['published' => false], 50);
     }
 }

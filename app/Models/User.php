@@ -95,6 +95,16 @@ class User extends Model implements
     }
 
     /**
+     * Determine if the user is an administrator.
+     *
+     * @return bool
+     */
+    public function isAdmin()
+    {
+        return in_array($this->id, config('auth.admins'));
+    }
+
+    /**
      * Get the user's full name.
      *
      * @return string

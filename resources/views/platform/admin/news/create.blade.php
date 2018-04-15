@@ -1,12 +1,12 @@
 @extends('platform.layout')
 
 @section('content')
-    @component('platform.urls._card')
+    @component('platform.admin.news._card')
         <div class="card-body">
-            <form method="POST" action="{{ route('platform.urls.store') }}">
+            <form method="POST" action="{{ route('platform.admin.news.store') }}">
                 {{ csrf_field() }}
 
-                @include('platform.urls._form')
+                @include('platform.admin.news._form')
 
                 <div class="form-group row">
                     <div class="offset-sm-2 col-sm-10">

@@ -25,7 +25,9 @@ class UrlController extends Controller
      */
     public function index(Request $request)
     {
-        $urls = Url::where('user_id', $request->user()->id)->paginate(20);
+        $urls = Url::where('user_id', $request->user()->id)
+            ->orderBy('url')
+            ->paginate(20);
 
         return view('platform.urls.index')->with([
             'urls' => $urls,

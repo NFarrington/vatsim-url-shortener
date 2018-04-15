@@ -34,6 +34,12 @@
 
         @yield('content')
     </main>
+
+    <footer>
+        <div class="text-center text-muted">
+            <p>&copy; {{ date('Y') }} Neil Farrington{{-- &mdash; Version <num> &ndash <hash>;   --}}</p>
+        </div>
+    </footer>
 </div>
 
 <script src="{{ mix('js/app.js') }}"></script>

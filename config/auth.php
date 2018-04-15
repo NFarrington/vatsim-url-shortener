@@ -100,4 +100,6 @@ return [
         ],
     ],
 
+    'admins' => explode(',', env('AUTH_ADMINS', '')),
+
 ];
