@@ -45,6 +45,12 @@
             {{ csrf_field() }}
         </form>
 
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item{{ Request::routeIs('platform.support') ? ' active' : '' }}">
+                <a class="nav-link" href="{{ route('platform.support') }}">Support</a>
+            </li>
+        </ul>
+
         {{--@auth--}}
         {{--<form class="form-inline mt-2 mt-md-0">--}}
         {{--<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">--}}

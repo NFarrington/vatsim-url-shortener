@@ -37,4 +37,6 @@ Route::delete('settings/two-factor', 'Platform\SettingsController@delete2FA');
 Route::get('admin', 'Platform\Admin\AdminController@admin')->name('platform.admin');
 Route::resource('admin/news', 'Platform\Admin\NewsController', ['as' => 'platform.admin']);
 
+Route::get('support', 'Platform\SupportController@support')->name('platform.support');
+
 Route::get('{short_url}', 'UrlController@redirect')->name('short-url');
