@@ -30,8 +30,6 @@
     @include('platform.layout-breadcrumbs')
 
     <main class="container mb-4" role="main">
-        @include('platform.layout-alerts')
-
         @yield('content')
     </main>
 
@@ -40,6 +38,9 @@
             <p>&copy; {{ date('Y') }} Neil Farrington{{-- &mdash; Version <num> &ndash <hash>;   --}}</p>
         </div>
     </footer>
+
+    <flash message="{{ session('success') }}" level="success"></flash>
+    <flash message="{{ session('error') }}" level="danger"></flash>
 </div>
 
 <script src="{{ mix('js/app.js') }}"></script>
