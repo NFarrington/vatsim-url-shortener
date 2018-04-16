@@ -74,6 +74,7 @@ class UrlController extends Controller
                 'min:3',
                 'max:250',
                 'regex:/^[0-9a-zA-Z_-]+$/',
+                'not_in:about,contact,platform,support,abuse,info',
                 Rule::unique('urls')->where(function ($query) {
                     return $query->whereNull('deleted_at');
                 }),
