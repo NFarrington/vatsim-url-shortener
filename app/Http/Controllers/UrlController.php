@@ -9,6 +9,16 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class UrlController extends Controller
 {
     /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('log-requests');
+    }
+
+    /**
      * Redirect a short URL to the intended URL.
      *
      * @param \Illuminate\Http\Request $request
@@ -25,6 +35,8 @@ class UrlController extends Controller
         if (!$url) {
             throw new NotFoundHttpException();
         }
+
+        request()->session()->flash('short.url_id', $url->id);
 
         return redirect()->to($url->redirect_url);
     }

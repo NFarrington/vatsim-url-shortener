@@ -16,6 +16,20 @@ function app_key()
 }
 
 /**
+ * Filter an array by its keys using a callback.
+ *
+ * @param array $array
+ * @param $callback
+ * @return array
+ */
+function array_filter_key(array $array, $callback)
+{
+    $matchedKeys = array_filter(array_keys($array), $callback);
+
+    return array_intersect_key($array, array_flip($matchedKeys));
+}
+
+/**
  * Obtain the breadcrumbs for the current URI.
  *
  * @return string
