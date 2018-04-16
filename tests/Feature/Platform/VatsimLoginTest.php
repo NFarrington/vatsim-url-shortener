@@ -14,7 +14,7 @@ class VatsimLoginTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function user_can_initiate_vatsim_login()
+    function user_can_initiate_vatsim_login()
     {
         $token = json_decode('{"request":{"result":"success","message":""},"token":{"oauth_token":"SSO_DEMO_'.str_random().'","oauth_token_secret":"'.str_random().'","oauth_callback_confirmed":true}}');
         $mock = $this->createMock(SSO::class);
@@ -26,7 +26,7 @@ class VatsimLoginTest extends TestCase
     }
 
     /** @test */
-    public function user_can_complete_vatsim_login()
+    function user_can_complete_vatsim_login()
     {
         $ssoRequest = json_decode('{"request":{"result":"success","message":""},"user":{"id":"1300001","name_first":"1st","name_last":"Test","rating":{"id":"1","short":"OBS","long":"Pilot\/Observer","GRP":"Pilot\/Observer"},"pilot_rating":{"rating":"0"},"experience":"N","reg_date":"2014-05-14 17:17:26","country":{"code":"GB","name":"United Kingdom"},"region":{"code":"EUR","name":"Europe"},"division":{"code":"GBR","name":"United Kingdom"},"subdivision":{"code":null,"name":null}}}');
         $mock = $this->createMock(SSO::class);
@@ -39,7 +39,7 @@ class VatsimLoginTest extends TestCase
     }
 
     /** @test */
-    public function failed_login_redirects_with_error()
+    function failed_login_redirects_with_error()
     {
         $mock = $this->createMock(SSO::class);
         $mock->method('checkLogin')->willThrowException(new SSOException('checkLogin failed'));
@@ -51,7 +51,7 @@ class VatsimLoginTest extends TestCase
     }
 
     /** @test */
-    public function vatsim_login_is_ratelimited()
+    function vatsim_login_is_ratelimited()
     {
         $ssoRequest = json_decode('{"request":{"result":"success","message":""},"user":{"id":"1300001","name_first":"1st","name_last":"Test","rating":{"id":"1","short":"OBS","long":"Pilot\/Observer","GRP":"Pilot\/Observer"},"pilot_rating":{"rating":"0"},"experience":"N","reg_date":"2014-05-14 17:17:26","country":{"code":"GB","name":"United Kingdom"},"region":{"code":"EUR","name":"Europe"},"division":{"code":"GBR","name":"United Kingdom"},"subdivision":{"code":null,"name":null}}}');
         $mock = $this->createMock(SSO::class);

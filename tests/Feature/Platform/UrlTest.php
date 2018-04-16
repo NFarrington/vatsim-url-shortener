@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Platform;
 
+use App\Models\Domain;
 use App\Models\Url;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -20,38 +21,40 @@ class UrlTest extends TestCase
     }
 
     /** @test */
-    public function index_page_loads_successfully()
+    function index_page_loads_successfully()
     {
         $this->get(route('platform.urls.index'))
             ->assertStatus(200);
     }
 
     /** @test */
-    public function create_page_loads_successfully()
+    function create_page_loads_successfully()
     {
         $this->get(route('platform.urls.create'))
             ->assertStatus(200);
     }
 
     /** @test */
-    public function user_can_create_new_url()
+    function user_can_create_new_url()
     {
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->domain_id,
             'url' => $url->url,
             'redirect_url' => $url->redirect_url,
         ])->assertRedirect()
             ->assertSessionHas('success');
         $this->assertDatabaseHas($url->getTable(), [
+            'domain_id' => $url->domain_id,
             'url' => $url->url,
             'redirect_url' => $url->redirect_url,
         ]);
     }
 
     /** @test */
-    public function user_can_delete_url()
+    function user_can_delete_url()
     {
         $url = create(Url::class, ['user_id' => $this->user->id]);
         $this->get(route('platform.urls.index'));
@@ -62,7 +65,7 @@ class UrlTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_create_existing_url()
+    function user_cannot_create_existing_url()
     {
         $this->expectException(ValidationException::class);
 
@@ -77,7 +80,7 @@ class UrlTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_delete_other_users_urls()
+    function user_cannot_delete_other_users_urls()
     {
         $this->expectException(AuthorizationException::class);
 

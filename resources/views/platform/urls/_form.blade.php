@@ -2,9 +2,18 @@
     <label for="inputUrl" class="col-sm-2 col-form-label">Short URL</label>
     <div class="col-sm-10 form-row">
         <div class="col-auto">
-            <select class="custom-select" autofocus>
-                <option selected>https://vats.im/</option>
+            <select name="domain_id" class="custom-select{{ $errors->has('domain_id') ? ' is-invalid' : '' }}" autofocus>
+                @foreach($domains as $domain)
+                    <option value="{{ $domain->id }}" {{ old('domain_id') == $domain->id ? 'selected' : '' }}>
+                        {{ $domain->url }}
+                    </option>
+                @endforeach
             </select>
+            @if ($errors->has('domain_id'))
+                <div class="invalid-feedback">
+                    {{ $errors->first('domain_id') }}
+                </div>
+            @endif
         </div>
         <div class="col">
             <input type="text" class="form-control{{ $errors->has('url') ? ' is-invalid' : '' }}"

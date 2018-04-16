@@ -8,7 +8,7 @@ use Tests\TestCase;
 class CarbonTest extends TestCase
 {
     /** @test */
-    public function diff_time_for_humans_outputs_correctly()
+    function diff_time_for_humans_outputs_correctly()
     {
         $carbon = new Carbon();
         $time = $carbon->format('H:i');

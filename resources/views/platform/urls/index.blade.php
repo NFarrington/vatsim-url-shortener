@@ -22,7 +22,7 @@
                     </tr>
                     @foreach($publicUrls as $url)
                         <tr>
-                            <td class="break-all"><a href="{{ url($url->url) }}">{{ $url->url }}</a></td>
+                            <td class="break-all"><a href="{{ url($url->full_url) }}">{{ $url->full_url }}</a></td>
                             <td class="break-all"><a href="{{ $url->redirect_url }}">{{ $url->redirect_url }}</a></td>
                         </tr>
                     @endforeach

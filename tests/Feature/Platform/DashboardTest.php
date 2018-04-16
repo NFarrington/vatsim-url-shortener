@@ -11,7 +11,7 @@ class DashboardTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function dashboard_page_loads_successfully()
+    function dashboard_page_loads_successfully()
     {
         $this->signIn();
 
@@ -20,7 +20,7 @@ class DashboardTest extends TestCase
     }
 
     /** @test */
-    public function dashboard_displays_news_posts()
+    function dashboard_displays_news_posts()
     {
         $this->signIn();
         $news = create(News::class);

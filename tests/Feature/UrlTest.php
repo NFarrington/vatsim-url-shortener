@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Domain;
 use App\Models\Url;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -12,19 +13,29 @@ class UrlTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function short_url_redirects_to_its_intended_target()
+    function short_url_redirects_to_its_intended_target()
     {
-        /* @var \App\Models\Url $url */
-        $url = create(Url::class);
+        $domain = create(Domain::class, ['url' => config('app.url')]);
+        $url = create(Url::class, ['domain_id' => $domain->id]);
 
         $this->get(route('short-url', $url->url))
             ->assertRedirect($url->redirect_url);
     }
 
     /** @test */
-    public function short_url_returns_404_when_it_doesnt_exist()
+    function short_url_returns_404_when_it_doesnt_exist()
     {
         $this->expectException(NotFoundHttpException::class);
-        $this->get(route('short-url', str_random()));
+
+        $this->get(route('short-url', str_random()))->assertNotFound();
+    }
+
+    /** @test */
+    function short_url_returns_404_when_its_domain_doesnt_match()
+    {
+        $this->expectException(NotFoundHttpException::class);
+
+        $url = create(Url::class);
+        $this->get(route('short-url', $url->url))->assertNotFound();
     }
 }

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model as BaseModel;
  *
  * @method static int count(string $columns = '*')
  * @method static $this inRandomOrder(string $seed = '')
+ * @method static $this where($column, $operator = null, $value = null, $boolean = 'and')
  * @mixin \Eloquent
  */
 abstract class Model extends BaseModel

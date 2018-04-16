@@ -14,7 +14,7 @@ class RegistrationTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function registration_page_loads_successfully()
+    function registration_page_loads_successfully()
     {
         $this->signIn(create(User::class, ['email' => null]));
 
@@ -23,7 +23,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function registration_page_is_inaccessible_to_verified_users()
+    function registration_page_is_inaccessible_to_verified_users()
     {
         $this->signIn();
 
@@ -32,7 +32,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function user_can_provisionally_register_an_email_address()
+    function user_can_provisionally_register_an_email_address()
     {
         $this->signIn(create(User::class, ['email' => null]));
 
@@ -45,7 +45,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_register_an_existing_email()
+    function user_cannot_register_an_existing_email()
     {
         $this->expectException(ValidationException::class);
 
@@ -60,7 +60,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function user_can_verify_an_email_address()
+    function user_can_verify_an_email_address()
     {
         $user = create(User::class, ['email_verified' => 0]);
         $this->signIn($user);
@@ -78,7 +78,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function user_is_forced_to_configure_an_email_address()
+    function user_is_forced_to_configure_an_email_address()
     {
         $this->signIn(create(User::class, ['email' => null]));
 
@@ -88,7 +88,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function user_is_forced_to_verify_an_email_address()
+    function user_is_forced_to_verify_an_email_address()
     {
         $this->signIn(create(User::class, ['email_verified' => 0]));
 
@@ -98,7 +98,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_verify_email_address_without_a_valid_token()
+    function user_cannot_verify_email_address_without_a_valid_token()
     {
         $user = create(User::class, ['email_verified' => 0]);
         $this->signIn($user);
@@ -116,7 +116,7 @@ class RegistrationTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_attempt_verification_when_already_verified()
+    function user_cannot_attempt_verification_when_already_verified()
     {
         $user = create(User::class, ['email_verified' => 1]);
         $this->signIn($user);

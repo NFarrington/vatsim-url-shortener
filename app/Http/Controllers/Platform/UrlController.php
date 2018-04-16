@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Platform;
 
 use App\Http\Controllers\Controller;
+use App\Models\Domain;
 use App\Models\Url;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -22,14 +23,21 @@ class UrlController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
     {
         $urls = Url::where('user_id', $request->user()->id)
-            ->orderBy('url')
-            ->paginate(20);
-        $publicUrls = Url::public()->orderBy('url')->get();
+            ->join('domains', 'urls.domain_id', 'domains.id')
+            ->orderBy('domains.url')
+            ->orderBy('urls.url')
+            ->paginate(20, ['urls.*']);
+        $publicUrls = Url::public()
+            ->join('domains', 'urls.domain_id', 'domains.id')
+            ->orderBy('domains.url')
+            ->orderBy('urls.url')
+            ->get(['urls.*']);
 
         return view('platform.urls.index')->with([
             'urls' => $urls,
@@ -45,6 +53,7 @@ class UrlController extends Controller
     public function create()
     {
         return view('platform.urls.create')->with([
+            'domains' => Domain::orderBy('id')->get(),
             'url' => new Url(),
         ]);
     }
@@ -58,6 +67,7 @@ class UrlController extends Controller
     public function store(Request $request)
     {
         $attributes = $this->validate($request, [
+            'domain_id' => 'required|integer|exists:domains,id',
             'url' => [
                 'required',
                 'string',

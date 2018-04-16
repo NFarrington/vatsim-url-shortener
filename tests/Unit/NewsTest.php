@@ -3,7 +3,6 @@
 namespace Tests\Unit;
 
 use App\Models\News;
-use App\Models\Url;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

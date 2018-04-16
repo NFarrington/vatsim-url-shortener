@@ -6,16 +6,14 @@
                 <th>URL</th>
                 <th>Redirect</th>
                 <th>Created</th>
-                <th>Updated</th>
                 <th></th>
             </tr>
             @foreach($urls as $url)
                 <tr>
                     <td>{{ $url->id }}</td>
-                    <td class="break-all"><a href="{{ url($url->url) }}">{{ $url->url }}</a></td>
+                    <td class="break-all"><a href="{{ url($url->full_url) }}">{{ $url->full_url }}</a></td>
                     <td class="break-all"><a href="{{ $url->redirect_url }}">{{ $url->redirect_url }}</a></td>
                     <td>{{ hyphen_nobreak($url->created_at) }}</td>
-                    <td>{{ hyphen_nobreak($url->updated_at) }}</td>
                     <td>
                         <delete-resource link-only route="{{ route('platform.urls.destroy', $url) }}"></delete-resource>
                     </td>

@@ -12,7 +12,7 @@ class UrlTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function url_has_user()
+    function url_has_user()
     {
         $user = create(User::class);
         $url = create(Url::class, ['user_id' => $user->id]);
@@ -46,5 +46,12 @@ class UrlTest extends TestCase
         create(Url::class, ['user_id' => null]);
 
         $this->assertEquals(1, Url::public()->count());
+    }
+
+    /** @test */
+    function url_has_full_url()
+    {
+        $url = create(Url::class);
+        $this->assertEquals("{$url->domain->url}{$url->url}", $url->full_url);
     }
 }

@@ -15,7 +15,7 @@ class SettingsTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function settings_edit_page_loads_successfully()
+    function settings_edit_page_loads_successfully()
     {
         $this->signIn();
 
@@ -24,7 +24,7 @@ class SettingsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_change_their_email()
+    function user_can_change_their_email()
     {
         $this->signIn();
 
@@ -38,7 +38,7 @@ class SettingsTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_use_an_existing_email()
+    function user_cannot_use_an_existing_email()
     {
         $this->expectException(ValidationException::class);
 
@@ -53,7 +53,7 @@ class SettingsTest extends TestCase
     }
 
     /** @test */
-    public function two_factor_auth_configuration_page_loads_successfully()
+    function two_factor_auth_configuration_page_loads_successfully()
     {
         $this->signIn();
 
@@ -62,7 +62,7 @@ class SettingsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_configure_two_factor_auth()
+    function user_can_configure_two_factor_auth()
     {
         $mock = $this->createMock(Google2FA::class);
         $mock->method('verifyKey')->willReturn(true);
@@ -77,7 +77,7 @@ class SettingsTest extends TestCase
     }
 
     /** @test */
-    public function user_can_remove_two_factor_auth()
+    function user_can_remove_two_factor_auth()
     {
         $this->signIn($user = create(User::class, ['totp_secret' => str_random(16)]));
         Session::put('auth.two-factor', new Carbon());
@@ -91,7 +91,7 @@ class SettingsTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_configure_two_factor_auth_with_an_invalid_code()
+    function user_cannot_configure_two_factor_auth_with_an_invalid_code()
     {
         $this->expectException(ValidationException::class);
 
@@ -107,7 +107,7 @@ class SettingsTest extends TestCase
     }
 
     /** @test */
-    public function user_cannot_configure_two_factor_auth_if_already_configured()
+    function user_cannot_configure_two_factor_auth_if_already_configured()
     {
         $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
         Session::put('auth.two-factor', new Carbon());
