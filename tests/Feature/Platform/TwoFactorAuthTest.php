@@ -19,7 +19,7 @@ class TwoFactorAuthTest extends TestCase
     {
         $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
 
-        $this->get(route('login.two-factor'))
+        $this->get(route('platform.login.two-factor'))
             ->assertStatus(200);
     }
 
@@ -29,7 +29,7 @@ class TwoFactorAuthTest extends TestCase
         $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
 
         $this->get(route('platform.dashboard'))
-            ->assertRedirect(route('login.two-factor'));
+            ->assertRedirect(route('platform.login.two-factor'));
     }
 
     /** @test */
@@ -51,8 +51,8 @@ class TwoFactorAuthTest extends TestCase
 
         $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
 
-        $this->get(route('login.two-factor'));
-        $this->post(route('login.two-factor'), ['code' => mt_rand(0, 999999)])
+        $this->get(route('platform.login.two-factor'));
+        $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
             ->assertRedirect(route('platform.dashboard'))
             ->assertSessionHas('success');
     }
@@ -68,9 +68,9 @@ class TwoFactorAuthTest extends TestCase
 
         $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
 
-        $this->get(route('login.two-factor'));
-        $this->post(route('login.two-factor'), ['code' => mt_rand(0, 999999)])
-            ->assertRedirect(route('login.two-factor'))
+        $this->get(route('platform.login.two-factor'));
+        $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
+            ->assertRedirect(route('platform.login.two-factor'))
             ->assertSessionHasErrors('code');
     }
 
@@ -80,9 +80,9 @@ class TwoFactorAuthTest extends TestCase
         $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
         Session::put('auth.two-factor', new Carbon());
 
-        $this->get(route('login.two-factor'))
+        $this->get(route('platform.login.two-factor'))
             ->assertRedirect()->assertSessionHas('error');
-        $this->post(route('login.two-factor'), ['code' => mt_rand(0, 999999)])
+        $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
             ->assertRedirect()->assertSessionHas('error');
     }
 }

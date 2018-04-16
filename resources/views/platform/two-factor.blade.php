@@ -6,7 +6,7 @@
             <span class="lead">Two Factor Authentication</span>
         </div>
         <div class="card-body">
-            <form method="POST" action="{{ route('login.two-factor') }}">
+            <form method="POST" action="{{ route('platform.login.two-factor') }}">
                 {{ csrf_field() }}
 
                 <div class="form-group">

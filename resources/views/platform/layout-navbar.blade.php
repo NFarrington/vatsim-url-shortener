@@ -28,7 +28,7 @@
                     </li>
                 @endcan
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('logout') }}"
+                    <a class="nav-link" href="{{ route('platform.logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                         Logout
                     </a>
@@ -38,12 +38,12 @@
                     <a class="nav-link{{ Request::routeIs('site.home') ? ' active' : '' }}"
                        href="{{ route('site.home') }}">Return to Main Site</a>
                 </li>
-                <li class="nav-item{{ Request::routeIs('login') ? ' active' : '' }}">
-                    <a class="nav-link" href="{{ route('login') }}">Login</a>
+                <li class="nav-item{{ Request::routeIs('platform.login') ? ' active' : '' }}">
+                    <a class="nav-link" href="{{ route('platform.login') }}">Login</a>
                 </li>
             @endauth
         </ul>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        <form id="logout-form" action="{{ route('platform.logout') }}" method="POST" style="display: none;">
             {{ csrf_field() }}
         </form>
 

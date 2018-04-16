@@ -4,7 +4,7 @@
     <div class="card">
         <div class="card-header"><span class="lead">Email Address</span></div>
         <div class="card-body col-sm-8 offset-sm-2">
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ route('platform.register') }}">
                 {{ csrf_field() }}
 
                 @if(!$user->email)

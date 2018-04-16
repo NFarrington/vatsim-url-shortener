@@ -12,7 +12,7 @@ class CheckEmailVerified
      * @var array
      */
     protected $except = [
-        'register',
+        'platform/register',
     ];
 
     /**
@@ -28,12 +28,12 @@ class CheckEmailVerified
             $user = $request->user();
 
             if ($user->email && !$user->email_verified) {
-                return redirect()->route('register')
+                return redirect()->route('platform.register')
                     ->with('error', 'You must validate your email address before continuing.');
             }
 
             if (!$user->email) {
-                return redirect()->route('register');
+                return redirect()->route('platform.register');
             }
         }
 

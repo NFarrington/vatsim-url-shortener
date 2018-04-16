@@ -51,7 +51,7 @@ class VatsimLoginController extends Controller
      */
     public function login(Request $request)
     {
-        $token = VatsimSso::requestToken(route('login.vatsim.callback'));
+        $token = VatsimSso::requestToken(route('platform.login.vatsim.callback'));
 
         $request->session()->put('auth.vatsim', [
             'key' => (string) $token->token->oauth_token,
@@ -126,7 +126,7 @@ class VatsimLoginController extends Controller
      */
     protected function sendFailedVatsimLoginResponse(SSOException $e)
     {
-        return redirect()->route('login')
+        return redirect()->route('platform.login')
             ->with('error', 'SSO login failed: "'.$e->getMessage().'"');
     }
 
@@ -142,7 +142,7 @@ class VatsimLoginController extends Controller
             $this->throttleKey($request)
         );
 
-        return redirect()->route('login')
+        return redirect()->route('platform.login')
             ->with('error', trans('auth.throttle', ['seconds' => $seconds]));
     }
 

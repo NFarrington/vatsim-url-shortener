@@ -12,7 +12,7 @@ class TwoFactorAuth
      * @var array
      */
     protected $except = [
-        'login/two-factor',
+        'platform/login/two-factor',
     ];
 
     /**
@@ -32,7 +32,7 @@ class TwoFactorAuth
             return $next($request);
         }
 
-        return redirect()->guest(route('login.two-factor'));
+        return redirect()->guest(route('platform.login.two-factor'));
     }
 
     /**

@@ -21,7 +21,7 @@ class VatsimLoginTest extends TestCase
         $mock->method('requestToken')->willReturn($token);
         $this->app->instance('vatsimoauth', $mock);
 
-        $this->post(route('login.vatsim'))
+        $this->post(route('platform.login.vatsim'))
             ->assertRedirect();
     }
 
@@ -33,7 +33,7 @@ class VatsimLoginTest extends TestCase
         $mock->method('checkLogin')->willReturn($ssoRequest);
         $this->app->instance('vatsimoauth', $mock);
 
-        $this->get(route('login.vatsim.callback'))
+        $this->get(route('platform.login.vatsim.callback'))
             ->assertRedirect();
         $this->assertTrue(Auth::check());
     }
@@ -45,7 +45,7 @@ class VatsimLoginTest extends TestCase
         $mock->method('checkLogin')->willThrowException(new SSOException('checkLogin failed'));
         $this->app->instance('vatsimoauth', $mock);
 
-        $this->get(route('login.vatsim.callback'))
+        $this->get(route('platform.login.vatsim.callback'))
             ->assertRedirect()
             ->assertSessionHas('error');
     }
@@ -62,7 +62,7 @@ class VatsimLoginTest extends TestCase
         $mock->method('tooManyAttempts')->willReturn(true);
         $this->app->instance(RateLimiter::class, $mock);
 
-        $this->get(route('login.vatsim.callback'))
+        $this->get(route('platform.login.vatsim.callback'))
             ->assertRedirect()
             ->assertSessionHas('error');
         $this->assertFalse(Auth::check());

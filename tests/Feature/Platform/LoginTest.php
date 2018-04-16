@@ -13,7 +13,7 @@ class LoginTest extends TestCase
     /** @test */
     function login_page_loads_successfully()
     {
-        $this->get(route('login'))
+        $this->get(route('platform.login'))
             ->assertStatus(200);
     }
 
@@ -21,7 +21,7 @@ class LoginTest extends TestCase
     function authenticated_user_is_redirected_from_login_page()
     {
         $this->signIn();
-        $this->get(route('login'))
+        $this->get(route('platform.login'))
             ->assertRedirect();
     }
 
@@ -31,7 +31,7 @@ class LoginTest extends TestCase
         $this->signIn();
         Session::put('test', true);
 
-        $this->post(route('logout'))
+        $this->post(route('platform.logout'))
             ->assertRedirect()
             ->assertSessionMissing('test');
     }

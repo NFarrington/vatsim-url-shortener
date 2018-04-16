@@ -53,7 +53,7 @@ class VerifyEmailNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject("$appName - Verify Email Address")
             ->line('Please click the button below to verify your email address:')
-            ->action('Verify Email Address', route('register.verify', $this->token));
+            ->action('Verify Email Address', route('platform.register.verify', $this->token));
     }
 
     /**

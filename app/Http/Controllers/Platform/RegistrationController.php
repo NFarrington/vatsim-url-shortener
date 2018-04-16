@@ -57,7 +57,7 @@ class RegistrationController extends Controller
         $user->update($attributes);
         event(new EmailChangedEvent($user));
 
-        return redirect()->route('register')
+        return redirect()->route('platform.register')
             ->with('success', 'Please check your inbox for a verification email.');
     }
 }

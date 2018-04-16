@@ -41,7 +41,7 @@ class EmailVerificationController extends Controller
         $user = $request->user();
 
         if (!$user->emailVerification || !Hash::check($token, $user->emailVerification->token)) {
-            return redirect()->route('register')
+            return redirect()->route('platform.register')
                 ->with('error', 'Invalid verification token.');
         }
 
