@@ -3,8 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+
+    <meta name="author" content="Neil Farrington">
+    <meta name="description" content="VATS.IM is a URL shortening service for the VATSIM network.">
+    <meta property="og:title" content="VATS.IM URL Shortener">
+    <meta property="og:description" content="A URL shortener for VATSIM">
+    <meta property="og:image" content="/img/cover.jpg">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -14,7 +18,7 @@
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="theme-color" content="#ffffff">
 
-    <title>{{ config('app.name', 'Laravel') }} - {{ breadcrumbs() }}</title>
+    <title>{{ config('app.name') }} - {{ breadcrumbs() }}</title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
