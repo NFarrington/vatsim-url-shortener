@@ -59,41 +59,40 @@
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover",
-            "@ide-helper-basic"
+            "@php artisan package:discover"
         ],
         "ide-helper-basic": [
-            "php artisan ide-helper:generate",
-            "php artisan ide-helper:meta"
+            "@php artisan ide-helper:generate",
+            "@php artisan ide-helper:meta"
         ],
         "ide-helper": [
             "@ide-helper-basic",
-            "php artisan ide-helper:models --reset --write"
+            "@php artisan ide-helper:models --reset --write"
         ],
         "deploy-prod": [
             "npm install",
-            "php artisan down --retry=120",
+            "@php artisan down --retry=120",
             "@install-prod",
-            "php artisan config:cache",
-            "php artisan route:cache",
-            "php artisan cache:clear",
-            "php artisan migrate --step --force --no-interaction",
+            "@php artisan config:cache",
+            "@php artisan route:cache",
+            "@php artisan cache:clear",
+            "@php artisan migrate --step --force --no-interaction",
             "npm run production",
             "@log-rotate",
-            "php artisan up"
+            "@php artisan up"
         ],
         "install-prod": "composer install --no-dev --optimize-autoloader --classmap-authoritative",
         "deploy-dev": [
             "npm install",
-            "php artisan down",
-            "composer install",
-            "php artisan config:clear",
-            "php artisan route:clear",
-            "php artisan cache:clear",
-            "php artisan migrate --step --force --no-interaction",
+            "@php artisan down",
+            "@composer install",
+            "@php artisan config:clear",
+            "@php artisan route:clear",
+            "@php artisan cache:clear",
+            "@php artisan migrate --step --force --no-interaction",
             "npm run development",
             "@log-rotate",
-            "php artisan up"
+            "@php artisan up"
         ],
         "log-rotate": "if [ -f storage/logs/laravel.log ]; then mv storage/logs/laravel.log storage/logs/laravel.log.`date +%s`; fi"
     },
