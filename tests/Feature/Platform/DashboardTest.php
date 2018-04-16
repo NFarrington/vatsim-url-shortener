@@ -28,4 +28,12 @@ class DashboardTest extends TestCase
         $this->get(route('platform.dashboard'))
             ->assertSeeText($news->content);
     }
+
+    /** @test */
+    function platform_page_redirects_to_dashboard_page()
+    {
+        $this->signIn();
+        $this->get(route('platform'))
+            ->assertRedirect(route('platform.dashboard'));
+    }
 }

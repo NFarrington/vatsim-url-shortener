@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Platform;
 
 use App\Models\News;
+use Illuminate\Support\Facades\Session;
 
 class DashboardController extends Controller
 {
@@ -14,6 +15,18 @@ class DashboardController extends Controller
     public function __construct()
     {
         $this->middleware('platform');
+    }
+
+    /**
+     * Redirect to the dashboard.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function platform()
+    {
+        Session::reflash();
+
+        return redirect()->route('platform.dashboard');
     }
 
     /**

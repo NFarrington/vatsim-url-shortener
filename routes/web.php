@@ -27,7 +27,8 @@ Route::get('platform/register/verify/{token}', 'Platform\EmailVerificationContro
 
 Route::post('platform/logout', 'Platform\LoginController@logout')->name('platform.logout');
 
-Route::get('platform', 'Platform\DashboardController@dashboard')->name('platform.dashboard');
+Route::get('platform', 'Platform\DashboardController@platform')->name('platform');
+Route::get('platform/dashboard', 'Platform\DashboardController@dashboard')->name('platform.dashboard');
 Route::resource('platform/urls', 'Platform\UrlController', ['as' => 'platform'])->only(['index', 'create', 'store', 'destroy']);
 
 Route::get('platform/settings', 'Platform\SettingsController@edit')->name('platform.settings');
