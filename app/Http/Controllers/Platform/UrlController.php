@@ -84,6 +84,12 @@ class UrlController extends Controller
             'url.regex' => 'The url may only include alphanumeric characters, dashes and underscores.',
         ]);
 
+        $this->validate($request, [
+            'url' => 'regex:/^[0-9a-zA-Z][0-9a-zA-Z_-]*[0-9a-zA-Z]$/',
+        ], [
+            'url.regex' => 'The url may not start or end with special characters.',
+        ]);
+
         $url = new Url($attributes);
         $url->user_id = $request->user()->id;
         $url->save();
