@@ -67,6 +67,7 @@
     <footer class="mastfoot mt-auto">
         <div class="inner">
             <p>&copy; {{ date('Y') }} Neil Farrington</p>
+            <p><a href="{{ route('platform.terms') }}">Terms of Use</a> &ndash; <a href="{{ route('platform.privacy') }}">Privacy &amp; Cookies</a></p>
         </div>
     </footer>
 </div>

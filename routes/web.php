@@ -15,6 +15,9 @@ Route::get('/', 'Site\SiteController@index')->name('site.home');
 Route::get('about', 'Site\SiteController@about')->name('site.about');
 Route::get('contact', 'Site\SiteController@contact')->name('site.contact');
 
+Route::get('terms-of-use', 'Platform\InfoController@terms')->name('platform.terms');
+Route::get('privacy-policy', 'Platform\InfoController@privacy')->name('platform.privacy');
+
 Route::get('platform/login', 'Platform\LoginController@showLoginForm')->name('platform.login');
 Route::post('platform/login/vatsim', 'Platform\VatsimLoginController@login')->name('platform.login.vatsim');
 Route::get('platform/login/vatsim/callback', 'Platform\VatsimLoginController@callback')->name('platform.login.vatsim.callback');
@@ -41,6 +44,6 @@ Route::get('platform/admin', 'Platform\Admin\AdminController@admin')->name('plat
 Route::resource('platform/admin/domains', 'Platform\Admin\DomainController', ['as' => 'platform.admin']);
 Route::resource('platform/admin/news', 'Platform\Admin\NewsController', ['as' => 'platform.admin']);
 
-Route::get('platform/support', 'Platform\SupportController@support')->name('platform.support')->domain();
+Route::get('platform/support', 'Platform\InfoController@support')->name('platform.support')->domain();
 
 Route::get('{short_url}', 'UrlController@redirect')->name('short-url');

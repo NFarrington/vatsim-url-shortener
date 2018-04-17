@@ -128,8 +128,11 @@ body {
 /*
  * Footer
  */
-.mastfoot {
-  color: rgba(255, 255, 255, .5);
+.mastfoot,
+.mastfoot a,
+.mastfoot a:focus,
+.mastfoot a:hover {
+  color: rgba(255, 255, 255, .7);
 }
 
 .mastfoot .inner {

@@ -53,6 +53,7 @@
     <footer>
         <div class="text-center text-muted">
             <p>&copy; {{ date('Y') }} Neil Farrington{{-- &mdash; Version <num> &ndash <hash>;   --}}</p>
+            <p><a href="{{ route('platform.terms') }}">Terms of Use</a> &ndash; <a href="{{ route('platform.privacy') }}">Privacy &amp; Cookies</a></p>
         </div>
     </footer>
 

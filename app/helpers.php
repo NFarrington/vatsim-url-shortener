@@ -38,7 +38,7 @@ function breadcrumbs()
 {
     $path = Request::decodedPath();
 
-    return title_case(str_replace('/', ' / ', $path));
+    return title_case(str_replace(['/', '-'], [' / ', ' '], $path));
 }
 
 /**
@@ -55,7 +55,7 @@ function breadcrumbs_array()
     foreach (explode('/', $path) as $segment) {
         $uri .= '/'.$segment;
         $segments[] = [
-            'name' => title_case($segment),
+            'name' => title_case(str_replace('-', ' ', $segment)),
             'path' => $uri,
         ];
     }
