@@ -75,8 +75,9 @@ class UrlController extends Controller
                 'max:250',
                 'regex:/^[0-9a-zA-Z_-]+$/',
                 'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy',
-                Rule::unique('urls')->where(function ($query) {
-                    return $query->whereNull('deleted_at');
+                Rule::unique('urls')->where(function ($query) use ($request) {
+                    return $query->where('domain_id', $request->input('domain_id'))
+                        ->whereNull('deleted_at');
                 }),
             ],
             'redirect_url' => 'required|url|max:1000',
