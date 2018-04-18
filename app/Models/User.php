@@ -47,6 +47,20 @@ class User extends Model implements
     use Authenticatable, Authorizable, Notifiable;
 
     /**
+     * The attributes that are trackable.
+     *
+     * @var array
+     */
+    protected $tracked = [
+        'first_name',
+        'last_name',
+        'email',
+        'email_verified',
+        'vatsim_sso_data',
+        'vatsim_status_data',
+    ];
+
+    /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
