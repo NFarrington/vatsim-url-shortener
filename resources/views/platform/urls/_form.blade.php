@@ -18,7 +18,7 @@
         <div class="col">
             <input type="text" class="form-control{{ $errors->has('url') ? ' is-invalid' : '' }}"
                    id="inputUrl" name="url" value="{{ old('url') ?: $url->url }}"
-                   placeholder="my-short-url" maxlength="250" required>
+                   placeholder="my-short-url" maxlength="30" required>
             @if ($errors->has('url'))
                 <div class="invalid-feedback">
                     {{ $errors->first('url') }}

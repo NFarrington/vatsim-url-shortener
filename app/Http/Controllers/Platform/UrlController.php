@@ -72,7 +72,7 @@ class UrlController extends Controller
                 'required',
                 'string',
                 'min:3',
-                'max:250',
+                'max:30',
                 'regex:/^[0-9a-zA-Z_-]+$/',
                 'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy',
                 Rule::unique('urls')->where(function ($query) use ($request) {
