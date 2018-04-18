@@ -46,4 +46,6 @@ Route::resource('platform/admin/news', 'Platform\Admin\NewsController', ['as' =>
 
 Route::get('platform/support', 'Platform\InfoController@support')->name('platform.support')->domain();
 
+Route::post('system/mailgun', 'System\MailgunController@event')->name('system.mailgun');
+
 Route::get('{short_url}', 'UrlController@redirect')->name('short-url');
