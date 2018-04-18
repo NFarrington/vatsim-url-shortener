@@ -47,3 +47,9 @@
         </small>
     </div>
 </div>
+
+<div class="form-group row">
+    <div class="offset-sm-2 col-sm-10">
+        <p><i class="material-icons md-18 text-danger">warning</i> All URLs and click analytics are public and can be accessed by anyone.</p>
+    </div>
+</div>
