@@ -25,9 +25,9 @@ class UrlController extends Controller
      * @param $shortUrl
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function redirect(Request $request, $shortUrl)
+    public function redirect(Request $request, $shortUrl = null)
     {
-        $url = Url::where('url', $shortUrl)
+        $url = Url::where('url', $shortUrl ?: '/')
             ->whereHas('domain', function ($query) use ($request) {
                 $query->where('url', $request->root().'/');
             })->first();
