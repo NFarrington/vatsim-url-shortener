@@ -69,8 +69,13 @@
             "@ide-helper-basic",
             "@php artisan ide-helper:models --reset --write"
         ],
+        "update-version": [
+            "sed -i \"s/^APP_COMMIT=.*$/APP_COMMIT=$(git rev-parse --short HEAD)/\" .env",
+            "sed -i \"s/^APP_VERSION=.*$/APP_VERSION=$(git describe --abbrev=0 --tags)/\" .env"
+        ],
         "deploy-prod": [
             "npm install",
+            "@update-version",
             "@php artisan down --retry=120",
             "@install-prod",
             "@php artisan config:cache",
@@ -84,6 +89,7 @@
         "install-prod": "composer install --no-dev --optimize-autoloader --classmap-authoritative",
         "deploy-dev": [
             "npm install",
+            "@update-version",
             "@php artisan down",
             "@composer install",
             "@php artisan config:clear",

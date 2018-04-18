@@ -15,6 +15,11 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'version' => [
+        'name' => trim(env('APP_VERSION', 'Unknown'), 'v'),
+        'commit' => env('APP_COMMIT', '-'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
