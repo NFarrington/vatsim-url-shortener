@@ -35,7 +35,7 @@ class MailgunController extends Controller
     public function event(Request $request)
     {
         if (!$this->verifyMailgun($request)) {
-            return Response::make('Unauthorised.', 406);
+            return Response::make('Not Acceptable.', 406);
         }
 
         $entry = [
@@ -61,7 +61,7 @@ class MailgunController extends Controller
     protected function verifyMailgun(Request $request)
     {
         $data = $request->input('timestamp').$request->input('token');
-        $signature = hash_hmac('sha256', $data, env('MAILGUN_SECRET'));
+        $signature = hash_hmac('sha256', $data, config('services.mailgun.secret'));
 
         return $signature === $request->input('signature');
     }
