@@ -87,6 +87,13 @@
             "@log-rotate",
             "@php artisan up"
         ],
+        "deploy-prod-basic": [
+            "@update-version",
+            "@php artisan config:cache",
+            "@php artisan route:cache",
+            "@php artisan cache:clear",
+            "@log-rotate"
+        ],
         "install-prod": "composer install --no-dev --optimize-autoloader --classmap-authoritative",
         "deploy-dev": [
             "npm install",
