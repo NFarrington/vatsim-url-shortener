@@ -48,7 +48,7 @@
     .alert-flash {
         position: fixed;
         right: 25px;
-        bottom: 25px;
+        top: 25px;
         margin: 0;
     }
     /* Enter and leave animations can use different */
