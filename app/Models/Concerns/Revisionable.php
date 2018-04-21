@@ -59,7 +59,7 @@ trait Revisionable
                 $dataChange->user_id = Auth::check() ? Auth::user()->id : null;
                 $dataChange->key = $key;
                 $dataChange->old_value = $value;
-                $dataChange->new_value = $this->$key;
+                $dataChange->new_value = is_array($this->$key) ? json_encode($this->$key) : $this->$key;
                 $this->dataChanges()->save($dataChange);
             }
         }

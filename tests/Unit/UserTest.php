@@ -10,6 +10,7 @@ use App\Models\Url;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -99,5 +100,21 @@ class UserTest extends TestCase
             'first_name' => $template->first_name,
             'last_name' => $template->last_name,
         ], $user->attributesToArray());
+    }
+
+    /** @test */
+    function array_changes_are_tracked()
+    {
+        $data = new stdClass;
+        $data->key = 'value';
+
+        $user = create(User::class);
+        $user->fresh()->update(['vatsim_sso_data' => $data]);
+        $this->assertDatabaseHas('revisions', [
+            'model_id' => $user->id,
+            'key' => 'vatsim_sso_data',
+            'old_value' => null,
+            'new_value' => '{"key":"value"}',
+        ]);
     }
 }
