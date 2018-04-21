@@ -6,15 +6,15 @@ use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 
 /**
- * App\Models\BasicUser
+ * App\Models\SystemUser
  *
  * @property int $id
  * @property string $username
  * @property string $password
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Sys\Data\Change[] $dataChanges
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BasicUser whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BasicUser wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\BasicUser whereUsername($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\SystemUser whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\SystemUser wherePassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\SystemUser whereUsername($value)
  * @mixin \Eloquent
  */
 class SystemUser extends Model implements AuthenticatableContract

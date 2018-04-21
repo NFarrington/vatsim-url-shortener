@@ -58,6 +58,19 @@
   }
 }
 
-.break-all {
+table .break-all {
+  min-width: 8rem;
   word-break: break-all;
+}
+
+td > ul.list-unstyled, td > ol.list-unstyled {
+  margin-bottom: 0;
+}
+
+.text-limit {
+  display: block;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

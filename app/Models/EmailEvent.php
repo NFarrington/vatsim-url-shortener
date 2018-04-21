@@ -2,6 +2,26 @@
 
 namespace App\Models;
 
+/**
+ * App\Models\EmailEvent
+ *
+ * @property int $id
+ * @property string $broker
+ * @property string|null $message_id
+ * @property string $name
+ * @property string $recipient
+ * @property array $data
+ * @property \Carbon\Carbon $triggered_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereBroker($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereData($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereMessageId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereRecipient($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereTriggeredAt($value)
+ * @mixin \Eloquent
+ */
 class EmailEvent extends Model
 {
     /**

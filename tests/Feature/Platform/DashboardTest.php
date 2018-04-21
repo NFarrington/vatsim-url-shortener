@@ -17,6 +17,9 @@ class DashboardTest extends TestCase
 
         $this->get(route('platform.dashboard'))
             ->assertStatus(200);
+        create(News::class);
+        $this->get(route('platform.dashboard'))
+            ->assertStatus(200);
     }
 
     /** @test */

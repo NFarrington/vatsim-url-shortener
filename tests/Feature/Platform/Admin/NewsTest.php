@@ -17,6 +17,9 @@ class NewsTest extends TestCase
 
         $this->get(route('platform.admin.news.index'))
             ->assertStatus(200);
+        create(News::class);
+        $this->get(route('platform.admin.news.index'))
+            ->assertStatus(200);
     }
 
     /** @test */

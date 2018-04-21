@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * App\Models\Url
  *
  * @property int $id
+ * @property int|null $organization_id
  * @property int|null $user_id
  * @property int $domain_id
  * @property string $url
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
  * @property-read \App\Models\Domain $domain
  * @property-read string $full_url
+ * @property-read \App\Models\Organization|null $organization
  * @property-read \App\Models\User|null $user
  * @method static bool|null forceDelete()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Url onlyTrashed()
@@ -27,6 +29,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereDomainId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereOrganizationId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereRedirectUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereUrl($value)
@@ -61,6 +64,16 @@ class Url extends Model
     public function domain()
     {
         return $this->belongsTo(Domain::class);
+    }
+
+    /**
+     * The URL's organization.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
     }
 
     /**

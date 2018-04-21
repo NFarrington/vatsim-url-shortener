@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Organization;
 use App\Models\Url;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -17,6 +18,14 @@ class UrlTest extends TestCase
         $user = create(User::class);
         $url = create(Url::class, ['user_id' => $user->id]);
         $this->assertEquals($user->id, $url->user->id);
+    }
+
+    /** @test */
+    function url_has_organization()
+    {
+        $organization = create(Organization::class);
+        $url = create(Url::class, ['organization_id' => $organization->id]);
+        $this->assertEquals($organization->id, $url->organization->id);
     }
 
     /** @test */

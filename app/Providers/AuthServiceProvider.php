@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Organization;
 use App\Models\Url;
 use App\Models\User;
+use App\Policies\OrganizationPolicy;
 use App\Policies\UrlPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
+        Organization::class => OrganizationPolicy::class,
         Url::class => UrlPolicy::class,
     ];
 

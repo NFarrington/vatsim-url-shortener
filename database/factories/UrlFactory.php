@@ -12,7 +12,17 @@ $factory->define(\App\Models\Url::class, function (Faker $faker) {
         'user_id' => function () {
             return create(\App\Models\User::class)->id;
         },
+        'organization_id' => null,
         'url' => implode('', $faker->unique()->words),
         'redirect_url' => $faker->imageUrl(),
+    ];
+});
+
+$factory->state(\App\Models\Url::class, 'org', function ($faker) {
+    return [
+        'organization_id' => function () {
+            return create(\App\Models\Organization::class)->id;
+        },
+        'user_id' => null,
     ];
 });

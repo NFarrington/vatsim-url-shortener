@@ -18,6 +18,9 @@ class DomainTest extends TestCase
 
         $this->get(route('platform.admin.domains.index'))
             ->assertStatus(200);
+        create(Domain::class);
+        $this->get(route('platform.admin.domains.index'))
+            ->assertStatus(200);
     }
 
     /** @test */

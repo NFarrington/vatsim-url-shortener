@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Platform;
 
 use App\Http\Controllers\Controller;
 use App\Models\Domain;
+use App\Models\Organization;
 use App\Models\Url;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
 
 class UrlController extends Controller
@@ -29,7 +31,11 @@ class UrlController extends Controller
     public function index(Request $request)
     {
         $urls = Url::where('user_id', $request->user()->id)
-            ->join('domains', 'urls.domain_id', 'domains.id')
+            ->where(function ($query) use ($request) {
+                $query->whereIn('organization_id', $request->user()->organizations()->pluck('organizations.id'))
+                    ->orWhereNull('organization_id');
+            })->join('domains', 'urls.domain_id', 'domains.id')
+            ->orderBy('organization_id')
             ->orderBy('domains.url')
             ->orderBy('urls.url')
             ->paginate(20, ['urls.*']);
@@ -40,6 +46,7 @@ class UrlController extends Controller
             ->get(['urls.*']);
 
         return view('platform.urls.index')->with([
+            'user' => $request->user(),
             'urls' => $urls,
             'publicUrls' => $publicUrls,
         ]);
@@ -48,12 +55,14 @@ class UrlController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
         return view('platform.urls.create')->with([
             'domains' => Domain::orderBy('id')->get(),
+            'organizations' => $request->user()->organizations,
             'url' => new Url(),
         ]);
     }
@@ -63,6 +72,7 @@ class UrlController extends Controller
      *
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function store(Request $request)
     {
@@ -81,6 +91,7 @@ class UrlController extends Controller
                 }),
             ],
             'redirect_url' => 'required|url|max:1000',
+            'organization_id' => 'nullable|integer|exists:organizations,id',
         ], [
             'url.regex' => 'The url may only include alphanumeric characters, dashes and underscores.',
         ]);
@@ -91,8 +102,14 @@ class UrlController extends Controller
             'url.regex' => 'The url may not start or end with special characters.',
         ]);
 
+        if ($attributes['organization_id']) {
+            $this->authorize('view', Organization::find($attributes['organization_id']));
+        }
+
         $url = new Url($attributes);
-        $url->user_id = $request->user()->id;
+        if ($attributes['organization_id'] === null) {
+            $url->user_id = $request->user()->id;
+        }
         $url->save();
 
         return redirect()->route('platform.urls.index')
@@ -100,11 +117,71 @@ class UrlController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param \App\Models\Url $url
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Url $url)
+    {
+        Session::reflash();
+
+        return redirect()->route('platform.urls.edit', $url);
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Url $url
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Request $request, Url $url)
+    {
+        return view('platform.urls.edit')->with([
+            'domains' => Domain::orderBy('id')->get(),
+            'organizations' => $request->user()->organizations,
+            'url' => $url,
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param \App\Models\Url $url
+     * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     */
+    public function update(Request $request, Url $url)
+    {
+        $this->authorize('update', $url);
+
+        $attributes = $this->validate($request, [
+            'redirect_url' => 'required|url|max:1000',
+            'organization_id' => 'nullable|integer|exists:organizations,id',
+        ]);
+
+        if ($attributes['organization_id']) {
+            $this->authorize('view', Organization::find($attributes['organization_id']));
+        }
+
+        $url->fill($attributes);
+        $url->user_id = $attributes['organization_id'] === null
+            ? $request->user()->id
+            : null;
+        $url->save();
+
+        return redirect()->route('platform.urls.index')
+            ->with('success', 'URL updated.');
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  \App\Models\Url $url
      * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception|\Illuminate\Auth\Access\AuthorizationException
      */
     public function destroy(Url $url)
     {

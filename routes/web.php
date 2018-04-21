@@ -33,7 +33,11 @@ Route::domain(config('app.url'))->group(function () {
 
     Route::get('platform', 'Platform\DashboardController@platform')->name('platform');
     Route::get('platform/dashboard', 'Platform\DashboardController@dashboard')->name('platform.dashboard');
-    Route::resource('platform/urls', 'Platform\UrlController', ['as' => 'platform'])->only(['index', 'create', 'store', 'destroy']);
+
+    Route::resource('platform/urls', 'Platform\UrlController', ['as' => 'platform']);
+
+    Route::resource('platform/organizations', 'Platform\OrganizationController', ['as' => 'platform']);
+    Route::resource('platform/organizations.users', 'Platform\OrganizationUsersController', ['as' => 'platform'])->only(['store', 'destroy']);
 
     Route::get('platform/settings', 'Platform\SettingsController@edit')->name('platform.settings');
     Route::put('platform/settings', 'Platform\SettingsController@update');

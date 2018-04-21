@@ -2,7 +2,8 @@
     <label for="inputUrl" class="col-sm-2 col-form-label">Short URL</label>
     <div class="col-sm-10 form-row">
         <div class="col-auto">
-            <select name="domain_id" class="custom-select{{ $errors->has('domain_id') ? ' is-invalid' : '' }}" autofocus>
+            <select name="domain_id" class="custom-select{{ $errors->has('domain_id') ? ' is-invalid' : '' }}" autofocus
+                    {{ $url->exists ? 'disabled' : '' }}>
                 @foreach($domains as $domain)
                     <option value="{{ $domain->id }}" {{ old('domain_id') == $domain->id ? 'selected' : '' }}>
                         {{ $domain->url }}
@@ -18,7 +19,7 @@
         <div class="col">
             <input type="text" class="form-control{{ $errors->has('url') ? ' is-invalid' : '' }}"
                    id="inputUrl" name="url" value="{{ old('url') ?: $url->url }}"
-                   placeholder="my-short-url" maxlength="30" required>
+                   placeholder="my-short-url" maxlength="30" required {{ $url->exists ? 'disabled' : '' }}>
             @if ($errors->has('url'))
                 <div class="invalid-feedback">
                     {{ $errors->first('url') }}
@@ -49,7 +50,29 @@
 </div>
 
 <div class="form-group row">
+    <label for="inputOrganizationId" class="col-sm-2 col-form-label">Organization</label>
+    <div class="col-sm-10">
+        <select id="inputOrganizationId" name="organization_id"
+                class="custom-select {{ $errors->has('organization_id') ? 'is-invalid' : '' }}">
+            <option value="">None</option>
+            @foreach($organizations as $organization)
+                <option value="{{ $organization->id }}"
+                        {{ (old('organization_id') ?: $url->organization_id) === $organization->id ? 'selected' : '' }}>
+                    {{ $organization->name }}
+                </option>
+            @endforeach
+        </select>
+        @if ($errors->has('organization_id'))
+            <div class="invalid-feedback">
+                {{ $errors->first('organization_id') }}
+            </div>
+        @endif
+    </div>
+</div>
+
+<div class="form-group row">
     <div class="offset-sm-2 col-sm-10">
-        <p><i class="material-icons md-18 text-danger">warning</i> All URLs and click analytics are public and can be accessed by anyone.</p>
+        <p><i class="material-icons md-18 text-danger">warning</i> All URLs and click analytics are public and can be
+            accessed by anyone.</p>
     </div>
 </div>

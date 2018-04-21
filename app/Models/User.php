@@ -24,8 +24,10 @@ use Illuminate\Notifications\Notifiable;
  * @property \Carbon\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
  * @property-read \App\Models\EmailVerification $emailVerification
+ * @property-read string $display_info
  * @property-read string $full_name
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organization[] $organizations
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereEmail($value)
@@ -100,6 +102,16 @@ class User extends Model implements
     }
 
     /**
+     * The user's organizations.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function organizations()
+    {
+        return $this->belongsToMany(Organization::class)->withTimestamps();
+    }
+
+    /**
      * The user's short URLs.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -127,5 +139,15 @@ class User extends Model implements
     public function getFullNameAttribute()
     {
         return "{$this->first_name} {$this->last_name}";
+    }
+
+    /**
+     * Get the user's display information.
+     *
+     * @return string
+     */
+    public function getDisplayInfoAttribute()
+    {
+        return "{$this->first_name} {$this->last_name} ({$this->id})";
     }
 }
