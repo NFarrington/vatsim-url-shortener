@@ -59,6 +59,6 @@ return [
     /**
      * Set to true to allow inactive users to sign in
      */
-    'allow_inactive' => false,
+    'allow_inactive' => true,
 
 ];
