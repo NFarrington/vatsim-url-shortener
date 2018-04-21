@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Libraries\Vatsim;
 use App\Models\EmailVerification;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
@@ -78,5 +79,25 @@ class UserTest extends TestCase
         $user = create(User::class);
         config(['auth.admins' => []]);
         $this->assertFalse($user->isAdmin());
+    }
+
+    /** @test */
+    function user_can_be_created_from_cert()
+    {
+        $template = make(User::class);
+        $mock = $this->createMock(Vatsim::class);
+        $mock->method('getUser')->willReturn([
+            'id' => $template->id,
+            'name_first' => $template->first_name,
+            'name_last' => $template->last_name,
+        ]);
+        $this->app->instance(Vatsim::class, $mock);
+        $user = User::createFromCert($template->id);
+
+        $this->assertArraySubset([
+            'id' => $template->id,
+            'first_name' => $template->first_name,
+            'last_name' => $template->last_name,
+        ], $user->attributesToArray());
     }
 }

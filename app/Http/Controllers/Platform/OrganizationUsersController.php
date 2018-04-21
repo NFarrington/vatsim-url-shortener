@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Platform;
 
+use App\Exceptions\Cert\InvalidResponseException;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class OrganizationUsersController extends Controller
 {
@@ -38,7 +41,6 @@ class OrganizationUsersController extends Controller
             'id' => [
                 'required',
                 'integer',
-                'exists:users',
                 Rule::notIn($users->toArray()),
             ],
             'role_id' => [
@@ -50,9 +52,22 @@ class OrganizationUsersController extends Controller
                 ]),
             ],
         ], [
-            'id.exists' => 'That user has never logged in.',
             'id.not_in' => 'That user is already in this organization.',
         ]);
+
+        if (!User::find($attributes['id'])) {
+            try {
+                User::createFromCert($attributes['id']);
+            } catch (InvalidResponseException $e) {
+                throw ValidationException::withMessages([
+                    'id' => ['Error retrieving user from VATSIM. Please check the CID and try again.'],
+                ]);
+            } catch (Exception $e) {
+                throw ValidationException::withMessages([
+                    'id' => ['Error retrieving user from VATSIM. Please try again later.'],
+                ]);
+            }
+        }
 
         $organization->users()->attach(
             $attributes['id'],

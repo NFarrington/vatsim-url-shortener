@@ -81,18 +81,16 @@ class UrlTest extends TestCase
     {
         $url = create(Url::class, ['user_id' => $this->user->id]);
         $template = make(Url::class);
-        $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
 
         $this->get(route('platform.urls.edit', $url));
         $this->put(route('platform.urls.update', $url), [
             'redirect_url' => $template->redirect_url,
-            'organization_id' => $organization->id,
+            'organization_id' => null,
         ])->assertRedirect()
             ->assertSessionHas('success');
         $this->assertDatabaseHas($url->getTable(), [
             'redirect_url' => $template->redirect_url,
-            'organization_id' => $organization->id,
+            'organization_id' => null,
         ]);
     }
 

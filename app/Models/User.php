@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Libraries\Vatsim;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -26,7 +27,8 @@ use Illuminate\Notifications\Notifiable;
  * @property-read \App\Models\EmailVerification $emailVerification
  * @property-read string $display_info
  * @property-read string $full_name
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
+ * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[]
+ *     $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organization[] $organizations
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User whereCreatedAt($value)
@@ -152,5 +154,26 @@ class User extends Model implements
     public function getDisplayInfoAttribute()
     {
         return "{$this->first_name} {$this->last_name} ({$this->id})";
+    }
+
+    /**
+     * Create a new user from their Cert data.
+     *
+     * @param int $id
+     * @return mixed
+     * @throws \App\Exceptions\Cert\InvalidResponseException
+     */
+    public static function createFromCert(int $id)
+    {
+        $attributes = app(Vatsim::class)->getUser($id);
+
+        $user = new self();
+        $user->id = $attributes['id'];
+        $user->first_name = $attributes['name_first'];
+        $user->last_name = $attributes['name_last'];
+        $user->vatsim_status_data = $attributes;
+        $user->save();
+
+        return $user;
     }
 }
