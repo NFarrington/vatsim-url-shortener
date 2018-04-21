@@ -23,6 +23,13 @@ namespace App\Models;
 class Organization extends Model
 {
     /**
+     * The attributes that are trackable.
+     *
+     * @var array
+     */
+    protected $tracked = ['name'];
+
+    /**
      * The organization's URLs.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

@@ -47,7 +47,7 @@ class Url extends Model
      *
      * @var array
      */
-    protected $tracked = ['url', 'redirect_url'];
+    protected $tracked = ['user_id', 'organization_id', 'domain_id', 'url', 'redirect_url'];
 
     /**
      * The relations to eager load on every query.
