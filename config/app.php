@@ -155,6 +155,7 @@ return [
         /*
          * Package Service Providers...
          */
+        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         Vatsim\OAuthLaravel\OAuthServiceProvider::class,
 
         /*
