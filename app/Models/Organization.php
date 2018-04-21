@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 /**
  * App\Models\Organization
  *
@@ -22,6 +24,8 @@ namespace App\Models;
  */
 class Organization extends Model
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are trackable.
      *
@@ -49,7 +53,8 @@ class Organization extends Model
         return $this->belongsToMany(User::class)
             ->withTimestamps()
             ->using(OrganizationUser::class)
-            ->wherePivot('role_id', OrganizationUser::ROLE_MANAGER);
+            ->wherePivot('role_id', OrganizationUser::ROLE_MANAGER)
+            ->whereNull('organization_user.deleted_at');
     }
 
     /**
@@ -62,7 +67,8 @@ class Organization extends Model
         return $this->belongsToMany(User::class)
             ->withTimestamps()
             ->using(OrganizationUser::class)
-            ->wherePivot('role_id', OrganizationUser::ROLE_MEMBER);
+            ->wherePivot('role_id', OrganizationUser::ROLE_MEMBER)
+            ->whereNull('organization_user.deleted_at');
     }
 
     /**
@@ -74,6 +80,7 @@ class Organization extends Model
     {
         return $this->belongsToMany(User::class)
             ->withTimestamps()
-            ->using(OrganizationUser::class);
+            ->using(OrganizationUser::class)
+            ->whereNull('organization_user.deleted_at');
     }
 }

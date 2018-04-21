@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Platform;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -80,7 +81,8 @@ class OrganizationUsersController extends Controller
                 ->with('error', 'You cannot remove yourself.');
         }
 
-        $organization->users()->detach($user->id);
+        $organization->users()->where('users.id', $user->id)->first()->pivot
+            ->update(['deleted_at' => Carbon::now()]);
 
         return redirect()->route('platform.organizations.edit', $organization)
             ->with('success', 'User deleted.');

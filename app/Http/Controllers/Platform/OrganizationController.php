@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Platform;
 
 use App\Models\Organization;
 use App\Models\OrganizationUser;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
@@ -136,7 +137,9 @@ class OrganizationController extends Controller
                 ->with('error', 'This organization has URLs associated with it.');
         }
 
-        $organization->users()->sync([]);
+        $organization->users()->get()->each(function ($user) {
+            $user->pivot->update(['deleted_at' => Carbon::now()]);
+        });
         $organization->delete();
 
         return redirect()->route('platform.organizations.index')

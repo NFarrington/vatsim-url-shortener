@@ -108,7 +108,10 @@ class User extends Model implements
      */
     public function organizations()
     {
-        return $this->belongsToMany(Organization::class)->withTimestamps();
+        return $this->belongsToMany(Organization::class)
+            ->withTimestamps()
+            ->using(OrganizationUser::class)
+            ->whereNull('organization_user.deleted_at');
     }
 
     /**

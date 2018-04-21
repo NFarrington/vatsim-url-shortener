@@ -36,6 +36,7 @@ class OrganizationUsersTest extends TestCase
             'organization_id' => $organization->id,
             'user_id' => $user->id,
             'role_id' => OrganizationUser::ROLE_MEMBER,
+            'deleted_at' => null,
         ]);
     }
 
@@ -51,7 +52,7 @@ class OrganizationUsersTest extends TestCase
         $this->delete(route('platform.organizations.users.destroy', [$organization, $user]))
             ->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseMissing($organization->users()->getTable(), [
+        $this->assertSoftDeleted($organization->users()->getTable(), [
             'organization_id' => $organization->id,
             'user_id' => $user->id,
         ]);
@@ -70,6 +71,7 @@ class OrganizationUsersTest extends TestCase
         $this->assertDatabaseHas($organization->users()->getTable(), [
             'organization_id' => $organization->id,
             'user_id' => $this->user->id,
+            'deleted_at' => null,
         ]);
     }
 }

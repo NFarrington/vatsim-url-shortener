@@ -97,7 +97,7 @@ class OrganizationTest extends TestCase
         $this->delete(route('platform.organizations.destroy', $organization))
             ->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseMissing($organization->getTable(), [
+        $this->assertSoftDeleted($organization->getTable(), [
             'id' => $organization->id,
         ]);
     }
@@ -115,6 +115,7 @@ class OrganizationTest extends TestCase
             ->assertSessionHas('error');
         $this->assertDatabaseHas($organization->getTable(), [
             'id' => $organization->id,
+            'deleted_at' => null,
         ]);
     }
 }
