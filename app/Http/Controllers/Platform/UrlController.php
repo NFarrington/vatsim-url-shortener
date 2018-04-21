@@ -31,10 +31,8 @@ class UrlController extends Controller
     public function index(Request $request)
     {
         $urls = Url::where('user_id', $request->user()->id)
-            ->where(function ($query) use ($request) {
-                $query->whereIn('organization_id', $request->user()->organizations()->pluck('organizations.id'))
-                    ->orWhereNull('organization_id');
-            })->join('domains', 'urls.domain_id', 'domains.id')
+            ->orWhereIn('organization_id', $request->user()->organizations()->pluck('organizations.id'))
+            ->join('domains', 'urls.domain_id', 'domains.id')
             ->orderBy('organization_id')
             ->orderBy('domains.url')
             ->orderBy('urls.url')

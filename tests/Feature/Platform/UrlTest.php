@@ -26,9 +26,18 @@ class UrlTest extends TestCase
     {
         $this->get(route('platform.urls.index'))
             ->assertStatus(200);
-        create(Url::class, ['user_id' => $this->user->id]);
+
+        $url = create(Url::class, ['user_id' => $this->user->id]);
         $this->get(route('platform.urls.index'))
-            ->assertStatus(200);
+            ->assertStatus(200)
+            ->assertSee($url->url);
+
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
+        $this->get(route('platform.urls.index'))
+            ->assertStatus(200)
+            ->assertSee($url->url);
     }
 
     /** @test */

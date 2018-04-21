@@ -104,6 +104,6 @@ class Url extends Model
      */
     public function scopePublic($query)
     {
-        return $query->whereNull('user_id');
+        return $query->whereNull('user_id')->whereNull('organization_id');
     }
 }
