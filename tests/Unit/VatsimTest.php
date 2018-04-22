@@ -29,7 +29,7 @@ EOT;
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $this->app->instance(Client::class, $client);
+        $this->app->instance('guzzle', $client);
 
         $user = (new Vatsim)->getUser($template->id);
         $this->assertArraySubset([
@@ -52,7 +52,7 @@ EOT;
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $this->app->instance(Client::class, $client);
+        $this->app->instance('guzzle', $client);
 
         $this->expectException(InvalidResponseException::class);
         (new Vatsim)->getUser($template->id);
@@ -71,7 +71,7 @@ EOT;
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $this->app->instance(Client::class, $client);
+        $this->app->instance('guzzle', $client);
 
         $this->expectException(InvalidResponseException::class);
         (new Vatsim)->getUser($template->id);

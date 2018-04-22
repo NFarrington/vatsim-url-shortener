@@ -3,7 +3,6 @@
 namespace App\Libraries;
 
 use App\Exceptions\Cert\InvalidResponseException;
-use GuzzleHttp\Client as GuzzleClient;
 use SimpleXMLElement;
 
 class Vatsim
@@ -17,7 +16,7 @@ class Vatsim
      */
     public function getUser(int $id)
     {
-        $client = app(GuzzleClient::class);
+        $client = app('guzzle');
         $url = "https://cert.vatsim.net/vatsimnet/idstatusint.php?cid={$id}";
         $res = $client->get($url);
 
