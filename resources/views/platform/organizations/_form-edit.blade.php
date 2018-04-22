@@ -18,13 +18,13 @@
 </div>
 
 <div class="form-group row">
-    <label class="col-sm-2 col-form-label">Managers</label>
-    @forelse($organization->managers as $manager)
+    <label class="col-sm-2 col-form-label">Owners</label>
+    @forelse($organization->owners as $owner)
         <div class="{{ !$loop->first ? 'offset-sm-2' : '' }} col-sm-10">
             <p class="form-control-plaintext">
-                {{ $manager->display_info }}
+                {{ $owner->display_info }}
                 <delete-resource link-only
-                                 route="{{ route('platform.organizations.users.destroy', [$organization, $manager]) }}">
+                                 route="{{ route('platform.organizations.users.destroy', [$organization, $owner]) }}">
                     (Remove)
                 </delete-resource>
             </p>

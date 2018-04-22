@@ -63,7 +63,7 @@ class OrganizationController extends Controller
 
         $organization = Organization::create($attributes);
         $organization->users()->attach(
-            $request->user()->id, ['role_id' => OrganizationUser::ROLE_MANAGER]
+            $request->user()->id, ['role_id' => OrganizationUser::ROLE_OWNER]
         );
 
         return redirect()->route('platform.organizations.index')

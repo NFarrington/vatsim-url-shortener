@@ -40,9 +40,9 @@
                     <div class="col-sm-10">
                         <select id="role_id" name="role_id"
                                 class="custom-select{{ $errors->has('role_id') ? ' is-invalid' : '' }}">
-                            <option value="{{ \App\Models\OrganizationUser::ROLE_MANAGER }}"
-                                    {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_MANAGER ? 'selected' : '' }}>
-                                Manager
+                            <option value="{{ \App\Models\OrganizationUser::ROLE_OWNER }}"
+                                    {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_OWNER ? 'selected' : '' }}>
+                                Owner
                             </option>
                             <option value="{{ \App\Models\OrganizationUser::ROLE_MEMBER }}"
                                     {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_MEMBER ? 'selected' : '' }}>
@@ -55,7 +55,7 @@
                             </div>
                         @endif
                         <small class="form-text text-muted">
-                            Members can manage the organization's URLs. Managers can also manage the organization and
+                            Members can manage the organization's URLs. Owners can also manage the organization and
                             its members.
                         </small>
                     </div>

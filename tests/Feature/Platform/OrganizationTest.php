@@ -26,7 +26,7 @@ class OrganizationTest extends TestCase
         $this->get(route('platform.organizations.index'))
             ->assertStatus(200);
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
         $this->get(route('platform.organizations.index'))
             ->assertStatus(200);
     }
@@ -65,7 +65,7 @@ class OrganizationTest extends TestCase
     function edit_page_loads_successfully()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
         $this->get(route('platform.organizations.edit', $organization))
             ->assertStatus(200);
     }
@@ -74,7 +74,7 @@ class OrganizationTest extends TestCase
     function organization_can_be_edited()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
         $template = make(Organization::class);
 
         $this->get(route('platform.organizations.edit', $organization));
@@ -91,7 +91,7 @@ class OrganizationTest extends TestCase
     function organization_can_be_deleted()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->delete(route('platform.organizations.destroy', $organization))
@@ -106,7 +106,7 @@ class OrganizationTest extends TestCase
     function organization_with_urls_cannot_be_deleted()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
         factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
 
         $this->get(route('platform.organizations.edit', $organization));

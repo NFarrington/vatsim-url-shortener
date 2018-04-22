@@ -41,7 +41,7 @@ class UserTest extends TestCase
         DB::table($organization->users()->getTable())->insert([
             'organization_id' => $organization->id,
             'user_id' => $user->id,
-            'role_id' => OrganizationUser::ROLE_MANAGER,
+            'role_id' => OrganizationUser::ROLE_OWNER,
         ]);
         DB::table($organization->users()->getTable())->insert([
             'organization_id' => $organization->id,

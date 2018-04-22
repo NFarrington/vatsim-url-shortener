@@ -24,17 +24,17 @@ class OrganizationTest extends TestCase
     }
 
     /** @test */
-    function organization_has_managers()
+    function organization_has_owners()
     {
         $organization = create(Organization::class);
         $user = create(User::class);
-        DB::table($organization->managers()->getTable())->insert([
+        DB::table($organization->owners()->getTable())->insert([
             'organization_id' => $organization->id,
             'user_id' => $user->id,
-            'role_id' => OrganizationUser::ROLE_MANAGER,
+            'role_id' => OrganizationUser::ROLE_OWNER,
         ]);
-        $this->assertEquals($user->id, $organization->managers->first()->id);
-        $this->assertEquals(1, $organization->managers->count());
+        $this->assertEquals($user->id, $organization->owners->first()->id);
+        $this->assertEquals(1, $organization->owners->count());
     }
 
     /** @test */
@@ -59,7 +59,7 @@ class OrganizationTest extends TestCase
         DB::table($organization->users()->getTable())->insert([
             'organization_id' => $organization->id,
             'user_id' => $user->id,
-            'role_id' => OrganizationUser::ROLE_MANAGER,
+            'role_id' => OrganizationUser::ROLE_OWNER,
         ]);
         DB::table($organization->users()->getTable())->insert([
             'organization_id' => $organization->id,

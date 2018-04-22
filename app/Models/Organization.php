@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $managers
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $owners
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $members
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
@@ -44,16 +44,16 @@ class Organization extends Model
     }
 
     /**
-     * The organization's managers.
+     * The organization's owners.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function managers()
+    public function owners()
     {
         return $this->belongsToMany(User::class)
             ->withTimestamps()
             ->using(OrganizationUser::class)
-            ->wherePivot('role_id', OrganizationUser::ROLE_MANAGER)
+            ->wherePivot('role_id', OrganizationUser::ROLE_OWNER)
             ->whereNull('organization_user.deleted_at');
     }
 

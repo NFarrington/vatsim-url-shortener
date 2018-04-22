@@ -7,11 +7,11 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class OrganizationUser extends Pivot
 {
     /**
-     * The manager role ID.
+     * The owner role ID.
      *
      * @var int
      */
-    const ROLE_MANAGER = 1;
+    const ROLE_OWNER = 1;
 
     /**
      * The member role ID.

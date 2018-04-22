@@ -31,7 +31,7 @@ class OrganizationUsersTest extends TestCase
     function user_can_be_added_to_organization()
     {
         $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
         $user = create(User::class);
 
         $this->get(route('platform.organizations.edit', $organization));
@@ -52,7 +52,7 @@ class OrganizationUsersTest extends TestCase
     function unregistered_user_can_be_added_to_organization()
     {
         $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
 
         $user = make(User::class);
         $response = <<<EOT
@@ -64,7 +64,7 @@ EOT;
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler' => $handler]);
-        $this->app->instance(Client::class, $client);
+        $this->app->instance('guzzle', $client);
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->post(route('platform.organizations.users.store', $organization), [
@@ -86,7 +86,7 @@ EOT;
         $this->expectException(ValidationException::class);
 
         $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
 
         $user = make(User::class);
         $mock = $this->createMock(Vatsim::class);
@@ -106,7 +106,7 @@ EOT;
         $this->expectException(ValidationException::class);
 
         $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
 
         $user = make(User::class);
         $mock = $this->createMock(Vatsim::class);
@@ -124,7 +124,7 @@ EOT;
     function user_can_be_removed_from_organization()
     {
         $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
         $user = create(User::class);
         $user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_MEMBER]);
 
@@ -142,7 +142,7 @@ EOT;
     function user_cannot_remove_themselves_from_an_organization()
     {
         $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->delete(route('platform.organizations.users.destroy', [$organization, $this->user]))

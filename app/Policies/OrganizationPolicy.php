@@ -31,7 +31,7 @@ class OrganizationPolicy
      */
     public function update(User $user, Organization $organization)
     {
-        return $organization->managers->where('id', $user->id)->isNotEmpty();
+        return $organization->owners->where('id', $user->id)->isNotEmpty();
     }
 
     /**
@@ -43,6 +43,6 @@ class OrganizationPolicy
      */
     public function delete(User $user, Organization $organization)
     {
-        return $organization->managers->where('id', $user->id)->isNotEmpty();
+        return $organization->owners->where('id', $user->id)->isNotEmpty();
     }
 }

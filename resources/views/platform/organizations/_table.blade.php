@@ -4,7 +4,7 @@
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Managers</th>
+                <th>Owners</th>
                 <th>Members</th>
                 <th>Created</th>
                 <th></th>
@@ -16,10 +16,10 @@
                     <td class="break-all">{{ $organization->name }}</td>
                     <td>
                         <ul class="list-unstyled">
-                            @forelse($organization->managers as $manager)
+                            @forelse($organization->owners as $owner)
                                 <li>
-                                    <span title="{{ $manager->full_name }} ({{ $manager->id }})" class="text-limit">
-                                        {{ $manager->full_name }} ({{ $manager->id }})
+                                    <span title="{{ $owner->full_name }} ({{ $owner->id }})" class="text-limit">
+                                        {{ $owner->full_name }} ({{ $owner->id }})
                                     </span>
                                 </li>
                             @empty

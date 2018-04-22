@@ -47,7 +47,7 @@ class OrganizationUsersController extends Controller
                 'required',
                 'integer',
                 Rule::in([
-                    OrganizationUser::ROLE_MANAGER,
+                    OrganizationUser::ROLE_OWNER,
                     OrganizationUser::ROLE_MEMBER,
                 ]),
             ],
