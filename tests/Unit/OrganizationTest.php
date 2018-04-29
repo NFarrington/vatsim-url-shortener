@@ -38,6 +38,20 @@ class OrganizationTest extends TestCase
     }
 
     /** @test */
+    function organization_has_managers()
+    {
+        $organization = create(Organization::class);
+        $user = create(User::class);
+        DB::table($organization->managers()->getTable())->insert([
+            'organization_id' => $organization->id,
+            'user_id' => $user->id,
+            'role_id' => OrganizationUser::ROLE_MANAGER,
+        ]);
+        $this->assertEquals($user->id, $organization->managers->first()->id);
+        $this->assertEquals(1, $organization->managers->count());
+    }
+
+    /** @test */
     function organization_has_members()
     {
         $organization = create(Organization::class);

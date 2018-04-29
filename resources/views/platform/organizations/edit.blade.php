@@ -44,6 +44,10 @@
                                     {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_OWNER ? 'selected' : '' }}>
                                 Owner
                             </option>
+                            <option value="{{ \App\Models\OrganizationUser::ROLE_MANAGER }}"
+                                    {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_MANAGER ? 'selected' : '' }}>
+                                Manager
+                            </option>
                             <option value="{{ \App\Models\OrganizationUser::ROLE_MEMBER }}"
                                     {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_MEMBER ? 'selected' : '' }}>
                                 Member
@@ -55,8 +59,8 @@
                             </div>
                         @endif
                         <small class="form-text text-muted">
-                            Members can manage the organization's URLs. Owners can also manage the organization and
-                            its members.
+                            Members can modify where URLs redirect to. Managers can transfer URL ownership and delete
+                            URLs. Owners manage the organization and its members.
                         </small>
                     </div>
                 </div>

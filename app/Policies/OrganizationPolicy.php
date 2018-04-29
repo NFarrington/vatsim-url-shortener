@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Organization;
+use App\Models\OrganizationUser;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class OrganizationPolicy
@@ -11,38 +12,45 @@ class OrganizationPolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view the organization.
+     * Determine whether the user can act as an owner of the organization.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Organization  $organization
+     * @param  \App\Models\User $user
+     * @param  \App\Models\Organization $organization
      * @return mixed
      */
-    public function view(User $user, Organization $organization)
+    public function actAsOwner(User $user, Organization $organization)
     {
-        return $user->organizations->contains('id', $organization->id);
+        $user = $organization->users->where('id', $user->id)->first();
+
+        return $user && $user->pivot->role_id == OrganizationUser::ROLE_OWNER;
     }
 
     /**
-     * Determine whether the user can update the organization.
+     * Determine whether the user can act as a manager of the organization.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Organization  $organization
+     * @param  \App\Models\User $user
+     * @param  \App\Models\Organization $organization
      * @return mixed
      */
-    public function update(User $user, Organization $organization)
+    public function actAsManager(User $user, Organization $organization)
     {
-        return $organization->owners->where('id', $user->id)->isNotEmpty();
+        $user = $organization->users->where('id', $user->id)->first();
+
+        return $user && array_search(
+                $user->pivot->role_id,
+                [OrganizationUser::ROLE_OWNER, OrganizationUser::ROLE_MANAGER]
+            ) !== false;
     }
 
     /**
-     * Determine whether the user can delete the organization.
+     * Determine whether the user can act as a member of the organization.
      *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\Organization  $organization
+     * @param  \App\Models\User $user
+     * @param  \App\Models\Organization $organization
      * @return mixed
      */
-    public function delete(User $user, Organization $organization)
+    public function actAsMember(User $user, Organization $organization)
     {
-        return $organization->owners->where('id', $user->id)->isNotEmpty();
+        return $organization->users->where('id', $user->id)->isNotEmpty();
     }
 }

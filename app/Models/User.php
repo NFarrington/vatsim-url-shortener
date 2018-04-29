@@ -111,6 +111,7 @@ class User extends Model implements
     public function organizations()
     {
         return $this->belongsToMany(Organization::class)
+            ->withPivot('role_id')
             ->withTimestamps()
             ->using(OrganizationUser::class)
             ->whereNull('organization_user.deleted_at');

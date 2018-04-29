@@ -34,7 +34,7 @@ class OrganizationUsersController extends Controller
      */
     public function store(Request $request, Organization $organization)
     {
-        $this->authorize('update', $organization);
+        $this->authorize('act-as-owner', $organization);
 
         $users = $organization->users->pluck('pivot.user_id');
         $attributes = $this->validate($request, [
@@ -48,6 +48,7 @@ class OrganizationUsersController extends Controller
                 'integer',
                 Rule::in([
                     OrganizationUser::ROLE_OWNER,
+                    OrganizationUser::ROLE_MANAGER,
                     OrganizationUser::ROLE_MEMBER,
                 ]),
             ],
@@ -89,7 +90,7 @@ class OrganizationUsersController extends Controller
      */
     public function destroy(Request $request, Organization $organization, User $user)
     {
-        $this->authorize('update', $organization);
+        $this->authorize('act-as-owner', $organization);
 
         if ($request->user()->id == $user->id) {
             return redirect()->route('platform.organizations.edit', $organization)

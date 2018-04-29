@@ -92,7 +92,7 @@ class OrganizationController extends Controller
      */
     public function edit(Organization $organization)
     {
-        $this->authorize('update', $organization);
+        $this->authorize('act-as-owner', $organization);
 
         return view('platform.organizations.edit')->with([
             'organization' => $organization,
@@ -109,7 +109,7 @@ class OrganizationController extends Controller
      */
     public function update(Request $request, Organization $organization)
     {
-        $this->authorize('update', $organization);
+        $this->authorize('act-as-owner', $organization);
 
         $attributes = $this->validate($request, [
             'name' => 'required|string|min:3|max:50',
@@ -130,7 +130,7 @@ class OrganizationController extends Controller
      */
     public function destroy(Organization $organization)
     {
-        $this->authorize('delete', $organization);
+        $this->authorize('act-as-owner', $organization);
 
         if ($organization->urls->isNotEmpty()) {
             return redirect()->route('platform.organizations.index')

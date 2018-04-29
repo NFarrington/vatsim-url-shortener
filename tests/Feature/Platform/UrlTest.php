@@ -68,6 +68,29 @@ class UrlTest extends TestCase
     }
 
     /** @test */
+    function user_can_create_new_url_in_an_organization()
+    {
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $url = make(Url::class);
+
+        $this->get(route('platform.urls.create'));
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->domain_id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas($url->getTable(), [
+            'domain_id' => $url->domain_id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ]);
+    }
+
+    /** @test */
     function show_page_redirects_to_edit_page()
     {
         $url = create(Url::class, ['user_id' => $this->user->id]);
@@ -110,6 +133,45 @@ class UrlTest extends TestCase
         $organization = create(Organization::class);
         $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
         $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
+
+        $this->get(route('platform.urls.edit', $url));
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => $template->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas($url->getTable(), [
+            'redirect_url' => $template->redirect_url,
+            'organization_id' => $organization->id,
+        ]);
+    }
+
+    /** @test */
+    function user_can_move_url_into_an_organization()
+    {
+        $url = create(Url::class, ['user_id' => $this->user->id]);
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+
+        $this->get(route('platform.urls.edit', $url));
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas($url->getTable(), [
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ]);
+    }
+
+    /** @test */
+    function user_can_move_url_to_a_different_organization()
+    {
+        $template = make(Url::class);
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
         $organization = create(Organization::class);
         $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
 
@@ -124,7 +186,6 @@ class UrlTest extends TestCase
             'organization_id' => $organization->id,
         ]);
     }
-
 
     /** @test */
     function user_can_delete_url_owned_by_user()
@@ -141,7 +202,7 @@ class UrlTest extends TestCase
     function user_can_delete_url_owned_by_organization()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
         $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
 
         $this->get(route('platform.urls.index'));

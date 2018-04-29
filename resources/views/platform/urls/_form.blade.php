@@ -52,16 +52,24 @@
 <div class="form-group row">
     <label for="inputOrganizationId" class="col-sm-2 col-form-label">Organization</label>
     <div class="col-sm-10">
-        <select id="inputOrganizationId" name="organization_id"
-                class="custom-select {{ $errors->has('organization_id') ? 'is-invalid' : '' }}">
-            <option value="">None</option>
-            @foreach($organizations as $organization)
-                <option value="{{ $organization->id }}"
-                        {{ (old('organization_id') ?: $url->organization_id) === $organization->id ? 'selected' : '' }}>
-                    {{ $organization->name }}
-                </option>
-            @endforeach
-        </select>
+        @if($url->exists && !Auth::user()->can('move', $url))
+            <select id="inputOrganizationId" disabled
+                    class="custom-select {{ $errors->has('organization_id') ? 'is-invalid' : '' }}">
+                <option value="">{{ $url->organization->name ?? 'None' }}</option>
+            </select>
+            <input type="hidden" name="organization_id" value="{{ $url->organization_id }}">
+        @else
+            <select id="inputOrganizationId" name="organization_id"
+                    class="custom-select {{ $errors->has('organization_id') ? 'is-invalid' : '' }}">
+                <option value="">None</option>
+                @foreach($organizations as $organization)
+                    <option value="{{ $organization->id }}"
+                            {{ (old('organization_id') ?: $url->organization_id) === $organization->id ? 'selected' : '' }}>
+                        {{ $organization->name }}
+                    </option>
+                @endforeach
+            </select>
+        @endif
         @if ($errors->has('organization_id'))
             <div class="invalid-feedback">
                 {{ $errors->first('organization_id') }}

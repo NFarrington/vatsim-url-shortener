@@ -51,9 +51,25 @@ class Organization extends Model
     public function owners()
     {
         return $this->belongsToMany(User::class)
+            ->withPivot('role_id')
             ->withTimestamps()
             ->using(OrganizationUser::class)
             ->wherePivot('role_id', OrganizationUser::ROLE_OWNER)
+            ->whereNull('organization_user.deleted_at');
+    }
+
+    /**
+     * The organization's managers.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function managers()
+    {
+        return $this->belongsToMany(User::class)
+            ->withPivot('role_id')
+            ->withTimestamps()
+            ->using(OrganizationUser::class)
+            ->wherePivot('role_id', OrganizationUser::ROLE_MANAGER)
             ->whereNull('organization_user.deleted_at');
     }
 
@@ -65,6 +81,7 @@ class Organization extends Model
     public function members()
     {
         return $this->belongsToMany(User::class)
+            ->withPivot('role_id')
             ->withTimestamps()
             ->using(OrganizationUser::class)
             ->wherePivot('role_id', OrganizationUser::ROLE_MEMBER)
@@ -79,6 +96,7 @@ class Organization extends Model
     public function users()
     {
         return $this->belongsToMany(User::class)
+            ->withPivot('role_id')
             ->withTimestamps()
             ->using(OrganizationUser::class)
             ->whereNull('organization_user.deleted_at');

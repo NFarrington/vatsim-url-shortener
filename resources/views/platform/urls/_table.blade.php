@@ -21,9 +21,20 @@
                         <td>{{ $url->organization->name ?? new \Illuminate\Support\HtmlString('&mdash;') }}</td>
                     @endif
                     <td>{{ hyphen_nobreak($url->created_at) }}</td>
-                    <td><a href="{{ route('platform.urls.edit', $url) }}">Edit</a></td>
                     <td>
-                        <delete-resource link-only route="{{ route('platform.urls.destroy', $url) }}"></delete-resource>
+                        @can('update', $url)
+                            <a href="{{ route('platform.urls.edit', $url) }}">Edit</a>
+                        @else
+                            <s class="text-muted">Delete</s>
+                        @endcan
+                    </td>
+                    <td>
+                        @can('delete', $url)
+                            <delete-resource link-only
+                                             route="{{ route('platform.urls.destroy', $url) }}"></delete-resource>
+                        @else
+                            <s class="text-muted">Delete</s>
+                        @endcan
                     </td>
                 </tr>
             @endforeach

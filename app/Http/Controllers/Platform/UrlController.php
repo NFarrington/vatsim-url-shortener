@@ -101,7 +101,7 @@ class UrlController extends Controller
         ]);
 
         if ($attributes['organization_id']) {
-            $this->authorize('view', Organization::find($attributes['organization_id']));
+            $this->authorize('act-as-member', Organization::find($attributes['organization_id']));
         }
 
         $url = new Url($attributes);
@@ -133,9 +133,12 @@ class UrlController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Url $url
      * @return \Illuminate\Http\Response
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      */
     public function edit(Request $request, Url $url)
     {
+        $this->authorize('update', $url);
+
         return view('platform.urls.edit')->with([
             'domains' => Domain::orderBy('id')->get(),
             'organizations' => $request->user()->organizations,
@@ -160,8 +163,12 @@ class UrlController extends Controller
             'organization_id' => 'nullable|integer|exists:organizations,id',
         ]);
 
-        if ($attributes['organization_id']) {
-            $this->authorize('view', Organization::find($attributes['organization_id']));
+        if ($attributes['organization_id'] != $url->organization_id) {
+            $this->authorize('move', $url);
+
+            if ($attributes['organization_id'] != null) {
+                $this->authorize('act-as-member', Organization::find($attributes['organization_id']));
+            }
         }
 
         $url->fill($attributes);

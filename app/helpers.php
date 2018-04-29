@@ -37,6 +37,9 @@ function array_filter_key(array $array, $callback)
 function breadcrumbs()
 {
     $path = Request::decodedPath();
+    if ($path === '/') {
+        return 'Home';
+    }
 
     return title_case(str_replace(['/', '-'], [' / ', ' '], $path));
 }
