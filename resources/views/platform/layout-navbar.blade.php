@@ -52,7 +52,7 @@
 
         <ul class="navbar-nav ml-auto">
             <li class="nav-item{{ Request::routeIs('platform.support') ? ' active' : '' }}">
-                <a class="nav-link" href="{{ route('platform.support') }}">Support</a>
+                <a class="nav-link" href="{{ route('platform.support') }}">Help &amp; Support</a>
             </li>
         </ul>
 
