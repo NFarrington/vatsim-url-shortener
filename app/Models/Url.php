@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $organization_id
  * @property int|null $user_id
  * @property int $domain_id
+ * @property bool $prefix
  * @property string $url
  * @property string $redirect_url
  * @property \Carbon\Carbon|null $created_at
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereDomainId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereOrganizationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url wherePrefix($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereRedirectUrl($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereUrl($value)
@@ -41,6 +43,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Url extends Model
 {
     use SoftDeletes;
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'prefix' => 'boolean',
+    ];
 
     /**
      * The attributes that are trackable.
@@ -93,7 +104,9 @@ class Url extends Model
      */
     public function getFullUrlAttribute()
     {
-        return $this->domain->url.$this->url;
+        return $this->domain->url
+            .($this->prefix ? $this->organization->prefix.'/' : '')
+            .$this->url;
     }
 
     /**

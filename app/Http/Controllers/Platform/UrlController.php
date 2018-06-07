@@ -9,6 +9,7 @@ use App\Models\Url;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class UrlController extends Controller
 {
@@ -58,9 +59,16 @@ class UrlController extends Controller
      */
     public function create(Request $request)
     {
+        /* @var Organization[]|\Illuminate\Database\Eloquent\Collection $organizations */
+        $organizations = $request->user()->organizations;
+        $prefixes = $organizations->filter(function ($organization) {
+            return (boolean) $organization->prefix;
+        })->pluck('prefix');
+
         return view('platform.urls.create')->with([
             'domains' => Domain::orderBy('id')->get(),
-            'organizations' => $request->user()->organizations,
+            'organizations' => $organizations,
+            'prefixes' => $prefixes,
             'url' => new Url(),
         ]);
     }
@@ -76,6 +84,7 @@ class UrlController extends Controller
     {
         $attributes = $this->validate($request, [
             'domain_id' => 'required|integer|exists:domains,id',
+            'prefix' => 'nullable|string',
             'url' => [
                 'required',
                 'string',
@@ -84,6 +93,13 @@ class UrlController extends Controller
                 'regex:/^[0-9a-zA-Z_-]+$/',
                 'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy',
                 Rule::unique('urls')->where(function ($query) use ($request) {
+                    if ($request->input('prefix')) {
+                        $query = $query->where('organization_id', $request->input('organization_id'))
+                            ->where('prefix', true);
+                    } else {
+                        $query = $query->where('prefix', false);
+                    }
+
                     return $query->where('domain_id', $request->input('domain_id'))
                         ->whereNull('deleted_at');
                 }),
@@ -102,6 +118,29 @@ class UrlController extends Controller
 
         if ($attributes['organization_id']) {
             $this->authorize('act-as-member', Organization::find($attributes['organization_id']));
+        }
+
+        if (!empty($attributes['prefix'])) {
+            $organization = $request->user()->organizations
+                ->filter(function ($organization) use ($attributes) {
+                    return $organization->prefix === $attributes['prefix'];
+                })->first();
+
+            if (!$organization) {
+                throw ValidationException::withMessages([
+                    'prefix' => ['Prefix not found.'],
+                ]);
+            } else if ($organization->id != $attributes['organization_id']) {
+                throw ValidationException::withMessages([
+                    'organization_id' => [
+                        "The '{$attributes['prefix']}' prefix can only be used with the {$organization->name} organization.",
+                    ],
+                ]);
+            }
+
+            $attributes['prefix'] = true;
+        } else {
+            $attributes['prefix'] = false;
         }
 
         $url = new Url($attributes);

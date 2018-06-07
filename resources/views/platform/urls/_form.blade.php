@@ -1,35 +1,59 @@
 <div class="form-group row">
     <label for="inputUrl" class="col-sm-2 col-form-label">Short URL</label>
-    <div class="col-sm-10 form-row">
-        <div class="col-auto">
-            <select name="domain_id" class="custom-select{{ $errors->has('domain_id') ? ' is-invalid' : '' }}" autofocus
-                    {{ $url->exists ? 'disabled' : '' }}>
-                @foreach($domains as $domain)
-                    <option value="{{ $domain->id }}" {{ old('domain_id') == $domain->id ? 'selected' : '' }}>
-                        {{ $domain->url }}
-                    </option>
-                @endforeach
-            </select>
-            @if ($errors->has('domain_id'))
-                <div class="invalid-feedback">
-                    {{ $errors->first('domain_id') }}
+    @if ($url->exists)
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="inputUrl" disabled
+                   value="{{ $url->domain->url }}{{ $url->prefix ? $url->organization->prefix.'/' : '' }}{{ $url->url }}">
+        </div>
+    @else
+        <div class="col-sm-10 form-row">
+            <div class="col-auto">
+                <select name="domain_id" class="custom-select{{ $errors->has('domain_id') ? ' is-invalid' : '' }}"
+                        autofocus>
+                    @foreach($domains as $domain)
+                        <option value="{{ $domain->id }}" {{ old('domain_id') == $domain->id ? 'selected' : '' }}>
+                            {{ $domain->url }}
+                        </option>
+                    @endforeach
+                </select>
+                @if ($errors->has('domain_id'))
+                    <div class="invalid-feedback">
+                        {{ $errors->first('domain_id') }}
+                    </div>
+                @endif
+            </div>
+            @if ($prefixes->isNotEmpty())
+                <div class="col-auto">
+                    <select name="prefix" class="custom-select{{ $errors->has('prefix') ? ' is-invalid' : '' }}">
+                        <option value="" {{ old('prefix') == '' ? 'selected' : '' }}></option>
+                        @foreach ($prefixes as $prefix)
+                            <option value="{{ $prefix }}" {{ old('prefix') == $prefix ? 'selected' : '' }}>
+                                /{{ $prefix }}/
+                            </option>
+                        @endforeach
+                    </select>
+                    @if ($errors->has('prefix'))
+                        <div class="invalid-feedback">
+                            {{ $errors->first('prefix') }}
+                        </div>
+                    @endif
                 </div>
             @endif
+            <div class="col">
+                <input type="text" class="form-control{{ $errors->has('url') ? ' is-invalid' : '' }}"
+                       id="inputUrl" name="url" value="{{ old('url') ?: $url->url }}"
+                       placeholder="my-short-url" maxlength="30" required {{ $url->exists ? 'disabled' : '' }}>
+                @if ($errors->has('url'))
+                    <div class="invalid-feedback">
+                        {{ $errors->first('url') }}
+                    </div>
+                @endif
+                <small class="form-text text-muted">
+                    The short form of the URL. Leave blank to have one automatically generated.
+                </small>
+            </div>
         </div>
-        <div class="col">
-            <input type="text" class="form-control{{ $errors->has('url') ? ' is-invalid' : '' }}"
-                   id="inputUrl" name="url" value="{{ old('url') ?: $url->url }}"
-                   placeholder="my-short-url" maxlength="30" required {{ $url->exists ? 'disabled' : '' }}>
-            @if ($errors->has('url'))
-                <div class="invalid-feedback">
-                    {{ $errors->first('url') }}
-                </div>
-            @endif
-            <small class="form-text text-muted">
-                The short form of the URL. Leave blank to have one automatically generated.
-            </small>
-        </div>
-    </div>
+    @endif
 </div>
 
 <div class="form-group row">
