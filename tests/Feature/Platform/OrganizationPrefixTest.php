@@ -7,7 +7,9 @@ use App\Models\OrganizationPrefixApplication;
 use App\Models\OrganizationUser;
 use App\Models\Url;
 use App\Models\User;
+use App\Notifications\NewPrefixApplicationNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class OrganizationPrefixTest extends TestCase
@@ -34,6 +36,11 @@ class OrganizationPrefixTest extends TestCase
     /** @test */
     function application_can_be_created()
     {
+        $this->expectsNotification(
+            Notification::route('mail', 'support@vats.im'),
+            NewPrefixApplicationNotification::class
+        );
+
         $organization = create(Organization::class);
         $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
 

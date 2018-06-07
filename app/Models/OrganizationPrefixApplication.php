@@ -34,4 +34,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class OrganizationPrefixApplication extends Model
 {
     use SoftDeletes;
+
+    /**
+     * The application's organization.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
+    }
 }

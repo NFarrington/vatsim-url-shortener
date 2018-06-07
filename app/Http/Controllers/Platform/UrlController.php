@@ -62,7 +62,7 @@ class UrlController extends Controller
         /* @var Organization[]|\Illuminate\Database\Eloquent\Collection $organizations */
         $organizations = $request->user()->organizations;
         $prefixes = $organizations->filter(function ($organization) {
-            return (boolean) $organization->prefix;
+            return (bool) $organization->prefix;
         })->pluck('prefix');
 
         return view('platform.urls.create')->with([
@@ -130,7 +130,7 @@ class UrlController extends Controller
                 throw ValidationException::withMessages([
                     'prefix' => ['Prefix not found.'],
                 ]);
-            } else if ($organization->id != $attributes['organization_id']) {
+            } elseif ($organization->id != $attributes['organization_id']) {
                 throw ValidationException::withMessages([
                     'organization_id' => [
                         "The '{$attributes['prefix']}' prefix can only be used with the {$organization->name} organization.",

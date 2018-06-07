@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Platform;
 
+use App\Events\PrefixApplicationCreatedEvent;
 use App\Models\Organization;
 use App\Models\OrganizationPrefixApplication;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class OrganizationPrefixController extends Controller
 {
@@ -73,6 +72,8 @@ class OrganizationPrefixController extends Controller
         $application->organization_id = $organization->id;
         $application->user_id = $request->user()->id;
         $application->save();
+
+        event(new PrefixApplicationCreatedEvent($application));
 
         return redirect()->route('platform.organizations.show', $organization)
             ->with('success', 'Prefix application submitted.');
