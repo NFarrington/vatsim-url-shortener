@@ -264,6 +264,30 @@ class UrlTest extends TestCase
     }
 
     /** @test */
+    function user_cannot_move_url_with_prefix()
+    {
+        $this->expectException(AuthorizationException::class);
+
+        $template = make(Url::class);
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id, 'prefix' => true]);
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+
+        $this->get(route('platform.urls.edit', $url));
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => $template->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertRedirect()
+            ->assertForbidden();
+        $this->assertDatabaseHas($url->getTable(), [
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $url->organization_id,
+        ]);
+    }
+
+    /** @test */
     function user_can_delete_url_owned_by_user()
     {
         $url = create(Url::class, ['user_id' => $this->user->id]);
