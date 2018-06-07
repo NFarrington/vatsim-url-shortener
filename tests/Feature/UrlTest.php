@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Domain;
+use App\Models\Organization;
 use App\Models\Url;
 use App\Models\UrlAnalytics;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,13 +15,38 @@ class UrlTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    function short_url_redirects_to_its_intended_target()
+    function short_url_without_prefix_redirects_to_its_intended_target()
     {
         $domain = create(Domain::class, ['url' => config('app.url')]);
         $url = create(Url::class, ['domain_id' => $domain->id]);
 
         $this->get(route('short-url', $url->url))
             ->assertRedirect($url->redirect_url);
+    }
+
+    /** @test */
+    function short_url_with_prefix_redirects_to_its_intended_target()
+    {
+        $domain = create(Domain::class, ['url' => config('app.url')]);
+        $url = factory(Url::class)->states('org')
+            ->create(['domain_id' => $domain->id, 'prefix' => true]);
+        $url->organization->update(['prefix' => str_random(3)]);
+
+        $this->get($url->full_url)
+            ->assertRedirect($url->redirect_url);
+    }
+
+    /** @test */
+    function short_url_with_unknown_prefix_returns_404()
+    {
+        $this->expectException(NotFoundHttpException::class);
+
+        $domain = create(Domain::class, ['url' => config('app.url')]);
+        $url = factory(Url::class)->states('org')
+            ->create(['domain_id' => $domain->id, 'prefix' => false]);
+
+        $this->get($url->full_url.'/'.str_random())
+            ->assertNotFound();
     }
 
     /** @test */

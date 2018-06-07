@@ -55,4 +55,4 @@ Route::domain(config('app.url'))->group(function () {
     Route::post('system/mailgun', 'System\MailgunController@event')->name('system.mailgun');
 });
 
-Route::get('{short_url?}', 'UrlController@redirect')->name('short-url');
+Route::get('{prefix?}/{short_url?}', 'UrlController@redirect')->name('short-url');
