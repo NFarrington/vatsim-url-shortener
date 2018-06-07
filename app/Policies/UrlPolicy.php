@@ -35,6 +35,10 @@ class UrlPolicy
      */
     public function move(User $user, Url $url)
     {
+        if ($url->prefix) {
+            return false;
+        }
+
         if ($url->organization) {
             return $user->can('act-as-manager', $url->organization);
         }

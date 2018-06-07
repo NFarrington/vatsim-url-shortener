@@ -37,6 +37,7 @@ Route::domain(config('app.url'))->group(function () {
     Route::resource('platform/urls', 'Platform\UrlController', ['as' => 'platform']);
 
     Route::resource('platform/organizations', 'Platform\OrganizationController', ['as' => 'platform']);
+    Route::resource('platform/organizations.prefix', 'Platform\OrganizationPrefixController', ['as' => 'platform'])->only(['create', 'store']);
     Route::resource('platform/organizations.users', 'Platform\OrganizationUsersController', ['as' => 'platform'])->only(['store', 'destroy']);
 
     Route::get('platform/settings', 'Platform\SettingsController@edit')->name('platform.settings');
@@ -54,4 +55,4 @@ Route::domain(config('app.url'))->group(function () {
     Route::post('system/mailgun', 'System\MailgunController@event')->name('system.mailgun');
 });
 
-Route::get('{short_url?}', 'UrlController@redirect')->name('short-url');
+Route::get('{prefix?}/{short_url?}', 'UrlController@redirect')->name('short-url');

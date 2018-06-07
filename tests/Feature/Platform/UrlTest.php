@@ -91,6 +91,82 @@ class UrlTest extends TestCase
     }
 
     /** @test */
+    function user_can_create_new_url_with_a_prefix()
+    {
+        $organization = factory(Organization::class)->states('prefix')->create();
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $url = make(Url::class);
+
+        $this->get(route('platform.urls.create'));
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->domain_id,
+            'prefix' => $organization->prefix,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas($url->getTable(), [
+            'domain_id' => $url->domain_id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ]);
+    }
+
+    /** @test */
+    function user_can_cannot_create_new_url_with_an_invalid_prefix()
+    {
+        $this->expectException(ValidationException::class);
+
+        $organization = factory(Organization::class)->states('prefix')->create();
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $url = make(Url::class);
+
+        $this->get(route('platform.urls.create'));
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->domain_id,
+            'prefix' => $organization->prefix.'1',
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertRedirect()
+            ->assertRedirect();
+        $this->assertDatabaseMissing($url->getTable(), [
+            'domain_id' => $url->domain_id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ]);
+    }
+
+    /** @test */
+    function user_cannot_create_new_url_with_a_mismatched_prefix_and_organization()
+    {
+        $this->expectException(ValidationException::class);
+
+        $organization = factory(Organization::class)->states('prefix')->create();
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $url = make(Url::class);
+
+        $this->get(route('platform.urls.create'));
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->domain_id,
+            'prefix' => $organization->prefix,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => null,
+        ])->assertRedirect()
+            ->assertSessionHas('error');
+        $this->assertDatabaseMissing($url->getTable(), [
+            'domain_id' => $url->domain_id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ]);
+    }
+
+    /** @test */
     function show_page_redirects_to_edit_page()
     {
         $url = create(Url::class, ['user_id' => $this->user->id]);
@@ -184,6 +260,30 @@ class UrlTest extends TestCase
         $this->assertDatabaseHas($url->getTable(), [
             'redirect_url' => $template->redirect_url,
             'organization_id' => $organization->id,
+        ]);
+    }
+
+    /** @test */
+    function user_cannot_move_url_with_prefix()
+    {
+        $this->expectException(AuthorizationException::class);
+
+        $template = make(Url::class);
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
+        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id, 'prefix' => true]);
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+
+        $this->get(route('platform.urls.edit', $url));
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => $template->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertRedirect()
+            ->assertForbidden();
+        $this->assertDatabaseHas($url->getTable(), [
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $url->organization_id,
         ]);
     }
 
