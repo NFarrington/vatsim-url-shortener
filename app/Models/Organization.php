@@ -9,17 +9,28 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int $id
  * @property string $name
+ * @property string $prefix
  * @property \Carbon\Carbon|null $created_at
  * @property \Carbon\Carbon|null $updated_at
+ * @property string|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $owners
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $managers
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $members
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $owners
+ * @property-read \App\Models\OrganizationPrefixApplication $prefixApplication
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
+ * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Organization onlyTrashed()
+ * @method static bool|null restore()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization wherePrefix($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Organization withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|\App\Models\Organization withoutTrashed()
  * @mixin \Eloquent
  */
 class Organization extends Model
@@ -100,5 +111,15 @@ class Organization extends Model
             ->withTimestamps()
             ->using(OrganizationUser::class)
             ->whereNull('organization_user.deleted_at');
+    }
+
+    /**
+     * The organization's prefix application.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function prefixApplication()
+    {
+        return $this->hasOne(OrganizationPrefixApplication::class);
     }
 }

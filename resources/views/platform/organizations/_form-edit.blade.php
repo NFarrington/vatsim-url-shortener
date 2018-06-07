@@ -18,6 +18,22 @@
 </div>
 
 <div class="form-group row">
+    <label class="col-sm-2 col-form-label">Prefix</label>
+    <div class="col-sm-10">
+        <p class="form-control-plaintext">
+            @if($organization->prefixApplication)
+                Application Submitted: {{ $organization->prefixApplication->created_at->diffForHumansAt() }} (Pending Approval)
+            @elseif($organization->prefix)
+                https://vats.im/{{ $organization->prefix }}/
+            @else
+                None &mdash;
+                <a href="{{ route('platform.organizations.prefix.create', $organization) }}">Apply</a>
+            @endif
+        </p>
+    </div>
+</div>
+
+<div class="form-group row">
     <label class="col-sm-2 col-form-label">Owners</label>
     @forelse($organization->owners as $owner)
         <div class="{{ !$loop->first ? 'offset-sm-2' : '' }} col-sm-10">

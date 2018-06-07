@@ -3,10 +3,12 @@
 namespace Tests\Unit;
 
 use App\Models\Organization;
+use App\Models\OrganizationPrefixApplication;
 use App\Models\OrganizationUser;
 use App\Models\Url;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -82,5 +84,26 @@ class OrganizationTest extends TestCase
         ]);
         $this->assertEquals($user->id, $organization->users->first()->id);
         $this->assertEquals(2, $organization->users->count());
+    }
+
+    /** @test */
+    function organization_has_prefix_application()
+    {
+        $organization = create(Organization::class);
+        $application = create(OrganizationPrefixApplication::class, [
+            'organization_id' => $organization->id,
+        ]);
+        $this->assertEquals($application->id, $organization->prefixApplication->id);
+    }
+
+    /** @test */
+    function organization_does_not_include_deleted_prefix_applications()
+    {
+        $organization = create(Organization::class);
+        $application = create(OrganizationPrefixApplication::class, [
+            'organization_id' => $organization->id,
+            'deleted_at' => Carbon::now(),
+        ]);
+        $this->assertNull($organization->prefixApplication);
     }
 }
