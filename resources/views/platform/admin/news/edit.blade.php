@@ -17,4 +17,6 @@
             </form>
         </div>
     @endcomponent
+
+    @include('platform._news-card', ['post' => $news])
 @endsection
