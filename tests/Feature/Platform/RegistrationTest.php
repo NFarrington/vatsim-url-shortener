@@ -4,6 +4,7 @@ namespace Tests\Feature\Platform;
 
 use App\Models\EmailVerification;
 use App\Models\User;
+use App\Notifications\VerifyEmailNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -36,6 +37,11 @@ class RegistrationTest extends TestCase
     {
         $this->signIn(create(User::class, ['email' => null]));
 
+        $this->expectsNotification(
+            $this->user,
+            VerifyEmailNotification::class
+        );
+
         $user = make(User::class);
 
         $this->get(route('platform.register'));
@@ -57,6 +63,7 @@ class RegistrationTest extends TestCase
         $this->post(route('platform.register', ['email' => $email]))
             ->assertRedirect(route('platform.register'))
             ->assertSessionHasErrors('email');
+        $this->assertDatabaseMissing($this->user->getTable(), ['email' => $email]);
     }
 
     /** @test */
