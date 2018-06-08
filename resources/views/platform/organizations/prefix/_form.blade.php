@@ -1,5 +1,5 @@
 <div class="form-group row">
-    <div class="offset-2 col-sm-10">
+    <div class="offset-md-2 col-md-10">
         <div class="alert alert-danger">
             <p class="form-control-plaintext">
                 Only official VATSIM entities are eligible for a prefix (e.g. regions, divisions, and sub-divisions).
@@ -10,8 +10,8 @@
             <p class="form-control-plaintext">
                 A prefix provides organizations with a guaranteed way of using any short URL with their prefix, and to
                 help users identify the locale a link is pointing to. For example, it would make more sense to use
-                https://vats.im/uk/forums to point to the VATSIM UK forums, rather than just https://vats.im/forums,
-                which could belong to any organization.
+                <code>https://vats.im/uk/forums</code> to point to the VATSIM UK forums, rather than just
+                <code>https://vats.im/forums</code>, which could belong to any user or organization.
             </p>
         </div>
     </div>

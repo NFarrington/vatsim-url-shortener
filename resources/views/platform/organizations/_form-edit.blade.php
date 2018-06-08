@@ -21,13 +21,13 @@
     <label class="col-sm-2 col-form-label">Prefix</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
-            @if($organization->prefixApplication)
-                Application Submitted: {{ $organization->prefixApplication->created_at->diffForHumansAt() }} (Pending Approval)
-            @elseif($organization->prefix)
-                https://vats.im/{{ $organization->prefix }}/
+            @if($organization->prefix)
+                {{ config('app.url') }}/{{ $organization->prefix }}/
+            @elseif($organization->prefixApplication)
+                Pending Approval since {{ $organization->prefixApplication->created_at->diffForHumansAt() }}
             @else
                 None &mdash;
-                <a href="{{ route('platform.organizations.prefix.create', $organization) }}">Apply</a>
+                <a href="{{ route('platform.organizations.prefix.create', $organization) }}">Apply Here</a>
             @endif
         </p>
     </div>
