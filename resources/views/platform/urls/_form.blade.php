@@ -88,7 +88,7 @@
                 <option value="">None</option>
                 @foreach($organizations as $organization)
                     <option value="{{ $organization->id }}"
-                            {{ (old('organization_id') ?: $url->organization_id) === $organization->id ? 'selected' : '' }}>
+                            {{ (old('organization_id') ?: $url->organization_id) == $organization->id ? 'selected' : '' }}>
                         {{ $organization->name }}
                     </option>
                 @endforeach
