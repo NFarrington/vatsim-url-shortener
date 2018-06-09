@@ -16,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Carbon::macro('diffForHumansAt', function () {
-            $diffDays = $this->diffInDays();
+            $diffDays = $this->diffInDays(self::now()->endOfDay());
             switch ($diffDays) {
                 case 0:
                     $time = 'Today';
