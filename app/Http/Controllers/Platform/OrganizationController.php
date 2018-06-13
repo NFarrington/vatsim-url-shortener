@@ -28,9 +28,10 @@ class OrganizationController extends Controller
      */
     public function index(Request $request)
     {
-        $organizations = Organization::whereHas('users', function ($query) use ($request) {
-            $query->where('users.id', $request->user()->id);
-        })->orderBy('created_at')->paginate(20);
+        $organizations = Organization::with('owners', 'managers', 'members', 'users')
+            ->whereHas('users', function ($query) use ($request) {
+                $query->where('users.id', $request->user()->id);
+            })->orderBy('created_at')->paginate(20);
 
         return view('platform.organizations.index')->with([
             'organizations' => $organizations,
@@ -93,6 +94,8 @@ class OrganizationController extends Controller
     public function edit(Organization $organization)
     {
         $this->authorize('act-as-owner', $organization);
+
+        $organization->load('owners', 'managers', 'members', 'prefixApplication');
 
         return view('platform.organizations.edit')->with([
             'organization' => $organization,
