@@ -112,4 +112,6 @@ return [
 
     'admins' => explode(',', env('AUTH_ADMINS', '')),
 
+    'banned_users' => explode(',', env('AUTH_BANNED_USERS', '')),
+
 ];

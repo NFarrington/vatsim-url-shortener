@@ -39,6 +39,21 @@ class VatsimLoginTest extends TestCase
     }
 
     /** @test */
+    function banned_user_login_redirects_with_error()
+    {
+        $ssoRequest = json_decode('{"request":{"result":"success","message":""},"user":{"id":"1300001","name_first":"1st","name_last":"Test","rating":{"id":"1","short":"OBS","long":"Pilot\/Observer","GRP":"Pilot\/Observer"},"pilot_rating":{"rating":"0"},"experience":"N","reg_date":"2014-05-14 17:17:26","country":{"code":"GB","name":"United Kingdom"},"region":{"code":"EUR","name":"Europe"},"division":{"code":"GBR","name":"United Kingdom"},"subdivision":{"code":null,"name":null}}}');
+        $mock = $this->createMock(SSO::class);
+        $mock->method('checkLogin')->willReturn($ssoRequest);
+        $this->app->instance('vatsimoauth', $mock);
+
+        config(['auth.banned_users' => [1300001]]);
+
+        $this->get(route('platform.login.vatsim.callback'))
+            ->assertRedirect()
+            ->assertSessionHas('error');
+    }
+
+    /** @test */
     function failed_login_redirects_with_error()
     {
         $mock = $this->createMock(SSO::class);

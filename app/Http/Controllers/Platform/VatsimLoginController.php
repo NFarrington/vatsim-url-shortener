@@ -87,9 +87,8 @@ class VatsimLoginController extends Controller
             );
 
             $user = $ssoRequest->user;
-            $this->processUser($user);
 
-            return $this->sendLoginResponse($request);
+            return $this->processLogin($request, $user);
         } catch (SSOException $e) {
             $this->incrementLoginAttempts($request);
 
@@ -100,9 +99,11 @@ class VatsimLoginController extends Controller
     /**
      * Update and log in the user.
      *
+     * @param \Illuminate\Http\Request $request
      * @param $ssoUser
+     * @return \Illuminate\Http\RedirectResponse
      */
-    protected function processUser($ssoUser)
+    protected function processLogin($request, $ssoUser)
     {
         /* @var User $user */
         User::updateOrCreate([
@@ -113,9 +114,16 @@ class VatsimLoginController extends Controller
             'vatsim_sso_data' => $ssoUser,
         ]);
 
+        if (in_array($ssoUser->id, config('auth.banned_users'))) {
+            return redirect()->route('platform.login')
+                ->with('error', 'SSO login failed: You are not authorized to use this service.');
+        }
+
         $guardName = config('auth.defaults.guard');
         $remember = config("auth.guards.{$guardName}.remember", false);
         auth()->loginUsingId($ssoUser->id, $remember);
+
+        return $this->sendLoginResponse($request);
     }
 
     /**
