@@ -48,7 +48,7 @@ class DomainController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -66,7 +66,7 @@ class DomainController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Domain  $domain
+     * @param  \App\Models\Domain $domain
      * @return \Illuminate\Http\Response
      */
     public function show(Domain $domain)
@@ -79,7 +79,7 @@ class DomainController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Domain  $domain
+     * @param  \App\Models\Domain $domain
      * @return \Illuminate\Http\Response
      */
     public function edit(Domain $domain)
@@ -92,8 +92,8 @@ class DomainController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Domain  $domain
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Models\Domain $domain
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Domain $domain)

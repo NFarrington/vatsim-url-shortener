@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Domain;
-use App\Models\Organization;
 use App\Models\Url;
 use App\Models\UrlAnalytics;
 use Illuminate\Foundation\Testing\RefreshDatabase;

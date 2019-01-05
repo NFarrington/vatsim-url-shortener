@@ -38,7 +38,7 @@ class Domain extends Model
     /**
      * Set the URL with a slash appended.
      *
-     * @param  string  $value
+     * @param  string $value
      * @return void
      */
     public function setUrlAttribute($value)

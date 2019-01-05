@@ -38,7 +38,7 @@ class TwoFactorAuth
     /**
      * Determine if the request has a URI that should pass through 2FA verification.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return bool
      *
      * @internal Illuminate\Foundation\Http\Middleware\VerifyCsrfToken

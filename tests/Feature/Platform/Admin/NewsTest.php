@@ -41,7 +41,7 @@ class NewsTest extends TestCase
         $this->post(route('platform.admin.news.store'), [
             'title' => $news->title,
             'content' => $news->content,
-            'published' => 1
+            'published' => 1,
         ])->assertRedirect()
             ->assertSessionHas('success');
         $this->assertDatabaseHas($news->getTable(), [
