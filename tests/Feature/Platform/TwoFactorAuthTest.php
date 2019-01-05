@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\ValidationException;
-use PragmaRX\Google2FA\Google2FA;
+use PragmaRX\Google2FAQRCode\Google2FA;
 use Tests\TestCase;
 
 class TwoFactorAuthTest extends TestCase

@@ -12,14 +12,15 @@
         "fideloper/proxy": "^4.0",
         "graham-campbell/markdown": "^10.0",
         "guzzlehttp/guzzle": "^6.3",
-        "laravel/framework": "5.6.*",
+        "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
-        "pragmarx/google2fa": "^3.0",
+        "pragmarx/google2fa-qrcode": "^1.0",
         "vatsim/sso-laravel": "3.*"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.1",
         "barryvdh/laravel-ide-helper": "^2.4",
+        "beyondcode/laravel-dump-server": "^1.0",
         "filp/whoops": "^2.0",
         "fzaninotto/faker": "^1.4",
         "mockery/mockery": "^1.0",
@@ -57,11 +58,11 @@
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ],
         "post-create-project-cmd": [
-            "@php artisan key:generate"
+            "@php artisan key:generate --ansi"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover"
+            "@php artisan package:discover --ansi"
         ],
         "ide-helper-basic": [
             "@php artisan ide-helper:generate",
