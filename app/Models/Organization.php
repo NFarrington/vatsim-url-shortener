@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property string $name
  * @property string|null $prefix
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $managers
@@ -21,7 +21,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
  * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization newQuery()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Organization onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization query()
  * @method static bool|null restore()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereDeletedAt($value)

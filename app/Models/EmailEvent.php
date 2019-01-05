@@ -11,8 +11,11 @@ namespace App\Models;
  * @property string $name
  * @property string $recipient
  * @property array $data
- * @property \Carbon\Carbon $triggered_at
+ * @property \Illuminate\Support\Carbon $triggered_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent query()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereBroker($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereData($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent whereId($value)

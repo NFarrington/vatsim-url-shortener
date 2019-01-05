@@ -14,8 +14,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $prefix
  * @property string $url
  * @property string $redirect_url
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
  * @property-read \App\Models\Domain $domain
@@ -23,8 +23,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Organization|null $organization
  * @property-read \App\Models\User|null $user
  * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url newQuery()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Url onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url public()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url query()
  * @method static bool|null restore()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereDeletedAt($value)

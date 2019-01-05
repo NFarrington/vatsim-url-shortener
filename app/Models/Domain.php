@@ -9,6 +9,9 @@ namespace App\Models;
  * @property string $url
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain query()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain whereUrl($value)
  * @mixin \Eloquent

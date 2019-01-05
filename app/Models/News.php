@@ -9,10 +9,13 @@ namespace App\Models;
  * @property string $title
  * @property string $content
  * @property bool $published
- * @property \Carbon\Carbon|null $created_at
- * @property \Carbon\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News published()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News query()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News whereContent($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News whereId($value)

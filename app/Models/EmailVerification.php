@@ -8,9 +8,12 @@ namespace App\Models;
  * @property int $id
  * @property int $user_id
  * @property string $token
- * @property \Carbon\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $created_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
  * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailVerification newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailVerification newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailVerification query()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailVerification whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailVerification whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailVerification whereToken($value)
