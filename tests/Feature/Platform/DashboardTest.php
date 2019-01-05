@@ -3,6 +3,7 @@
 namespace Tests\Feature\Platform;
 
 use App\Models\News;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -38,5 +39,14 @@ class DashboardTest extends TestCase
         $this->signIn();
         $this->get(route('platform'))
             ->assertRedirect(route('platform.dashboard'));
+    }
+
+    /** @test */
+    function unauthenticated_user_is_redirected_to_login_page()
+    {
+        $this->expectException(AuthenticationException::class);
+        
+        $this->get(route('platform.dashboard'))
+            ->assertRedirect(route('platform.login'));
     }
 }
