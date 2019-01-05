@@ -13,7 +13,7 @@ $factory->define(\App\Models\Url::class, function (Faker $faker) {
             return create(\App\Models\User::class)->id;
         },
         'organization_id' => null,
-        'url' => implode('', $faker->unique()->words),
+        'url' => substr(implode('', $faker->unique()->words), 0, 30),
         'redirect_url' => $faker->imageUrl(),
     ];
 });
