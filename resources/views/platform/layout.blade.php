@@ -61,6 +61,7 @@
     <flash message="{{ session('error') }}" level="danger"></flash>
 </div>
 
+@include('common.environment-js')
 <script src="{{ mix('js/app.js') }}"></script>
 @stack('scripts')
 

@@ -72,6 +72,7 @@
     </footer>
 </div>
 
+@include('common.environment-js')
 <script src="{{ mix('js/app.js') }}"></script>
 
 </body>

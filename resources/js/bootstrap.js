@@ -1,4 +1,11 @@
 
+const bugsnag = require('@bugsnag/js');
+window.bugsnagClient = bugsnag({
+    apiKey: 'e23990720def37b4768db24be446ac74',
+    appVersion: window.appEnv.version,
+    releaseStage: window.appEnv.environment,
+});
+
 window._ = require('lodash');
 
 /**
