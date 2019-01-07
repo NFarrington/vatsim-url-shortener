@@ -18,9 +18,9 @@ window.bugsnagClient.use(bugsnagVue, window.Vue);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('flash', require('./components/Flash.vue'));
-Vue.component('delete-resource', require('./components/ResourceDeleteForm.vue'));
-Vue.component('reveal-text', require('./components/RevealText.vue'));
+Vue.component('flash', require('./components/Flash.vue').default);
+Vue.component('delete-resource', require('./components/ResourceDeleteForm.vue').default);
+Vue.component('reveal-text', require('./components/RevealText.vue').default);
 
 const app = new Vue({
     el: '#app'
