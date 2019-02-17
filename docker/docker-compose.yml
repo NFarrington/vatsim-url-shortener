@@ -1,0 +1,27 @@
+version: "3"
+services:
+
+  app:
+    build:
+        context: ../
+        dockerfile: ./docker/app.dockerfile
+    image: nfarrington/vatsim-url-shortener-app:test-build
+    volumes:
+      - /var/www/storage
+    env_file: ./.env
+    environment:
+      - SOURCE_BRANCH
+      - SOURCE_COMMIT
+      - COMMIT_MSG
+      - DOCKER_REPO
+      - DOCKERFILE_PATH
+      - CACHE_TAG
+      - IMAGE_NAME
+
+  web:
+    build:
+        context: ../
+        dockerfile: ./docker/web.dockerfile
+    image: nfarrington/vatsim-url-shortener-web:test-build
+    ports:
+      - 80:80

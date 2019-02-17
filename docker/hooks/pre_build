@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -x
+
+ls
+
+echo "$SOURCE_BRANCH: the name of the branch or the tag that is currently being tested."
+echo "$SOURCE_COMMIT: the SHA1 hash of the commit being tested."
+echo "$COMMIT_MSG: the message from the commit being tested and built."
+echo "$DOCKER_REPO: the name of the Docker repository being built."
+echo "$DOCKERFILE_PATH: the dockerfile currently being built."
+echo "$CACHE_TAG: the Docker repository tag being built."
+echo "$IMAGE_NAME: the name and tag of the Docker repository being built."
+
+git rev-parse --short HEAD
+which git
+command -v git
+
+echo "APP_COMMIT=$(git rev-parse --short HEAD)" >> .env
