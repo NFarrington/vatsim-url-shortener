@@ -4,5 +4,7 @@
 node_modules
 vendor
 storage/framework/cache/**
+!storage/framework/cache/data/
+storage/framework/cache/data/**
 storage/framework/sessions/**
 storage/framework/views/**
