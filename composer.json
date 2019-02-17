@@ -91,7 +91,6 @@
             "@php artisan up"
         ],
         "docker-build": [
-            "echo APP_VERSION=${CACHE_TAG} >> .env",
             "@install-prod"
         ],
         "docker-entrypoint": [

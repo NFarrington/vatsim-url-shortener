@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -x
+
+ls
+
+docker build \
+    --build-arg APP_COMMIT=$SOURCE_COMMIT \
+    --build-arg APP_VERSION=$CACHE_TAG \
+    -f $(basename $DOCKERFILE_PATH) -t $IMAGE_NAME .
