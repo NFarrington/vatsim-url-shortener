@@ -51,6 +51,15 @@ RUN \
     rm composer-setup.php; \
     exit $RESULT
 
+RUN php -i
+
+ARG SOURCE_COMMIT
+ARG CACHE_TAG
+ENV SOURCE_COMMIT $SOURCE_COMMIT
+ENV CACHE_TAG $CACHE_TAG
+
+RUN php -i
+
 RUN php composer.phar docker-build
 USER root
 
