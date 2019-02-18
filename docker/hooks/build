@@ -1,12 +1,15 @@
 #!/bin/bash
 
-set -ex
+set -e
 
 # move back to the root context
 cd ..
 pwd
 
+[[ -z "$TARGET" ]] && >&2 echo "ERROR: \$TARGET is not set."
+
 docker build \
     --build-arg APP_COMMIT=$SOURCE_COMMIT \
     --build-arg APP_VERSION=$CACHE_TAG \
+    --target $TARGET \
     -f $DOCKERFILE_PATH -t $IMAGE_NAME .

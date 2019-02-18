@@ -90,6 +90,9 @@
             "@log-rotate",
             "@php artisan up"
         ],
+        "docker-install": [
+            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest --no-autoloader --no-scripts"
+        ],
         "docker-build": [
             "@install-prod"
         ],
@@ -105,7 +108,7 @@
             "@php artisan cache:clear",
             "@log-rotate"
         ],
-        "install-prod": "@composer install --no-dev --optimize-autoloader --classmap-authoritative",
+        "install-prod": "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest",
         "deploy-dev": [
             "npm install",
             "@update-version",

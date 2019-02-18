@@ -1,27 +1,19 @@
-version: "3"
+version: "3.7"
 services:
 
-  app:
+  nginx:
     build:
         context: ../
-        dockerfile: ./docker/app.dockerfile
-    image: nfarrington/vatsim-url-shortener-app:test-build
+        dockerfile: ./docker/Dockerfile
+        target: nginx
+    ports:
+      - 127.0.0.1:80:80
+
+  php-fpm:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+      target: php-fpm
     volumes:
       - /var/www/storage
     env_file: ./.env
-    environment:
-      - SOURCE_BRANCH
-      - SOURCE_COMMIT
-      - COMMIT_MSG
-      - DOCKER_REPO
-      - DOCKERFILE_PATH
-      - CACHE_TAG
-      - IMAGE_NAME
-
-  web:
-    build:
-        context: ../
-        dockerfile: ./docker/web.dockerfile
-    image: nfarrington/vatsim-url-shortener-web:test-build
-    ports:
-      - 80:80
