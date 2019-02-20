@@ -17,7 +17,7 @@ return [
 
     'version' => [
         'name' => trim(env('APP_VERSION', 'Unknown'), 'v'),
-        'commit' => env('APP_COMMIT', '-'),
+        'commit' => substr(env('APP_COMMIT', '-'), 0, 7),
     ],
 
     /*
