@@ -20,6 +20,7 @@ RUN npm run production
 
 FROM nginxinc/nginx-unprivileged:1.14-alpine AS nginx
 
+COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/server.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=resources /home/node/app/public /var/www/html/public
