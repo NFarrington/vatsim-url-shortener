@@ -18,7 +18,7 @@ RUN npm run production
 
 ########################################
 
-FROM nginx:1.14-alpine AS nginx
+FROM nginxinc/nginx-unprivileged:1.14-alpine AS nginx
 
 COPY ./docker/server.conf /etc/nginx/conf.d/default.conf
 
