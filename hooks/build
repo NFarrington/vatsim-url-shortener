@@ -12,10 +12,6 @@ set -e
 [[ -z "$IMAGE_NAME" ]] && >&2 echo "ERROR: \$IMAGE_NAME is not set."
 [[ -z "$SOURCE_COMMIT" ]] && >&2 echo "ERROR: \$SOURCE_COMMIT is not set."
 
-# move back to the root context
-cd ..
-pwd
-
 docker build \
     --build-arg APP_COMMIT=$SOURCE_COMMIT \
     --build-arg APP_VERSION=$CACHE_TAG \

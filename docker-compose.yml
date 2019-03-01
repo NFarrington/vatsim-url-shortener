@@ -1,10 +1,11 @@
+# docker-compose.yml for building and development
+
 version: "3.7"
 services:
 
   nginx:
     build:
-        context: ../
-        dockerfile: ./docker/Dockerfile
+        context: .
         target: nginx
     ports:
       - 127.0.0.1:80:8080
@@ -13,22 +14,20 @@ services:
 
   php-fpm:
     build:
-      context: ../
-      dockerfile: ./docker/Dockerfile
+      context: .
       target: php-fpm
     volumes:
       - app-storage:/var/www/storage
-    env_file: ./.env
+    env_file: .env.docker
 
   queue-worker:
     build:
-      context: ../
-      dockerfile: ./docker/Dockerfile
+      context: .
       target: php-fpm
     command: php artisan queue:work --sleep=3 --tries=3 --queue=default
     volumes:
       - app-storage:/var/www/storage
-    env_file: ./.env
+    env_file: .env.docker
 
 volumes:
   app-storage:
