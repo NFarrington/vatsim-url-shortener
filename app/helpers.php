@@ -72,7 +72,7 @@ function breadcrumbs_array()
  * @param string $name
  * @return string|null
  */
-function docker_secret(string $name)
+function docker_secret($name)
 {
     $file = "/run/secrets/$name";
 
