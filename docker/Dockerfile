@@ -48,6 +48,7 @@ RUN apk add --update --no-cache --virtual build-dependencies \
         mysql-client \
         libpng-dev \
         unzip \
+        fcgi \
     && pecl install mcrypt-1.0.2 \
     && docker-php-ext-enable mcrypt \
     && docker-php-ext-install pdo_mysql \
@@ -93,6 +94,13 @@ ENV APP_COMMIT $APP_COMMIT
 
 ARG APP_VERSION
 ENV APP_VERSION $APP_VERSION
+
+HEALTHCHECK --start-period=15s --interval=30s --timeout=5s \
+    CMD \
+        SCRIPT_NAME=/ping \
+        SCRIPT_FILENAME=/ping \
+        REQUEST_METHOD=GET \
+        cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1
 
 COPY ./docker/php-fpm-entrypoint.sh /var/www/html/entrypoint.sh
 ENTRYPOINT ["/var/www/html/entrypoint.sh"]
