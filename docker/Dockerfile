@@ -55,9 +55,6 @@ RUN apk add --update --no-cache --virtual build-dependencies \
     && docker-php-ext-install gd \
     && apk del build-dependencies
 
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-COPY ./docker/app-fpm.conf /usr/local/etc/php-fpm.d/app-fpm.conf
-
 WORKDIR /var/www/html
 
 USER www-data
@@ -89,6 +86,11 @@ RUN chown -R www-data:www-data \
 USER www-data
 
 RUN php composer.phar docker-build
+
+USER root
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY ./docker/app-fpm.conf /usr/local/etc/php-fpm.d/app-fpm.conf
+USER www-data
 
 ARG APP_COMMIT
 ENV APP_COMMIT $APP_COMMIT
