@@ -15,5 +15,8 @@ services:
       dockerfile: ./docker/Dockerfile
       target: php-fpm
     volumes:
-      - /var/www/storage
+      - app-storage:/var/www/storage
     env_file: ./.env
+
+volumes:
+  app-storage:
