@@ -89,7 +89,10 @@ USER www-data
 RUN php composer.phar docker-build
 
 USER root
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+        && echo 'log_errors_max_len = 0' >> $PHP_INI_DIR/conf.d/app.ini \
+        && echo 'cgi.fix_pathinfo = 0' >> $PHP_INI_DIR/conf.d/app.ini \
+        && echo 'date.timezone = UTC' >> $PHP_INI_DIR/conf.d/app.ini
 COPY ./docker/app-fpm.conf /usr/local/etc/php-fpm.d/app-fpm.conf
 USER www-data
 
