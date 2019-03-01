@@ -56,6 +56,7 @@ RUN apk add --update --no-cache --virtual build-dependencies \
     && apk del build-dependencies
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY ./docker/app-fpm.conf /usr/local/etc/php-fpm.d/app-fpm.conf
 
 WORKDIR /var/www/html
 
@@ -100,7 +101,7 @@ HEALTHCHECK --start-period=15s --interval=30s --timeout=5s \
         SCRIPT_NAME=/ping \
         SCRIPT_FILENAME=/ping \
         REQUEST_METHOD=GET \
-        cgi-fcgi -bind -connect 127.0.0.1:9000 || exit 1
+        cgi-fcgi -bind -connect 127.0.0.1:9000 | tee /dev/stderr | grep pong || exit 1
 
 COPY ./docker/php-fpm-entrypoint.sh /var/www/html/entrypoint.sh
 ENTRYPOINT ["/var/www/html/entrypoint.sh"]
