@@ -30,7 +30,7 @@ return [
      * The secret key for your organisation (provided by VATSIM)
      * Do not give this to anyone else or display it to your users. It must be kept server-side
      */
-    'secret' => env('VATSIM_SECRET'),
+    'secret' => docker_secret(env('VATSIM_SECRET_SECRET')) ?: env('VATSIM_SECRET'),
 
     /**
      * The URL users will be redirected to after they log in, this should
@@ -49,7 +49,7 @@ return [
      * Your RSA **PRIVATE** key
      * If you are not using RSA, this value can be anything (or not set)
      */
-    'cert' => str_replace('\n', "\n", env('VATSIM_CERT')),
+    'cert' => str_replace('\n', "\n", docker_secret(env('VATSIM_CERT_SECRET')) ?: env('VATSIM_CERT')),
 
     /**
      * Set to true to allow suspended users to sign in

@@ -124,7 +124,7 @@ return [
     |
     */
 
-    'key' => docker_secret('APP_KEY') ?: env('APP_KEY'),
+    'key' => docker_secret(env('APP_KEY_SECRET')) ?: env('APP_KEY'),
 
     'cipher' => 'AES-256-CBC',
 
