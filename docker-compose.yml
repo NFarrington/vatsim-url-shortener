@@ -5,8 +5,8 @@ services:
 
   nginx:
     build:
-        context: .
-        target: nginx
+      context: .
+      target: nginx
     ports:
       - 127.0.0.1:80:8080
     depends_on:
@@ -16,6 +16,9 @@ services:
     build:
       context: .
       target: php-fpm
+      args:
+        - APP_COMMIT=local
+        - APP_VERSION=0.0.0
     volumes:
       - app-storage:/var/www/storage
     env_file: .env.docker
@@ -24,6 +27,9 @@ services:
     build:
       context: .
       target: php-fpm
+      args:
+        - APP_COMMIT=local
+        - APP_VERSION=0.0.0
     command: php artisan queue:work --sleep=3 --tries=3 --queue=default
     volumes:
       - app-storage:/var/www/storage
