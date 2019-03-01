@@ -16,8 +16,8 @@ return [
     'name' => env('APP_NAME', 'Laravel'),
 
     'version' => [
-        'name' => trim(env('APP_VERSION', 'Unknown'), 'v'),
-        'commit' => substr(env('APP_COMMIT', '-'), 0, 7),
+        'name' => trim(env('APP_VERSION'), 'v'),
+        'commit' => substr(env('APP_COMMIT'), 0, 7),
     ],
 
     /*
