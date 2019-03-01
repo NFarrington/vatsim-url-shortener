@@ -67,6 +67,23 @@ function breadcrumbs_array()
 }
 
 /**
+ * Retrieves a Docker secret.
+ *
+ * @param string $name
+ * @return string|null
+ */
+function docker_secret(string $name)
+{
+    $file = "/run/secrets/$name";
+
+    if (empty($name) || !file_exists($file)) {
+        return null;
+    }
+
+    return trim(file_get_contents($file));
+}
+
+/**
  * Replace hyphens with non-breaking hyphens.
  *
  * @param $text
