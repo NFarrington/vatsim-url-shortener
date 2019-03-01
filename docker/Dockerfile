@@ -20,10 +20,22 @@ RUN npm run production
 
 FROM nginxinc/nginx-unprivileged:1.14-alpine AS nginx
 
+USER root
+
+RUN apk add --update --no-cache \
+        curl
+
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/server.conf /etc/nginx/conf.d/default.conf
 
 COPY --from=resources /home/node/app/public /var/www/html/public
+
+USER nginx
+
+HEALTHCHECK --start-period=15s --interval=30s --timeout=5s \
+    CMD curl -f http://localhost:8081/health || exit 1
+
+EXPOSE 8080 8081
 
 ########################################
 
