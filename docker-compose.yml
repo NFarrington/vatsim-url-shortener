@@ -34,6 +34,11 @@ services:
     volumes:
       - app-storage:/var/www/storage
     env_file: .env.docker
+    healthcheck:
+      test: php artisan queue:health || exit 1
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
 
 volumes:
   app-storage:

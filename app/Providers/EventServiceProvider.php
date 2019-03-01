@@ -7,8 +7,10 @@ use App\Events\EmailVerifiedEvent;
 use App\Events\PrefixApplicationCreatedEvent;
 use App\Listeners\DeleteEmailVerificationListener;
 use App\Listeners\NotifyApplicationSubmittedListener;
+use App\Listeners\RecordJobProcessingListener;
 use App\Listeners\VerifyEmailListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Queue\Events\JobProcessing;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,10 @@ class EventServiceProvider extends ServiceProvider
 
         EmailVerifiedEvent::class => [
             DeleteEmailVerificationListener::class,
+        ],
+
+        JobProcessing::class => [
+            RecordJobProcessingListener::class,
         ],
 
         PrefixApplicationCreatedEvent::class => [
