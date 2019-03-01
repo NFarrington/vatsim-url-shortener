@@ -20,5 +20,15 @@ services:
       - app-storage:/var/www/storage
     env_file: ./.env
 
+  queue-worker:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+      target: php-fpm
+    command: php artisan queue:work --sleep=3 --tries=3 --queue=default
+    volumes:
+      - app-storage:/var/www/storage
+    env_file: ./.env
+
 volumes:
   app-storage:

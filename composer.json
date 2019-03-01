@@ -88,6 +88,7 @@
             "@php artisan migrate --step --force --no-interaction",
             "npm run production",
             "@log-rotate",
+            "@php artisan queue:restart",
             "@php artisan up"
         ],
         "docker-install": [
@@ -99,7 +100,8 @@
         "docker-entrypoint": [
             "@php artisan config:cache",
             "@php artisan route:cache",
-            "@php artisan cache:clear"
+            "@php artisan cache:clear",
+            "@php artisan migrate --step --force --no-interaction"
         ],
         "deploy-prod-basic": [
             "@update-version",
