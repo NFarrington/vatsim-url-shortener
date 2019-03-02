@@ -23,19 +23,23 @@ FROM nginxinc/nginx-unprivileged:1.14-alpine AS nginx
 USER root
 
 RUN apk add --update --no-cache \
+        su-exec \
         curl
 
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/server.conf /etc/nginx/conf.d/default.conf
+COPY ./docker/server-ssl.conf /etc/nginx/conf.d/default-ssl.conf.disabled
 
 COPY --from=resources /home/node/app/public /var/www/html/public
-
-USER nginx
 
 HEALTHCHECK --start-period=15s --interval=30s --timeout=5s \
     CMD curl -f http://localhost:8081/health || exit 1
 
-EXPOSE 8080 8081
+EXPOSE 8080 8081 8443
+
+COPY ./docker/nginx-entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
 
 ########################################
 
