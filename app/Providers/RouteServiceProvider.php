@@ -23,7 +23,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        if ($forceScheme = config('app.force_scheme')) {
+            $this->app['url']->forceScheme($forceScheme);
+        }
 
         parent::boot();
     }
