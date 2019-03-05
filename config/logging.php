@@ -38,10 +38,26 @@ return [
             'channels' => ['single', 'bugsnag'],
         ],
 
+        'docker-stack' => [
+            'driver' => 'stack',
+            'channels' => ['docker', 'bugsnag'],
+        ],
+
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
             'level' => 'debug',
+        ],
+
+        'docker' => [
+            'driver' => 'monolog',
+            'handler' => StreamHandler::class,
+            'handler_with' => [
+                'stream' => 'php://stderr',
+                'level' => \Monolog\Logger::DEBUG,
+            ],
+            'formatter' => Monolog\Formatter\JsonFormatter::class,
+            'tap' => [App\Logging\JsonLogger::class],
         ],
 
         'daily' => [

@@ -16,8 +16,8 @@ return [
     'name' => env('APP_NAME', 'Laravel'),
 
     'version' => [
-        'name' => trim(env('APP_VERSION', 'Unknown'), 'v'),
-        'commit' => env('APP_COMMIT', '-'),
+        'name' => trim(env('APP_VERSION'), 'v'),
+        'commit' => substr(env('APP_COMMIT'), 0, 7),
     ],
 
     /*
@@ -58,6 +58,8 @@ return [
     */
 
     'url' => env('APP_URL', 'http://localhost'),
+
+    'force_scheme' => env('FORCE_SCHEME'),
 
     'asset_url' => env('ASSET_URL', null),
 
@@ -124,7 +126,7 @@ return [
     |
     */
 
-    'key' => env('APP_KEY'),
+    'key' => docker_secret(env('APP_KEY_SECRET')) ?: env('APP_KEY'),
 
     'cipher' => 'AES-256-CBC',
 

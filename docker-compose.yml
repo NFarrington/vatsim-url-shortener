@@ -1,0 +1,44 @@
+# docker-compose.yml for building and development
+
+version: "3.7"
+services:
+
+  nginx:
+    build:
+      context: .
+      target: nginx
+    ports:
+      - 127.0.0.1:80:8080
+    depends_on:
+      - php-fpm
+
+  php-fpm:
+    build:
+      context: .
+      target: php-fpm
+      args:
+        - APP_COMMIT=local
+        - APP_VERSION=0.0.0
+    volumes:
+      - app-storage:/var/www/storage
+    env_file: .env.docker
+
+  queue-worker:
+    build:
+      context: .
+      target: php-fpm
+      args:
+        - APP_COMMIT=local
+        - APP_VERSION=0.0.0
+    command: php artisan queue:work --sleep=3 --tries=3 --queue=default
+    volumes:
+      - app-storage:/var/www/storage
+    env_file: .env.docker
+    healthcheck:
+      test: php artisan queue:health || exit 1
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+
+volumes:
+  app-storage:

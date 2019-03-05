@@ -15,9 +15,7 @@ return [
      * of your proxy (e.g. if using ELB or similar).
      *
      */
-    'proxies' => env('TRUSTED_PROXIES', null) != '*'
-        ? explode(',', env('TRUSTED_PROXIES', null))
-        : '*',
+    'proxies' => env('TRUSTED_PROXIES'),
 
     /*
      * Which headers to use to detect proxy related data (For, Host, Proto, Port)

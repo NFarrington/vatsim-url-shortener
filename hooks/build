@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -e
+
+[[ -z "$TARGET" ]] && >&2 echo "ERROR: \$TARGET is not set."
+
+# CACHE_TAG seems to be unreliable in Docker Hub builds, as seen in a build on 2019/02/18.
+# See also https://github.com/docker/hub-feedback/issues/1722
+# For good measure, we check all the environment variables we use.
+[[ -z "$CACHE_TAG" ]] && >&2 echo "ERROR: \$CACHE_TAG is not set."
+[[ -z "$DOCKERFILE_PATH" ]] && >&2 echo "ERROR: \$DOCKERFILE_PATH is not set."
+[[ -z "$IMAGE_NAME" ]] && >&2 echo "ERROR: \$IMAGE_NAME is not set."
+[[ -z "$SOURCE_COMMIT" ]] && >&2 echo "ERROR: \$SOURCE_COMMIT is not set."
+
+docker build \
+    --build-arg APP_COMMIT=$SOURCE_COMMIT \
+    --build-arg APP_VERSION=$CACHE_TAG \
+    --target $TARGET \
+    -f $DOCKERFILE_PATH -t $IMAGE_NAME .
