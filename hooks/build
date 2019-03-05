@@ -2,18 +2,22 @@
 
 set -e
 
-[[ -z "$TARGET" ]] && >&2 echo "ERROR: \$TARGET is not set."
+[[ -z "$DOCKERFILE_PATH" ]] && { >&2 echo 'ERROR: $DOCKERFILE_PATH is not set.'; exit 1; }
+[[ -z "$DOCKER_REPO" ]] && { >&2 echo 'ERROR: $DOCKER_REPO is not set.'; exit 1; }
+[[ -z "$DOCKER_TAG" ]] && { >&2 echo 'ERROR: $DOCKER_TAG is not set.'; exit 1; }
+[[ -z "$SOURCE_COMMIT" ]] && { >&2 echo 'ERROR: $SOURCE_COMMIT is not set.'; exit 1; }
 
-# CACHE_TAG seems to be unreliable in Docker Hub builds, as seen in a build on 2019/02/18.
-# See also https://github.com/docker/hub-feedback/issues/1722
-# For good measure, we check all the environment variables we use.
-[[ -z "$CACHE_TAG" ]] && >&2 echo "ERROR: \$CACHE_TAG is not set."
-[[ -z "$DOCKERFILE_PATH" ]] && >&2 echo "ERROR: \$DOCKERFILE_PATH is not set."
-[[ -z "$IMAGE_NAME" ]] && >&2 echo "ERROR: \$IMAGE_NAME is not set."
-[[ -z "$SOURCE_COMMIT" ]] && >&2 echo "ERROR: \$SOURCE_COMMIT is not set."
+[[ -z "$TARGET" ]] && { >&2 echo 'ERROR: $TARGET is not set.'; exit 1; }
+
+TAGS=$(echo $DOCKER_TAG | tr ',' "\n")
+TAG_ARGS=()
+for tag in $TAGS; do
+    TAG_ARGS+=('-t' "$DOCKER_REPO:$tag")
+    APP_VERSION="$tag" # the last tag becomes the app version
+done
 
 docker build \
-    --build-arg APP_COMMIT=$SOURCE_COMMIT \
-    --build-arg APP_VERSION=$CACHE_TAG \
-    --target $TARGET \
-    -f $DOCKERFILE_PATH -t $IMAGE_NAME .
+    --build-arg "APP_COMMIT=$SOURCE_COMMIT" \
+    --build-arg "APP_VERSION=$APP_VERSION" \
+    --target "$TARGET" \
+    -f "$DOCKERFILE_PATH" "${TAG_ARGS[@]}" .
