@@ -3,6 +3,8 @@
   <a href="https://styleci.io/repos/128128792"><img src="https://styleci.io/repos/128128792/shield?style=flat" alt="Style Status"></a>
   <a href="https://codeclimate.com/github/NFarrington/vatsim-url-shortener/maintainability"><img src="https://api.codeclimate.com/v1/badges/9e5d0eca2309ed1defd2/maintainability" alt="Maintainability"></a>
   <a href="https://codeclimate.com/github/NFarrington/vatsim-url-shortener/test_coverage"><img src="https://api.codeclimate.com/v1/badges/9e5d0eca2309ed1defd2/test_coverage" alt="Test Coverage"></a>
+  <a href="https://hub.docker.com/r/nfarrington/vats.im-nginx"><img src="https://img.shields.io/docker/cloud/build/nfarrington/vats.im-nginx.svg?label=docker%20nginx" alt="Docker Build Status (nginx)"></a>
+  <a href="https://hub.docker.com/r/nfarrington/vats.im-php-fpm"><img src="https://img.shields.io/docker/cloud/build/nfarrington/vats.im-php-fpm.svg?label=docker%20php-fpm" alt="Docker Build Status (php-fpm)"></a>
 </p>
 
 # VATS.IM URL Shortener
