@@ -39,9 +39,9 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->mapApiRoutes();
 
-        $this->mapWebRoutes();
+        $this->mapPlatformRoutes();
 
-        //
+        $this->mapWebRoutes();
     }
 
     /**
@@ -56,6 +56,29 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('web')
             ->namespace($this->namespace)
             ->group(base_path('routes/web.php'));
+    }
+
+    /**
+     * Define the "platform" routes for the application.
+     *
+     * These routes all receive session state, CSRF protection, etc.
+     *
+     * @return void
+     */
+    protected function mapPlatformRoutes()
+    {
+        $platformAliases = config('app.platform_aliases') ?: [];
+
+        $primaryDomain = parse_url(config('app.url'), PHP_URL_HOST);
+        $secondaryDomains = is_string($platformAliases) ? explode(',', $platformAliases) : $platformAliases;
+
+        $domains = array_merge([$primaryDomain], $secondaryDomains);
+        foreach ($domains as $domain) {
+            Route::domain($domain)
+                ->middleware('web')
+                ->namespace($this->namespace)
+                ->group(base_path('routes/platform.php'));
+        }
     }
 
     /**

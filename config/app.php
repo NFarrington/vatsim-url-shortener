@@ -59,6 +59,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'platform_aliases' => env('APP_PLATFORM_ALIASES', ''),
+
     'force_scheme' => env('FORCE_SCHEME'),
 
     'asset_url' => env('ASSET_URL', null),
