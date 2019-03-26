@@ -73,7 +73,7 @@ class QueueHealth extends Command
             return 1;
         }
 
-        echo "The queue has $queueSize items, and is processing.";
+        $this->line("The queue has $queueSize items, and is processing.");
 
         return 0;
     }
