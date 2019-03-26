@@ -72,7 +72,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapPlatformRoutes()
     {
-        $platformAliases = config('app.platform_aliases') ?: [];
+        $platformAliases = config('app.url_aliases') ?: [];
 
         $primaryDomain = parse_url(config('app.url'), PHP_URL_HOST);
         $secondaryDomains = is_string($platformAliases) ? explode(',', $platformAliases) : $platformAliases;

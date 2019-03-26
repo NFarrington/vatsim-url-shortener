@@ -59,7 +59,7 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
-    'platform_aliases' => env('APP_PLATFORM_ALIASES', ''),
+    'url_aliases' => env('APP_URL_ALIASES', ''),
 
     'force_scheme' => env('FORCE_SCHEME'),
 
