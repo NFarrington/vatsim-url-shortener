@@ -23,11 +23,16 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        parent::boot();
+
         if ($forceScheme = config('app.force_scheme')) {
             $this->app['url']->forceScheme($forceScheme);
         }
 
-        parent::boot();
+        // overridden by App\Http\Middleware\SetRouteParameters::class
+        $this->app['url']->defaults([
+            'site_domain' => parse_url(config('app.url'), PHP_URL_HOST),
+        ]);
     }
 
     /**
@@ -71,14 +76,17 @@ class RouteServiceProvider extends ServiceProvider
 
         $primaryDomain = parse_url(config('app.url'), PHP_URL_HOST);
         $secondaryDomains = is_string($platformAliases) ? explode(',', $platformAliases) : $platformAliases;
-
         $domains = array_merge([$primaryDomain], $secondaryDomains);
-        foreach ($domains as $domain) {
-            Route::domain($domain)
-                ->middleware('web')
-                ->namespace($this->namespace)
-                ->group(base_path('routes/platform.php'));
-        }
+
+        $domain = trim(array_reduce($domains, function ($carry, $item) {
+            return $carry.preg_quote($item).'|';
+        }), '|');
+
+        Route::pattern('site_domain', $domain);
+        Route::domain('{site_domain}')
+            ->middleware('web')
+            ->namespace($this->namespace)
+            ->group(base_path('routes/platform.php'));
     }
 
     /**
