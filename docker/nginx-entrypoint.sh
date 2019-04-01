@@ -9,7 +9,7 @@ fi
 
 if [ "$1" = 'nginx' -a "$(id -u)" = '0' ]; then
     # enable SSL if the certificates are made available
-    if [ -f "/run/secrets/server.crt" -a -f "/run/secrets/server.key" ]; then
+    if [ -f "/run/secrets/server.crt" -a -f "/run/secrets/server.key" -a -f "/etc/nginx/conf.d/default-ssl.conf.disabled" ]; then
         mv /etc/nginx/conf.d/default-ssl.conf.disabled /etc/nginx/conf.d/default-ssl.conf
     fi
 
