@@ -9,7 +9,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.2.0",
+        "php": "^7.2.0 || ^8.0.0",
         "ext-gd": "*",
         "bacon/bacon-qr-code": "^1.0",
         "bugsnag/bugsnag-laravel": "^2.0",
