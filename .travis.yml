@@ -1,9 +1,8 @@
 language: php
 
 php:
-  - 7.1
-  - 7.2
-  - 7.3
+  - '7.2'
+  - '7.3'
 
 addons:
   mariadb: '10.2'
@@ -15,7 +14,9 @@ install:
 
 before_script:
   - cp .env.travis .env
-  - mysql -e 'CREATE DATABASE `laravel`;'
+  - mysql -e 'CREATE DATABASE laravel;'
+  - mysql -e 'CREATE USER IF NOT EXISTS travis@localhost;'
+  - mysql -e 'GRANT ALL ON laravel.* to travis@localhost;'
   - composer install
   - php artisan key:generate --no-interaction
   - composer deploy-dev

@@ -1,4 +1,3 @@
-
 const bugsnag = require('@bugsnag/js');
 window.bugsnagClient = bugsnag({
     apiKey: 'e23990720def37b4768db24be446ac74',
@@ -51,7 +50,7 @@ if (token) {
  * allows your team to easily build robust real-time web applications.
  */
 
-// import Echo from 'laravel-echo'
+// import Echo from 'laravel-echo';
 
 // window.Pusher = require('pusher-js');
 
