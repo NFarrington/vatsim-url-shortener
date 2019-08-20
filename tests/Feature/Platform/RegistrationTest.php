@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\VerifyEmailNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -72,7 +73,7 @@ class RegistrationTest extends TestCase
         $user = create(User::class, ['email_verified' => 0]);
         $this->signIn($user);
 
-        $token = str_random(40);
+        $token = Str::random(40);
         create(EmailVerification::class, [
             'token' => Hash::make($token),
             'user_id' => $user->id,
@@ -110,13 +111,13 @@ class RegistrationTest extends TestCase
         $user = create(User::class, ['email_verified' => 0]);
         $this->signIn($user);
 
-        $token = str_random(40);
+        $token = Str::random(40);
         create(EmailVerification::class, [
             'token' => Hash::make($token),
             'user_id' => $user->id,
         ]);
 
-        $response = $this->get(route('platform.register.verify', str_random(39)));
+        $response = $this->get(route('platform.register.verify', Str::random(39)));
         $response->assertRedirect(route('platform.register'));
         $response->assertSessionHas('error');
         $this->assertDatabaseHas($user->getTable(), ['id' => $user->id, 'email_verified' => 0]);
@@ -128,7 +129,7 @@ class RegistrationTest extends TestCase
         $user = create(User::class, ['email_verified' => 1]);
         $this->signIn($user);
 
-        $response = $this->get(route('platform.register.verify', str_random(40)));
+        $response = $this->get(route('platform.register.verify', Str::random(40)));
         $response->assertRedirect(route('platform.dashboard'));
         $response->assertSessionHas('error');
     }

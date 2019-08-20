@@ -6,6 +6,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use Tests\TestCase;
@@ -79,7 +80,7 @@ class SettingsTest extends TestCase
     /** @test */
     function user_can_remove_two_factor_auth()
     {
-        $this->signIn($user = create(User::class, ['totp_secret' => str_random(16)]));
+        $this->signIn($user = create(User::class, ['totp_secret' => Str::random(16)]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.settings'));
@@ -109,7 +110,7 @@ class SettingsTest extends TestCase
     /** @test */
     function user_cannot_configure_two_factor_auth_if_already_configured()
     {
-        $this->signIn(create(User::class, ['totp_secret' => str_random(16)]));
+        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.settings.two-factor'))

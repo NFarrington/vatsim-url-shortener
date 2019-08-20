@@ -5,6 +5,7 @@ namespace Tests\Feature\Platform;
 use Illuminate\Cache\RateLimiter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 use Vatsim\OAuth\SSO;
 use Vatsim\OAuth\SSOException;
@@ -16,7 +17,7 @@ class VatsimLoginTest extends TestCase
     /** @test */
     function user_can_initiate_vatsim_login()
     {
-        $token = json_decode('{"request":{"result":"success","message":""},"token":{"oauth_token":"SSO_DEMO_'.str_random().'","oauth_token_secret":"'.str_random().'","oauth_callback_confirmed":true}}');
+        $token = json_decode('{"request":{"result":"success","message":""},"token":{"oauth_token":"SSO_DEMO_'.Str::random().'","oauth_token_secret":"'.Str::random().'","oauth_callback_confirmed":true}}');
         $mock = $this->createMock(SSO::class);
         $mock->method('requestToken')->willReturn($token);
         $this->app->instance('vatsimoauth', $mock);

@@ -6,6 +6,7 @@ use App\Models\UrlAnalytics;
 use Auth;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class LogRequests
@@ -75,7 +76,7 @@ class LogRequests
     protected function getHeaders()
     {
         return array_filter_key(array_change_key_case($_SERVER), function ($key) {
-            return starts_with($key, 'http_') && !array_key_exists($key, array_flip($this->guardedHeaders));
+            return Str::startsWith($key, 'http_') && !array_key_exists($key, array_flip($this->guardedHeaders));
         });
     }
 }

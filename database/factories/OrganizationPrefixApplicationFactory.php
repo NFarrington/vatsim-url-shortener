@@ -4,6 +4,7 @@
 use App\Models\Organization;
 use App\Models\User;
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
 $factory->define(App\Models\OrganizationPrefixApplication::class, function (Faker $faker) {
     return [
@@ -14,6 +15,6 @@ $factory->define(App\Models\OrganizationPrefixApplication::class, function (Fake
             return create(User::class)->id;
         },
         'identity_url' => $faker->url,
-        'prefix' => str_random(3),
+        'prefix' => Str::random(3),
     ];
 });

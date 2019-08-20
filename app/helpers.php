@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Str;
+
 /**
  * Retrieve the application key from the configuration.
  *
@@ -8,7 +10,7 @@
 function app_key()
 {
     $key = app()['config']['app.key'];
-    if (starts_with($key, 'base64:')) {
+    if (Str::startsWith($key, 'base64:')) {
         $key = base64_decode(mb_substr($key, 7));
     }
 
@@ -41,7 +43,7 @@ function breadcrumbs()
         return 'Home';
     }
 
-    return title_case(str_replace(['/', '-'], [' / ', ' '], $path));
+    return Str::title(str_replace(['/', '-'], [' / ', ' '], $path));
 }
 
 /**
@@ -58,7 +60,7 @@ function breadcrumbs_array()
     foreach (explode('/', $path) as $segment) {
         $uri .= '/'.$segment;
         $segments[] = [
-            'name' => title_case(str_replace('-', ' ', $segment)),
+            'name' => Str::title(str_replace('-', ' ', $segment)),
             'path' => $uri,
         ];
     }
