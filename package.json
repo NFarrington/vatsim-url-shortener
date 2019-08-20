@@ -12,7 +12,7 @@
     "devDependencies": {
         "@bugsnag/js": "^5.2.0",
         "@bugsnag/plugin-vue": "^5.2.0",
-        "axios": "^0.18.1",
+        "axios": "^0.19",
         "bootstrap": "^4.3.1",
         "cross-env": "^5.2.0",
         "jquery": "^3.4.1",

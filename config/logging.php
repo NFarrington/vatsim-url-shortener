@@ -1,7 +1,10 @@
 <?php
 
+use App\Logging\JsonLogger;
+use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
+use Monolog\Logger;
 
 return [
 
@@ -28,7 +31,8 @@ return [
     | you a variety of powerful log handlers / formatters to utilize.
     |
     | Available Drivers: "single", "daily", "slack", "syslog",
-    |                    "errorlog", "custom", "stack"
+    |                    "errorlog", "monolog",
+    |                    "custom", "stack"
     |
     */
 
@@ -54,10 +58,10 @@ return [
             'handler' => StreamHandler::class,
             'handler_with' => [
                 'stream' => 'php://stderr',
-                'level' => \Monolog\Logger::DEBUG,
+                'level' => Logger::DEBUG,
             ],
-            'formatter' => Monolog\Formatter\JsonFormatter::class,
-            'tap' => [App\Logging\JsonLogger::class],
+            'formatter' => JsonFormatter::class,
+            'tap' => [JsonLogger::class],
         ],
 
         'daily' => [

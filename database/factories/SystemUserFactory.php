@@ -1,5 +1,6 @@
 <?php
 
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
 use Faker\Generator as Faker;
 
 $factory->define(App\Models\SystemUser::class, function (Faker $faker) {
