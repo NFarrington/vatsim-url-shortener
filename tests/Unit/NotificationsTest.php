@@ -24,7 +24,7 @@ class NotificationsTest extends TestCase
 
         $this->assertEquals(['database', 'mail'], $notification->via(make(User::class)));
 
-        $this->assertContains('Verify Email Address', $mail->subject);
+        $this->assertStringContainsString('Verify Email Address', $mail->subject);
         $this->assertArrayHasKey('old_email', $db);
         $this->assertArrayHasKey('new_email', $db);
     }
@@ -38,6 +38,6 @@ class NotificationsTest extends TestCase
 
         $this->assertEquals(['mail'], $notification->via(make(User::class)));
 
-        $this->assertContains('New Prefix Application', $mail->subject);
+        $this->assertStringContainsString('New Prefix Application', $mail->subject);
     }
 }

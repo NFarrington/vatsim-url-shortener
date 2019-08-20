@@ -13,10 +13,11 @@
 /.vscode
 /.vagrant
 /_ide_helper.php
+.env
+.env.backup
+.env.docker
+.phpunit.result.cache
 Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
-.env
-.env.backup
-.env.docker
