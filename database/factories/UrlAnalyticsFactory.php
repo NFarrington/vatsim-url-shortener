@@ -5,6 +5,7 @@ use App\Models\Domain;
 use App\Models\Url;
 use App\Models\UrlAnalytics;
 use Faker\Generator as Faker;
+use Illuminate\Support\Arr;
 
 $factory->define(UrlAnalytics::class, function (Faker $faker) {
     return [
@@ -16,7 +17,7 @@ $factory->define(UrlAnalytics::class, function (Faker $faker) {
         'http_host' => make(Domain::class)->url,
         'http_referer' => null,
         'http_user_agent' => $faker->userAgent,
-        'remote_addr' => array_random([$faker->ipv4, $faker->ipv6]),
+        'remote_addr' => Arr::random([$faker->ipv4, $faker->ipv6]),
         'request_uri' => make(Url::class)->url,
         'get_data' => [],
         'custom_headers' => [],

@@ -4,6 +4,7 @@
 
 use App\Models\Organization;
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
 $factory->define(Organization::class, function (Faker $faker) {
     return [
@@ -13,6 +14,6 @@ $factory->define(Organization::class, function (Faker $faker) {
 
 $factory->state(Organization::class, 'prefix', function (Faker $faker) {
     return [
-        'prefix' => str_random(5),
+        'prefix' => Str::random(5),
     ];
 });

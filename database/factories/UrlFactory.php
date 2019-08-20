@@ -6,6 +6,7 @@ use App\Models\Organization;
 use App\Models\Url;
 use App\Models\User;
 use Faker\Generator as Faker;
+use Illuminate\Support\Str;
 
 $factory->define(Url::class, function (Faker $faker) {
     return [
@@ -26,7 +27,7 @@ $factory->define(Url::class, function (Faker $faker) {
 $factory->state(Url::class, 'org', function (Faker $faker) {
     return [
         'organization_id' => function () {
-            return create(Organization::class, ['prefix' => str_random(3)])->id;
+            return create(Organization::class, ['prefix' => Str::random(3)])->id;
         },
         'user_id' => null,
     ];

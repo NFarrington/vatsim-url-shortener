@@ -6,6 +6,7 @@ use App\Models\Domain;
 use App\Models\Url;
 use App\Models\UrlAnalytics;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
@@ -29,7 +30,7 @@ class UrlTest extends TestCase
         $domain = create(Domain::class, ['url' => config('app.url')]);
         $url = factory(Url::class)->states('org')
             ->create(['domain_id' => $domain->id, 'prefix' => true]);
-        $url->organization->update(['prefix' => str_random(3)]);
+        $url->organization->update(['prefix' => Str::random(3)]);
 
         $this->get($url->full_url)
             ->assertRedirect($url->redirect_url);
@@ -44,7 +45,7 @@ class UrlTest extends TestCase
         $url = factory(Url::class)->states('org')
             ->create(['domain_id' => $domain->id, 'prefix' => false]);
 
-        $this->get($url->full_url.'/'.str_random())
+        $this->get($url->full_url.'/'.Str::random())
             ->assertNotFound();
     }
 
@@ -53,7 +54,7 @@ class UrlTest extends TestCase
     {
         $this->expectException(NotFoundHttpException::class);
 
-        $this->get(route('short-url', str_random()))->assertNotFound();
+        $this->get(route('short-url', Str::random()))->assertNotFound();
     }
 
     /** @test */

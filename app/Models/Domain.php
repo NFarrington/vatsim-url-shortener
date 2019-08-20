@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Str;
+
 /**
  * App\Models\Domain
  *
@@ -43,7 +45,7 @@ class Domain extends Model
      */
     public function setUrlAttribute($value)
     {
-        $this->attributes['url'] = ends_with($value, '/')
+        $this->attributes['url'] = Str::endsWith($value, '/')
             ? $value
             : "{$value}/";
     }

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\NewPrefixApplicationNotification;
 use App\Notifications\VerifyEmailNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class NotificationsTest extends TestCase
@@ -16,15 +17,16 @@ class NotificationsTest extends TestCase
     /** @test */
     public function email_verification_notification()
     {
-        $token = str_random(40);
+        $token = Str::random(40);
         $notification = new VerifyEmailNotification($token);
         $mail = $notification->toMail(make(User::class));
         $db = $notification->toArray(make(User::class));
 
         $this->assertEquals(['database', 'mail'], $notification->via(make(User::class)));
 
-        $this->assertContains('Verify Email Address', $mail->subject);
-        $this->assertArraySubset(['old_email', 'new_email'], array_keys($db));
+        $this->assertStringContainsString('Verify Email Address', $mail->subject);
+        $this->assertArrayHasKey('old_email', $db);
+        $this->assertArrayHasKey('new_email', $db);
     }
 
     /** @test */
@@ -36,6 +38,6 @@ class NotificationsTest extends TestCase
 
         $this->assertEquals(['mail'], $notification->via(make(User::class)));
 
-        $this->assertContains('New Prefix Application', $mail->subject);
+        $this->assertStringContainsString('New Prefix Application', $mail->subject);
     }
 }

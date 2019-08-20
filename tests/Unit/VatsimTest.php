@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use App\Exceptions\Cert\InvalidResponseException;
 use App\Libraries\Vatsim;
 use App\Models\User;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -14,7 +15,7 @@ use Tests\TestCase;
 
 class VatsimTest extends TestCase
 {
-    use RefreshDatabase;
+    use ArraySubsetAsserts, RefreshDatabase;
 
     /** @test */
     function can_retrieve_user_data_from_cert()

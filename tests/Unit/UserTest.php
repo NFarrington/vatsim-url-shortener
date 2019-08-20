@@ -8,6 +8,7 @@ use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\Url;
 use App\Models\User;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use stdClass;
@@ -15,7 +16,7 @@ use Tests\TestCase;
 
 class UserTest extends TestCase
 {
-    use RefreshDatabase;
+    use ArraySubsetAsserts, RefreshDatabase;
 
     /** @test */
     function user_has_email_verification()

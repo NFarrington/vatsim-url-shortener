@@ -4,6 +4,7 @@ namespace Tests\Feature\Site;
 
 use App\Models\SystemUser;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Tests\TestCase;
 
@@ -17,7 +18,7 @@ class MailgunTest extends TestCase
         $user = create(SystemUser::class);
 
         $timestamp = mt_rand();
-        $token = str_random();
+        $token = Str::random();
         $signature = hash_hmac('sha256', $timestamp.$token, env('MAILGUN_SECRET'));
         $this->post(route('system.mailgun'), [
             'timestamp' => $timestamp,
@@ -45,7 +46,7 @@ class MailgunTest extends TestCase
         $user = create(SystemUser::class);
 
         $timestamp = mt_rand();
-        $token = str_random();
+        $token = Str::random();
         $signature = hash_hmac('sha256', $timestamp.$token, env('MAILGUN_SECRET'));
         $this->post(route('system.mailgun'), [
             'timestamp' => $timestamp,
@@ -72,8 +73,8 @@ class MailgunTest extends TestCase
         $user = create(SystemUser::class);
 
         $timestamp = mt_rand();
-        $token = str_random();
-        $signature = hash_hmac('sha256', $timestamp.$token, str_random());
+        $token = Str::random();
+        $signature = hash_hmac('sha256', $timestamp.$token, Str::random());
         $this->post(route('system.mailgun'), [
             'timestamp' => $timestamp,
             'token' => $token,
