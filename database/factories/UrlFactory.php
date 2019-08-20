@@ -32,3 +32,9 @@ $factory->state(Url::class, 'org', function (Faker $faker) {
         'user_id' => null,
     ];
 });
+
+$factory->state(Url::class, 'analytics_disabled', function (Faker $faker) {
+    return [
+        'analytics_disabled' => true,
+    ];
+});

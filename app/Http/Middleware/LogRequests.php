@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Url;
 use App\Models\UrlAnalytics;
 use Auth;
 use Closure;
@@ -40,21 +41,26 @@ class LogRequests
      */
     public function terminate(Request $request, Response $response)
     {
-        $serverData = $this->filterFillable($_SERVER);
-        UrlAnalytics::create([
-            'user_id' => Auth::check() ? Auth::user()->id : null,
-            'url_id' => $request->session()->pull('short.url_id'),
-            'request_time' => $_SERVER['REQUEST_TIME'],
-            'http_host' => $request->root(),
-            'http_referer' => $request->headers->get('referer'),
-            'http_user_agent' => $request->userAgent(),
-            'remote_addr' => $request->ip(),
-            'request_uri' => $request->path(),
-            'get_data' => $_GET,
-            'post_data' => $_POST,
-            'custom_headers' => array_diff_key($this->getHeaders(), $serverData),
-            'response_code' => $response->getStatusCode(),
-        ]);
+        /** @var Url $url */
+        $url = $request->session()->pull('short.url');
+
+        if (!$url->analytics_disabled) {
+            $serverData = $this->filterFillable($_SERVER);
+            UrlAnalytics::create([
+                'user_id' => Auth::check() ? Auth::user()->id : null,
+                'url_id' => $url->id,
+                'request_time' => $_SERVER['REQUEST_TIME'],
+                'http_host' => $request->root(),
+                'http_referer' => $request->headers->get('referer'),
+                'http_user_agent' => $request->userAgent(),
+                'remote_addr' => $request->ip(),
+                'request_uri' => $request->path(),
+                'get_data' => $_GET,
+                'post_data' => $_POST,
+                'custom_headers' => array_diff_key($this->getHeaders(), $serverData),
+                'response_code' => $response->getStatusCode(),
+            ]);
+        }
     }
 
     /**
