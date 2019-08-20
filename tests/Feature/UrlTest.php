@@ -78,4 +78,19 @@ class UrlTest extends TestCase
             'response_code' => 302,
         ]);
     }
+
+    /** @test */
+    function short_url_clicks_for_ignored_urls_are_not_logged()
+    {
+        $domain = create(Domain::class, ['url' => config('app.url')]);
+        $loggedUrl = create(Url::class, ['domain_id' => $domain->id]);
+        $ignoredUrl = factory(Url::class)->states('analytics_disabled')
+            ->create(['domain_id' => $domain->id]);
+
+        $this->get(route('short-url', $loggedUrl->url));
+        $this->get(route('short-url', $ignoredUrl->url));
+        $this->assertDatabaseMissing((new UrlAnalytics())->getTable(), [
+            'request_uri' => $ignoredUrl->url,
+        ]);
+    }
 }

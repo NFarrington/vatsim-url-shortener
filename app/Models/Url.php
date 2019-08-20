@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property bool $prefix
  * @property string $url
  * @property string $redirect_url
+ * @property int $analytics_disabled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url public()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url query()
  * @method static bool|null restore()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereAnalyticsDisabled($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereDomainId($value)

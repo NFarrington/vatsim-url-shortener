@@ -53,7 +53,7 @@ class UrlController extends Controller
             throw new NotFoundHttpException();
         }
 
-        request()->session()->flash('short.url_id', $url->id);
+        request()->session()->flash('short.url', $url);
 
         return redirect()->to($url->redirect_url);
     }
