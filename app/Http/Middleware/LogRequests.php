@@ -43,12 +43,13 @@ class LogRequests
     {
         /** @var Url $url */
         $url = $request->session()->pull('short.url');
+        $analyticsDisabled = $url && $url->analytics_disabled;
 
-        if (!$url->analytics_disabled) {
+        if (!$analyticsDisabled) {
             $serverData = $this->filterFillable($_SERVER);
             UrlAnalytics::create([
                 'user_id' => Auth::check() ? Auth::user()->id : null,
-                'url_id' => $url->id,
+                'url_id' => $url ? $url->id : null,
                 'request_time' => $_SERVER['REQUEST_TIME'],
                 'http_host' => $request->root(),
                 'http_referer' => $request->headers->get('referer'),
