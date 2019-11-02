@@ -1,4 +1,4 @@
-FROM node:10-alpine AS resources
+FROM node:12-alpine AS resources
 
 WORKDIR /home/node/app
 RUN chown node:node /home/node/app
