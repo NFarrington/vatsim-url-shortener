@@ -7,7 +7,7 @@ USER node
 
 COPY package*.json /home/node/app/
 
-RUN npm install
+RUN npm ci
 
 COPY --chown=node:node public /home/node/app/public
 COPY resources/js /home/node/app/resources/js
@@ -60,6 +60,13 @@ RUN apk add --update --no-cache --virtual build-dependencies \
     && docker-php-ext-install pcntl \
     && apk del build-dependencies
 
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+        && echo 'log_errors_max_len = 0' >> $PHP_INI_DIR/conf.d/app.ini \
+        && echo 'cgi.fix_pathinfo = 0' >> $PHP_INI_DIR/conf.d/app.ini \
+        && echo 'date.timezone = UTC' >> $PHP_INI_DIR/conf.d/app.ini \
+        && echo 'expose_php = 0' >> $PHP_INI_DIR/conf.d/app.ini
+COPY ./docker/app-fpm.conf /usr/local/etc/php-fpm.d/app-fpm.conf
+
 WORKDIR /var/www/html
 
 USER www-data
@@ -92,15 +99,6 @@ RUN chown -R www-data:www-data \
 USER www-data
 
 RUN php composer.phar docker-build
-
-USER root
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-        && echo 'log_errors_max_len = 0' >> $PHP_INI_DIR/conf.d/app.ini \
-        && echo 'cgi.fix_pathinfo = 0' >> $PHP_INI_DIR/conf.d/app.ini \
-        && echo 'date.timezone = UTC' >> $PHP_INI_DIR/conf.d/app.ini \
-        && echo 'expose_php = 0' >> $PHP_INI_DIR/conf.d/app.ini
-COPY ./docker/app-fpm.conf /usr/local/etc/php-fpm.d/app-fpm.conf
-USER www-data
 
 ARG APP_COMMIT
 ENV APP_COMMIT $APP_COMMIT
