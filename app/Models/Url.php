@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Kyslik\ColumnSortable\Sortable;
 
@@ -138,5 +139,23 @@ class Url extends Model
     public function scopePublic($query)
     {
         return $query->whereNull('user_id')->whereNull('organization_id');
+    }
+
+    /**
+     * Override default URL sorting in order to sort URLs by their
+     * full host and path, instead of just their path.
+     *
+     * @param $query
+     * @param $direction
+     * @return mixed
+     */
+    public function urlSortable($query, $direction)
+    {
+        $column = DB::connection()->getDriverName() == 'sqlite'
+            ? DB::raw('domains.url || urls.url')
+            : DB::raw('CONCAT(domains.url, urls.url)');
+
+        return $query->join('domains', 'urls.domain_id', 'domains.id')
+            ->orderBy($column, $direction);
     }
 }
