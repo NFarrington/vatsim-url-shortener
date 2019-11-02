@@ -29,6 +29,10 @@
   font-size: 48px;
 }
 
+.link-unstyled a {
+  color: inherit;
+}
+
 .text-link {
   @extend a;
   cursor: pointer;

@@ -38,9 +38,7 @@ class UrlController extends Controller
             ->orWhereHas('organization', function ($query) use ($user) {
                 $query->whereIn('id', $user->organizations->pluck('id'));
             })->join('domains', 'urls.domain_id', 'domains.id')
-            ->orderBy('organization_id')
-            ->orderBy('domains.url')
-            ->orderBy('urls.url')
+            ->sortable(['organization_id', 'domains.url', 'urls.url'])
             ->paginate(20, ['urls.*']);
 
         $publicUrls = Url::public()

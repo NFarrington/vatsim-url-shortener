@@ -1,14 +1,14 @@
 @if($urls->isNotEmpty())
     <div class="table-responsive">
         <table class="table table-hover">
-            <tr>
-                <th>ID</th>
-                <th>URL</th>
-                <th>Redirect</th>
+            <tr class="link-unstyled">
+                <th>@sortablelink('id', 'ID', null, ['class' => 'text-nowrap'])</th>
+                <th>@sortablelink('url', 'URL', null, ['class' => 'text-nowrap'])</th>
+                <th>@sortablelink('redirect_url', 'Redirect URL', null, ['class' => 'text-nowrap'])</th>
                 @if($user->organizations->isNotEmpty())
-                    <th>Organization</th>
+                    <th>@sortablelink('organization.name', 'Organization', null, ['class' => 'text-nowrap'])</th>
                 @endif
-                <th>Created</th>
+                <th>@sortablelink('created_at', 'Created', null, ['class' => 'text-nowrap'])</th>
                 <th></th>
                 <th></th>
             </tr>

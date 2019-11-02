@@ -18,7 +18,7 @@
                 <table class="table table-hover">
                     <tr>
                         <th>URL</th>
-                        <th>Redirect</th>
+                        <th>Redirect URL</th>
                     </tr>
                     @foreach($publicUrls as $url)
                         <tr>
