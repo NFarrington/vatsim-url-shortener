@@ -41,7 +41,13 @@
         </table>
     </div>
 
-    <div class="mx-auto">{{ $urls->links() }}</div>
+    @if(!Request::has('sort'))
+        <div class="mx-auto">{{ $urls->links() }}</div>
+    @else
+        <div class="mx-auto">
+            {{ $urls->appends(['sort' => Request::get('sort'), 'direction' => Request::get('direction')])->links() }}
+        </div>
+    @endif
 @else
     <div class="card-body text-center">
         <span>Nothing to show.</span>
