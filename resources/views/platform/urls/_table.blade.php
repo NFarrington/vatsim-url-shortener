@@ -8,7 +8,7 @@
                 @if($user->organizations->isNotEmpty())
                     <th>@sortablelink('organization.name', 'Organization', null, ['class' => 'text-nowrap'])</th>
                 @endif
-                <th>@sortablelink('created_at', 'Created', null, ['class' => 'text-nowrap'])</th>
+                <th>@sortablelink('updated_at', 'Last Updated', null, ['class' => 'text-nowrap'])</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -20,7 +20,7 @@
                     @if($user->organizations->isNotEmpty())
                         <td>{{ $url->organization->name ?? new \Illuminate\Support\HtmlString('&mdash;') }}</td>
                     @endif
-                    <td>{{ hyphen_nobreak($url->created_at) }}</td>
+                    <td>{{ hyphen_nobreak($url->updated_at) }}</td>
                     <td>
                         @can('update', $url)
                             <a href="{{ route('platform.urls.edit', $url) }}">Edit</a>
