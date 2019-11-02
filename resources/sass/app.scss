@@ -5,6 +5,9 @@
 @import "variables";
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+// Font Awesome
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/solid';
 
 .material-icons {
   vertical-align: text-bottom;
