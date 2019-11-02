@@ -15,8 +15,8 @@
             @foreach($urls as $url)
                 <tr>
                     <td>{{ $url->id }}</td>
-                    <td class="break-all"><a href="{{ url($url->full_url) }}">{{ $url->full_url }}</a></td>
-                    <td class="break-all"><a href="{{ $url->redirect_url }}">{{ $url->redirect_url }}</a></td>
+                    <td class="break-all"><a href="{{ url($url->full_url) }}">{{ preg_replace('#^https?://#', '', $url->full_url) }}</a></td>
+                    <td class="break-all"><a href="{{ $url->redirect_url }}">{{ preg_replace('#^https?://#', '', $url->redirect_url) }}</a></td>
                     @if($user->organizations->isNotEmpty())
                         <td>{{ $url->organization->name ?? new \Illuminate\Support\HtmlString('&mdash;') }}</td>
                     @endif
