@@ -1,13 +1,13 @@
 @if($organizations->isNotEmpty())
     <div class="table-responsive">
         <table class="table table-hover">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
+            <tr class="link-unstyled">
+                <th>@sortablelink('id', 'ID', null, ['class' => 'text-nowrap'])</th>
+                <th>@sortablelink('name', 'Name', null, ['class' => 'text-nowrap'])</th>
                 <th>Owners</th>
                 <th>Managers</th>
                 <th>Members</th>
-                <th>Created</th>
+                <th>@sortablelink('updated_at', 'Last Updated', null, ['class' => 'text-nowrap'])</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -60,7 +60,7 @@
                             @endforelse
                         </ul>
                     </td>
-                    <td>{{ hyphen_nobreak($organization->created_at) }}</td>
+                    <td>{{ hyphen_nobreak($organization->updated_at) }}</td>
                     <td>
                         @can('act-as-owner', $organization)
                             <a href="{{ route('platform.organizations.edit', $organization) }}">Edit</a>
@@ -81,7 +81,13 @@
         </table>
     </div>
 
-    <div class="mx-auto">{{ $organizations->links() }}</div>
+    @if(!Request::has('sort'))
+        <div class="mx-auto">{{ $organizations->links() }}</div>
+    @else
+        <div class="mx-auto">
+            {{ $organizations->appends(['sort' => Request::get('sort'), 'direction' => Request::get('direction')])->links() }}
+        </div>
+    @endif
 @else
     <div class="card-body text-center">
         <span>Nothing to show.</span>

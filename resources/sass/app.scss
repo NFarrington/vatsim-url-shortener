@@ -5,6 +5,9 @@
 @import "variables";
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+// Font Awesome
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/solid';
 
 .material-icons {
   vertical-align: text-bottom;
@@ -24,6 +27,14 @@
 
 .material-icons.md-48 {
   font-size: 48px;
+}
+
+.fa-sort {
+  color: #adadad;
+}
+
+.link-unstyled a {
+  color: inherit;
 }
 
 .text-link {

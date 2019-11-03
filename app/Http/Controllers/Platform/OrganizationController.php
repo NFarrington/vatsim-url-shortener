@@ -31,7 +31,7 @@ class OrganizationController extends Controller
         $organizations = Organization::with('owners', 'managers', 'members', 'users')
             ->whereHas('users', function ($query) use ($request) {
                 $query->where('users.id', $request->user()->id);
-            })->orderBy('created_at')->paginate(20);
+            })->sortable('name')->paginate(20);
 
         return view('platform.organizations.index')->with([
             'organizations' => $organizations,

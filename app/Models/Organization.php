@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Kyslik\ColumnSortable\Sortable;
 
 /**
  * App\Models\Organization
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Organization onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization query()
  * @method static bool|null restore()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization sortable($defaultParameters = null)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereId($value)
@@ -38,7 +40,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Organization extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Sortable;
 
     /**
      * The attributes that are trackable.
@@ -46,6 +48,18 @@ class Organization extends Model
      * @var array
      */
     protected $tracked = ['name'];
+
+    /**
+     * Sortable attributes.
+     *
+     * @var array
+     */
+    public $sortable = [
+        'id',
+        'name',
+        'created_at',
+        'updated_at',
+    ];
 
     /**
      * The organization's URLs.
