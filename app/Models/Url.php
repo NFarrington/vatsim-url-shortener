@@ -158,4 +158,17 @@ class Url extends Model
         return $query->join('domains', 'urls.domain_id', 'domains.id')
             ->orderBy($column, $direction);
     }
+
+    /**
+     * Override default redirect URL sorting in order to sort URLs
+     * without their protocol.
+     *
+     * @param $query
+     * @param $direction
+     * @return mixed
+     */
+    public function redirectUrlSortable($query, $direction)
+    {
+        return $query->orderBy(DB::raw("REPLACE(REPLACE(redirect_url, 'https://', ''), 'http://', '')"), $direction);
+    }
 }
