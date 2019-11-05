@@ -2,26 +2,16 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
 use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode as Middleware;
 
 class CheckForMaintenanceMode extends Middleware
 {
     /**
-     * Handle an incoming request.
+     * The URIs that should be reachable while maintenance mode is enabled.
      *
-     * @codeCoverageIgnore
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure $next
-     * @return mixed
-     * @throws \Symfony\Component\HttpKernel\Exception\HttpException
+     * @var array
      */
-    public function handle($request, Closure $next)
-    {
-        if (!$request->is('platform*')) {
-            return $next($request);
-        }
-
-        return parent::handle($request, $next);
-    }
+    protected $except = [
+        'platform*',
+    ];
 }

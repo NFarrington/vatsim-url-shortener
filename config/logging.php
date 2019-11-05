@@ -2,6 +2,7 @@
 
 use App\Logging\JsonLogger;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Logger;
@@ -106,6 +107,11 @@ return [
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => 'debug',
+        ],
+
+        'null' => [
+            'driver' => 'monolog',
+            'handler' => NullHandler::class,
         ],
 
         'bugsnag' => [

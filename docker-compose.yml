@@ -8,7 +8,8 @@ services:
       context: .
       target: nginx
     ports:
-      - "127.0.0.1::8080"
+      - "127.0.0.1:8080:8080"
+    restart: always
     depends_on:
       - php-fpm
 
@@ -22,6 +23,7 @@ services:
     volumes:
       - app-storage:/var/www/storage
     env_file: .env.docker
+    restart: always
 
   queue-worker:
     build:
@@ -39,6 +41,18 @@ services:
       interval: 30s
       timeout: 10s
       start_period: 15s
+    restart: always
+
+  mariadb:
+    image: mariadb:10.3
+    ports:
+      - "127.0.0.1:33060:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: dev_vatsim_shorturl
+      MYSQL_USER: dev_vatsim_shorturl
+      MYSQL_PASSWORD: secret
+    restart: always
 
 volumes:
   app-storage:

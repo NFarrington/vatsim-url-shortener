@@ -9,6 +9,19 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     /**
+     * Register any application services.
+     *
+     * @codeCoverageIgnore
+     * @return void
+     */
+    public function register()
+    {
+        $this->app->bind('guzzle', function () {
+            return new GuzzleClient(['timeout' => 5]);
+        });
+    }
+
+    /**
      * Bootstrap any application services.
      *
      * @return void
@@ -38,19 +51,6 @@ class AppServiceProvider extends ServiceProvider
             $time .= ' at '.$this->format('H:i');
 
             return $time;
-        });
-    }
-
-    /**
-     * Register any application services.
-     *
-     * @codeCoverageIgnore
-     * @return void
-     */
-    public function register()
-    {
-        $this->app->bind('guzzle', function () {
-            return new GuzzleClient(['timeout' => 5]);
         });
     }
 }
