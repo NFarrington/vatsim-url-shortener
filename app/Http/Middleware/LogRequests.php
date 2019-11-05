@@ -4,9 +4,9 @@ namespace App\Http\Middleware;
 
 use App\Models\Url;
 use App\Models\UrlAnalytics;
-use Auth;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 

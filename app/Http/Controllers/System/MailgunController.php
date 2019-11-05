@@ -5,7 +5,7 @@ namespace App\Http\Controllers\System;
 use App\Models\EmailEvent;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Response;
+use Illuminate\Support\Facades\Response;
 
 class MailgunController extends Controller
 {

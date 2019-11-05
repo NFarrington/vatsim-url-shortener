@@ -15,10 +15,10 @@
         "bugsnag/bugsnag-laravel": "^2.0",
         "doctrine/dbal": "^2.7",
         "fideloper/proxy": "^4.0",
-        "graham-campbell/markdown": "^10.0",
+        "graham-campbell/markdown": "^11.0",
         "guzzlehttp/guzzle": "^6.3",
-        "kyslik/column-sortable": "5.8.*",
-        "laravel/framework": "5.8.*",
+        "kyslik/column-sortable": "^6.0",
+        "laravel/framework": "^6.0",
         "laravel/tinker": "^1.0",
         "pragmarx/google2fa-qrcode": "^1.0",
         "vatsim/sso-laravel": "3.*"
