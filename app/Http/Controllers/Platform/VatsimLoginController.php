@@ -44,6 +44,27 @@ class VatsimLoginController extends Controller
     }
 
     /**
+     * Get the throttle key for the given request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return string
+     */
+    protected function throttleKey(Request $request)
+    {
+        return $request->ip();
+    }
+
+    /**
+     * Get the maximum number of attempts to allow.
+     *
+     * @return int
+     */
+    public function maxAttempts()
+    {
+        return 20;
+    }
+
+    /**
      * Handle a login request to the application.
      *
      * @param \Illuminate\Http\Request $request
@@ -71,12 +92,20 @@ class VatsimLoginController extends Controller
      */
     public function callback(Request $request)
     {
-        $session = $request->session()->pull('auth.vatsim');
+        $session = $request->session()->pull('auth.vatsim', [
+            'key' => null,
+            'secret' => null,
+        ]);
 
         if ($this->hasTooManyLoginAttempts($request)) {
             $this->fireLockoutEvent($request);
 
             return $this->sendLockoutResponse($request);
+        }
+
+        if (!$session['key'] || !$session['secret']) {
+            return redirect()->route('platform.login')
+                ->with('error', 'SSO login failed: missing key or secret.');
         }
 
         try {
