@@ -34,7 +34,10 @@ class VatsimLoginTest extends TestCase
         $mock->method('checkLogin')->willReturn($ssoRequest);
         $this->app->instance('vatsimoauth', $mock);
 
-        $this->get(route('platform.login.vatsim.callback'))
+        $this->withSession(['auth.vatsim' => [
+            'key' => 'auth-key',
+            'secret' => 'auth-secret',
+        ]])->get(route('platform.login.vatsim.callback'))
             ->assertRedirect();
         $this->assertTrue(Auth::check());
     }
@@ -49,9 +52,12 @@ class VatsimLoginTest extends TestCase
 
         config(['auth.banned_users' => [1300001]]);
 
-        $this->get(route('platform.login.vatsim.callback'))
+        $this->withSession(['auth.vatsim' => [
+            'key' => 'auth-key',
+            'secret' => 'auth-secret',
+        ]])->get(route('platform.login.vatsim.callback'))
             ->assertRedirect()
-            ->assertSessionHas('error');
+            ->assertSessionHas('error', 'SSO login failed: You are not authorized to use this service.');
     }
 
     /** @test */
@@ -61,9 +67,24 @@ class VatsimLoginTest extends TestCase
         $mock->method('checkLogin')->willThrowException(new SSOException('checkLogin failed'));
         $this->app->instance('vatsimoauth', $mock);
 
+        $this->withSession(['auth.vatsim' => [
+            'key' => 'auth-key',
+            'secret' => 'auth-secret',
+        ]])->get(route('platform.login.vatsim.callback'))
+            ->assertRedirect()
+            ->assertSessionHas('error', 'SSO login failed: "checkLogin failed"');
+    }
+
+    /** @test */
+    function missing_session_auth_redirects_with_error()
+    {
+        $mock = $this->createMock(SSO::class);
+        $mock->method('checkLogin')->willThrowException(new SSOException('checkLogin failed'));
+        $this->app->instance('vatsimoauth', $mock);
+
         $this->get(route('platform.login.vatsim.callback'))
             ->assertRedirect()
-            ->assertSessionHas('error');
+            ->assertSessionHas('error', 'SSO login failed: missing key or secret.');
     }
 
     /** @test */
@@ -80,7 +101,7 @@ class VatsimLoginTest extends TestCase
 
         $this->get(route('platform.login.vatsim.callback'))
             ->assertRedirect()
-            ->assertSessionHas('error');
+            ->assertSessionHas('error', 'Too many login attempts. Please try again in  seconds.');
         $this->assertFalse(Auth::check());
     }
 }
