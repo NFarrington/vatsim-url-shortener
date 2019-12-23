@@ -53,7 +53,7 @@ RUN apk add --update --no-cache --virtual build-dependencies \
         libpng-dev \
         unzip \
         fcgi \
-    && pecl install mcrypt-1.0.2 \
+    && pecl install mcrypt-1.0.3 \
     && docker-php-ext-enable mcrypt \
     && docker-php-ext-install pdo_mysql \
     && docker-php-ext-install gd \
