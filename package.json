@@ -12,18 +12,18 @@
     "devDependencies": {
         "@bugsnag/js": "^5.2.0",
         "@bugsnag/plugin-vue": "^5.2.0",
-        "@fortawesome/fontawesome-free": "^5.11.2",
+        "@fortawesome/fontawesome-free": "^5.12.0",
         "axios": "^0.19",
-        "bootstrap": "^4.3.1",
+        "bootstrap": "^4.4.1",
         "cross-env": "^5.2.1",
         "jquery": "^3.4.1",
         "laravel-mix": "^4.1.4",
         "lodash": "^4.17.15",
         "popper.js": "^1.16.0",
         "resolve-url-loader": "^2.3.2",
-        "sass": "^1.23.3",
+        "sass": "^1.24.0",
         "sass-loader": "^7.3.1",
-        "vue": "^2.6.10",
-        "vue-template-compiler": "^2.6.10"
+        "vue": "^2.6.11",
+        "vue-template-compiler": "^2.6.11"
     }
 }
