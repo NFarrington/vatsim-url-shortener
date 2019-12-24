@@ -21,6 +21,7 @@ use Kyslik\ColumnSortable\Sortable;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @property-read int|null $data_changes_count
  * @property-read \App\Models\Domain $domain
  * @property-read string $full_url
  * @property-read \App\Models\Organization|null $organization

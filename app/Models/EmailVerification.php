@@ -10,6 +10,7 @@ namespace App\Models;
  * @property string $token
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @property-read int|null $data_changes_count
  * @property-read \App\Models\User $user
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailVerification newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailVerification newQuery()
