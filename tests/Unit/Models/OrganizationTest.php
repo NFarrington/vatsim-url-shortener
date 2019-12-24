@@ -15,14 +15,21 @@ class OrganizationTest extends TestCase
 {
     use RefreshDatabase;
 
+    private $organization;
+
+    function setUp(): void
+    {
+        parent::setUp();
+        $this->organization = create(Organization::class);
+    }
+
     /** @test */
     function has_many_urls()
     {
-        $organization = create(Organization::class);
-        $expectedUrl1 = create(Url::class, ['organization_id' => $organization->id]);
-        $expectedUrl2 = create(Url::class, ['organization_id' => $organization->id]);
+        $expectedUrl1 = create(Url::class, ['organization_id' => $this->organization->id]);
+        $expectedUrl2 = create(Url::class, ['organization_id' => $this->organization->id]);
 
-        $actualUrlIds = $organization->urls->pluck('id');
+        $actualUrlIds = $this->organization->urls->pluck('id');
 
         $this->assertEquals(2, $actualUrlIds->count());
         $this->assertContains($expectedUrl1->id, $actualUrlIds);
@@ -32,21 +39,12 @@ class OrganizationTest extends TestCase
     /** @test */
     function belongs_to_many_owners()
     {
-        $organization = create(Organization::class);
-        $expectedOwner1 = create(User::class);
-        $expectedOwner2 = create(User::class);
-        $organization->owners()->newPivot([
-            'organization_id' => $organization->id,
-            'user_id' => $expectedOwner1->id,
-            'role_id' => OrganizationUser::ROLE_OWNER,
-        ])->save();
-        $organization->owners()->newPivot([
-            'organization_id' => $organization->id,
-            'user_id' => $expectedOwner2->id,
-            'role_id' => OrganizationUser::ROLE_OWNER,
-        ])->save();
+        $expectedOwner1 = $this->givenOrganizationHasUserWithRole(
+            $this->organization, OrganizationUser::ROLE_OWNER);
+        $expectedOwner2 = $this->givenOrganizationHasUserWithRole(
+            $this->organization, OrganizationUser::ROLE_OWNER);
 
-        $actualOwnerIds = $organization->owners->pluck('id');
+        $actualOwnerIds = $this->organization->owners->pluck('id');
 
         $this->assertEquals(2, $actualOwnerIds->count());
         $this->assertContains($expectedOwner1->id, $actualOwnerIds);
@@ -56,21 +54,12 @@ class OrganizationTest extends TestCase
     /** @test */
     function belongs_to_many_managers()
     {
-        $organization = create(Organization::class);
-        $expectedManager1 = create(User::class);
-        $expectedManager2 = create(User::class);
-        $organization->managers()->newPivot([
-            'organization_id' => $organization->id,
-            'user_id' => $expectedManager1->id,
-            'role_id' => OrganizationUser::ROLE_MANAGER,
-        ])->save();
-        $organization->managers()->newPivot([
-            'organization_id' => $organization->id,
-            'user_id' => $expectedManager2->id,
-            'role_id' => OrganizationUser::ROLE_MANAGER,
-        ])->save();
+        $expectedManager1 = $this->givenOrganizationHasUserWithRole(
+            $this->organization, OrganizationUser::ROLE_MANAGER);
+        $expectedManager2 = $this->givenOrganizationHasUserWithRole(
+            $this->organization, OrganizationUser::ROLE_MANAGER);
 
-        $actualManagerIds = $organization->managers->pluck('id');
+        $actualManagerIds = $this->organization->managers->pluck('id');
 
         $this->assertEquals(2, $actualManagerIds->count());
         $this->assertContains($expectedManager1->id, $actualManagerIds);
@@ -80,21 +69,12 @@ class OrganizationTest extends TestCase
     /** @test */
     function belongs_to_many_members()
     {
-        $organization = create(Organization::class);
-        $expectedMember1 = create(User::class);
-        $expectedMember2 = create(User::class);
-        $organization->members()->newPivot([
-            'organization_id' => $organization->id,
-            'user_id' => $expectedMember1->id,
-            'role_id' => OrganizationUser::ROLE_MEMBER,
-        ])->save();
-        $organization->members()->newPivot([
-            'organization_id' => $organization->id,
-            'user_id' => $expectedMember2->id,
-            'role_id' => OrganizationUser::ROLE_MEMBER,
-        ])->save();
+        $expectedMember1 = $this->givenOrganizationHasUserWithRole(
+            $this->organization, OrganizationUser::ROLE_MEMBER);
+        $expectedMember2 = $this->givenOrganizationHasUserWithRole(
+            $this->organization, OrganizationUser::ROLE_MEMBER);
 
-        $actualMemberIds = $organization->members->pluck('id');
+        $actualMemberIds = $this->organization->members->pluck('id');
 
         $this->assertEquals(2, $actualMemberIds->count());
         $this->assertContains($expectedMember1->id, $actualMemberIds);
@@ -104,21 +84,12 @@ class OrganizationTest extends TestCase
     /** @test */
     function belongs_to_many_users()
     {
-        $organization = create(Organization::class);
-        $expectedUser1 = create(User::class);
-        $expectedUser2 = create(User::class);
-        $organization->users()->newPivot([
-            'organization_id' => $organization->id,
-            'user_id' => $expectedUser1->id,
-            'role_id' => OrganizationUser::ROLE_OWNER,
-        ])->save();
-        $organization->users()->newPivot([
-            'organization_id' => $organization->id,
-            'user_id' => $expectedUser2->id,
-            'role_id' => OrganizationUser::ROLE_MEMBER,
-        ])->save();
+        $expectedUser1 = $this->givenOrganizationHasUserWithRole(
+            $this->organization, OrganizationUser::ROLE_OWNER);
+        $expectedUser2 = $this->givenOrganizationHasUserWithRole(
+            $this->organization, OrganizationUser::ROLE_MEMBER);
 
-        $actualUserIds = $organization->users->pluck('id');
+        $actualUserIds = $this->organization->users->pluck('id');
 
         $this->assertEquals(2, $actualUserIds->count());
         $this->assertContains($expectedUser1->id, $actualUserIds);
@@ -128,12 +99,11 @@ class OrganizationTest extends TestCase
     /** @test */
     function has_one_prefix_application()
     {
-        $organization = create(Organization::class);
         $expectedApplication = create(OrganizationPrefixApplication::class, [
-            'organization_id' => $organization->id,
+            'organization_id' => $this->organization->id,
         ]);
 
-        $actualApplication = $organization->prefixApplication;
+        $actualApplication = $this->organization->prefixApplication;
 
         $this->assertEquals($expectedApplication->id, $actualApplication->id);
     }
@@ -141,14 +111,26 @@ class OrganizationTest extends TestCase
     /** @test */
     function does_not_have_deleted_prefix_applications()
     {
-        $organization = create(Organization::class);
         create(OrganizationPrefixApplication::class, [
-            'organization_id' => $organization->id,
+            'organization_id' => $this->organization->id,
             'deleted_at' => Carbon::now(),
         ]);
 
-        $actualApplication = $organization->prefixApplication;
+        $actualApplication = $this->organization->prefixApplication;
 
         $this->assertNull($actualApplication);
+    }
+
+    private function givenOrganizationHasUserWithRole(Organization $organization, int $role)
+    {
+        $user = create(User::class);
+
+        $organization->users()->newPivot([
+            'organization_id' => $organization->id,
+            'user_id' => $user->id,
+            'role_id' => $role,
+        ])->save();
+
+        return $user;
     }
 }
