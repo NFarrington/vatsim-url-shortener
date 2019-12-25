@@ -99,6 +99,52 @@ class UrlTest extends TestCase
     }
 
     /** @test */
+    function sorting_by_url_uses_full_path()
+    {
+        $domain1 = create(Domain::class, ['url' => 'https://my-domain1.localhost/']);
+        $domain2 = create(Domain::class, ['url' => 'https://my-domain2.localhost/']);
+        $url1 = create(Url::class, ['domain_id' => $domain2->id, 'url' => 'my-url1']);
+        $url2 = create(Url::class, ['domain_id' => $domain1->id, 'url' => 'my-url2']);
+
+        $actualUrlIds = Url::query()->sortable('url')->pluck('urls.id');
+
+        $this->assertCount(2, $actualUrlIds);
+        $this->assertEquals($url2->id, $actualUrlIds[0]);
+        $this->assertEquals($url1->id, $actualUrlIds[1]);
+    }
+
+    /** @test */
+    function sorting_by_url_includes_prefixes_in_full_path()
+    {
+        $domain = create(Domain::class, ['url' => 'https://my-domain.localhost/']);
+        $organization1 = create(Organization::class, ['prefix' => 'my-prefix1']);
+        $organization2 = create(Organization::class, ['prefix' => 'my-prefix2']);
+        $url1 = factory(Url::class)->states(['org', 'prefix'])->create(
+            ['domain_id' => $domain->id, 'organization_id' => $organization2->id, 'url' => 'my-url1']);
+        $url2 = factory(Url::class)->states(['org', 'prefix'])->create(
+            ['domain_id' => $domain->id, 'organization_id' => $organization1->id, 'url' => 'my-url2']);
+
+        $actualUrlIds = Url::query()->sortable('url')->pluck('urls.id');
+
+        $this->assertCount(2, $actualUrlIds);
+        $this->assertEquals($url2->id, $actualUrlIds[0]);
+        $this->assertEquals($url1->id, $actualUrlIds[1]);
+    }
+
+    /** @test */
+    function sorting_by_redirect_url_ignores_protocol()
+    {
+        $url1 = create(Url::class, ['redirect_url' => 'http://my-test.localhost/example2']);
+        $url2 = create(Url::class, ['redirect_url' => 'https://my-test.localhost/example1']);
+
+        $actualUrlIds = Url::query()->sortable('redirect_url')->pluck('id');
+
+        $this->assertCount(2, $actualUrlIds);
+        $this->assertEquals($url2->id, $actualUrlIds[0]);
+        $this->assertEquals($url1->id, $actualUrlIds[1]);
+    }
+
+    /** @test */
     function url_and_redirect_changes_are_tracked()
     {
         $originalUrl = create(Url::class);
