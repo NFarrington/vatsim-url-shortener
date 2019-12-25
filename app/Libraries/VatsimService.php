@@ -5,10 +5,10 @@ namespace App\Libraries;
 use App\Exceptions\Cert\InvalidResponseException;
 use SimpleXMLElement;
 
-class Vatsim
+class VatsimService
 {
     /**
-     * Create a new user from their Cert data.
+     * Retrieve user data from Cert.
      *
      * @param int $id
      * @return array

@@ -3,7 +3,7 @@
 namespace Tests\Feature\Platform;
 
 use App\Exceptions\Cert\InvalidResponseException;
-use App\Libraries\Vatsim;
+use App\Libraries\VatsimService;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
@@ -89,9 +89,9 @@ EOT;
         $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
 
         $user = make(User::class);
-        $mock = $this->createMock(Vatsim::class);
+        $mock = $this->createMock(VatsimService::class);
         $mock->method('getUser')->willThrowException(new InvalidResponseException());
-        $this->app->instance(Vatsim::class, $mock);
+        $this->app->instance(VatsimService::class, $mock);
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->post(route('platform.organizations.users.store', $organization), [
@@ -109,9 +109,9 @@ EOT;
         $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
 
         $user = make(User::class);
-        $mock = $this->createMock(Vatsim::class);
+        $mock = $this->createMock(VatsimService::class);
         $mock->method('getUser')->willThrowException(new Exception());
-        $this->app->instance(Vatsim::class, $mock);
+        $this->app->instance(VatsimService::class, $mock);
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->post(route('platform.organizations.users.store', $organization), [

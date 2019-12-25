@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Libraries\Vatsim;
+use App\Libraries\VatsimService;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -172,7 +172,7 @@ class User extends Model implements
      */
     public static function createFromCert(int $id)
     {
-        $attributes = app(Vatsim::class)->getUser($id);
+        $attributes = app(VatsimService::class)->getUser($id);
 
         $user = new self();
         $user->id = $attributes['id'];

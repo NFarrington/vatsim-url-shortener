@@ -3,7 +3,7 @@
 namespace Tests\Unit;
 
 use App\Exceptions\Cert\InvalidResponseException;
-use App\Libraries\Vatsim;
+use App\Libraries\VatsimService;
 use App\Models\User;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Client;
@@ -32,7 +32,7 @@ EOT;
         $client = new Client(['handler' => $handler]);
         $this->app->instance('guzzle', $client);
 
-        $user = (new Vatsim)->getUser($template->id);
+        $user = (new VatsimService)->getUser($template->id);
         $this->assertArraySubset([
             'id' => $template->id,
             'name_first' => $template->first_name,
@@ -56,7 +56,7 @@ EOT;
         $this->app->instance('guzzle', $client);
 
         $this->expectException(InvalidResponseException::class);
-        (new Vatsim)->getUser($template->id);
+        (new VatsimService)->getUser($template->id);
     }
 
     /** @test */
@@ -75,6 +75,6 @@ EOT;
         $this->app->instance('guzzle', $client);
 
         $this->expectException(InvalidResponseException::class);
-        (new Vatsim)->getUser($template->id);
+        (new VatsimService)->getUser($template->id);
     }
 }
