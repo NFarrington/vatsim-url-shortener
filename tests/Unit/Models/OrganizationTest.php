@@ -11,6 +11,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Models\Organization
+ */
 class OrganizationTest extends TestCase
 {
     use RefreshDatabase;

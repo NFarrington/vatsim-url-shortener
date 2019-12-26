@@ -8,6 +8,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Notifications\VerifyEmailNotification
+ */
 class VerifyEmailNotificationTest extends TestCase
 {
     use RefreshDatabase;

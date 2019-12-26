@@ -7,6 +7,9 @@ use App\Models\OrganizationPrefixApplication;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Models\OrganizationPrefixApplication
+ */
 class OrganizationPrefixApplicationTest extends TestCase
 {
     use RefreshDatabase;

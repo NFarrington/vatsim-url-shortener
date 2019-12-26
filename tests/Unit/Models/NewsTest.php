@@ -6,6 +6,9 @@ use App\Models\News;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Models\News
+ */
 class NewsTest extends TestCase
 {
     use RefreshDatabase;

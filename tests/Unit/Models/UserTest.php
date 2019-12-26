@@ -13,6 +13,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use stdClass;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Models\User
+ */
 class UserTest extends TestCase
 {
     use ArraySubsetAsserts, RefreshDatabase;

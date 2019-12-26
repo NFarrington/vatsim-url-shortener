@@ -12,6 +12,9 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Services\VatsimService
+ */
 class VatsimServiceTest extends TestCase
 {
     use ArraySubsetAsserts, RefreshDatabase;

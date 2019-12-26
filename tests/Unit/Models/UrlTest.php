@@ -9,6 +9,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Models\Url
+ */
 class UrlTest extends TestCase
 {
     use RefreshDatabase;

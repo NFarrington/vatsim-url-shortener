@@ -7,6 +7,9 @@ use App\Models\Url;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Models\Domain
+ */
 class DomainTest extends TestCase
 {
     use RefreshDatabase;

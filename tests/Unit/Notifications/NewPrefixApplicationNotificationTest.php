@@ -8,6 +8,9 @@ use App\Notifications\NewPrefixApplicationNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Notifications\NewPrefixApplicationNotification
+ */
 class NewPrefixApplicationNotificationTest extends TestCase
 {
     use RefreshDatabase;

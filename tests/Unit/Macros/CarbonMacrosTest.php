@@ -5,6 +5,9 @@ namespace Tests\Unit\Macros;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
+/**
+ * @covers \App\Macros\CarbonMacros
+ */
 class CarbonMacrosTest extends TestCase
 {
     const YEAR = 2019, MONTH = 12, DAY = 23, HOUR = 15, MINUTE = 29, SECOND = 1;
