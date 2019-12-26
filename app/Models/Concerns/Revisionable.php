@@ -7,13 +7,6 @@ use Illuminate\Support\Facades\Auth;
 trait Revisionable
 {
     /**
-     * The attributes that are trackable.
-     *
-     * @var array
-     */
-    protected $tracked = [];
-
-    /**
      * The model's original attributes.
      *
      * @var array
@@ -85,7 +78,7 @@ trait Revisionable
      */
     private function getTracked()
     {
-        return $this->tracked;
+        return isset($this->tracked) ? $this->tracked : [];
     }
 
     /**

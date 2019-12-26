@@ -2,7 +2,8 @@
 
 namespace Tests\Unit\Models\Concerns;
 
-use App\Models\Model;
+use App\Models\Concerns\Revisionable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,6 +20,7 @@ class RevisionableTest extends TestCase
     {
         parent::setUp();
         $this->revisionable = new class extends Model {
+            use Revisionable;
             protected $tracked = ['my_property'];
         };
     }
