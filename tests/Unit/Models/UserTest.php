@@ -2,12 +2,12 @@
 
 namespace Tests\Unit\Models;
 
-use App\Libraries\VatsimService;
 use App\Models\EmailVerification;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\Url;
 use App\Models\User;
+use App\Services\VatsimService;
 use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use stdClass;

@@ -3,10 +3,10 @@
 namespace Tests\Feature\Platform;
 
 use App\Exceptions\Cert\InvalidResponseException;
-use App\Libraries\VatsimService;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\User;
+use App\Services\VatsimService;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
