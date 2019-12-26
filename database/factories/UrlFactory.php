@@ -33,6 +33,12 @@ $factory->state(Url::class, 'org', function (Faker $faker) {
     ];
 });
 
+$factory->state(Url::class, 'prefix', function (Faker $faker) {
+    return [
+        'prefix' => true,
+    ];
+});
+
 $factory->state(Url::class, 'analytics_disabled', function (Faker $faker) {
     return [
         'analytics_disabled' => true,

@@ -7,25 +7,18 @@ use Illuminate\Support\Facades\Auth;
 trait Revisionable
 {
     /**
-     * The attributes that are trackable.
-     *
-     * @var array
-     */
-    protected $tracked = [];
-
-    /**
      * The model's original attributes.
      *
      * @var array
      */
-    protected $originalTracked = [];
+    private $originalTracked = [];
 
     /**
      * The "booting" method of the model.
      *
      * @return void
      */
-    public static function bootRevisionable()
+    protected static function bootRevisionable()
     {
         static::registerModelEvent('saving', function ($model) {
             $model->rememberOriginal();
@@ -39,7 +32,7 @@ trait Revisionable
     /**
      * Store the original values of the attributes.
      */
-    public function rememberOriginal()
+    private function rememberOriginal()
     {
         $this->originalTracked = array_intersect_key($this->getOriginal(), $this->getDirty());
     }
@@ -47,7 +40,7 @@ trait Revisionable
     /**
      * Store the changes in the database.
      */
-    public function trackChanges()
+    private function trackChanges()
     {
         $attributes = $this->originalTracked;
 
@@ -72,7 +65,7 @@ trait Revisionable
      *
      * @return mixed
      */
-    public function dataChanges()
+    private function dataChanges()
     {
         return $this->morphMany(\App\Models\Revision::class, 'model')
             ->orderBy('created_at', 'DESC');
@@ -83,9 +76,9 @@ trait Revisionable
      *
      * @return array
      */
-    public function getTracked()
+    private function getTracked()
     {
-        return $this->tracked;
+        return isset($this->tracked) ? $this->tracked : [];
     }
 
     /**
@@ -94,7 +87,7 @@ trait Revisionable
      * @param  string $key
      * @return bool
      */
-    public function isTrackable($key)
+    private function isTrackable($key)
     {
         return in_array($key, $this->getTracked());
     }
@@ -105,7 +98,7 @@ trait Revisionable
      * @param  array $attributes
      * @return array
      */
-    protected function trackableFromArray(array $attributes)
+    private function trackableFromArray(array $attributes)
     {
         return array_intersect_key($attributes, array_flip($this->getTracked()));
     }

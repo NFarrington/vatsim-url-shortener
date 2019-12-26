@@ -15,12 +15,18 @@ use Kyslik\ColumnSortable\Sortable;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @property-read int|null $data_changes_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $managers
+ * @property-read int|null $managers_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $members
+ * @property-read int|null $members_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $owners
+ * @property-read int|null $owners_count
  * @property-read \App\Models\OrganizationPrefixApplication $prefixApplication
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
+ * @property-read int|null $urls_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
+ * @property-read int|null $users_count
  * @method static bool|null forceDelete()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization newQuery()

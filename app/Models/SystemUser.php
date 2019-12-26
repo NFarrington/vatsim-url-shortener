@@ -12,6 +12,7 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
  * @property string $username
  * @property string $password
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @property-read int|null $data_changes_count
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\SystemUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\SystemUser newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\SystemUser query()

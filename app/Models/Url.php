@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 use Kyslik\ColumnSortable\Sortable;
 
@@ -21,6 +22,7 @@ use Kyslik\ColumnSortable\Sortable;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @property-read int|null $data_changes_count
  * @property-read \App\Models\Domain $domain
  * @property-read string $full_url
  * @property-read \App\Models\Organization|null $organization
@@ -145,17 +147,24 @@ class Url extends Model
      * Override default URL sorting in order to sort URLs by their
      * full host and path, instead of just their path.
      *
-     * @param $query
+     * @param \Illuminate\Database\Query\Builder $query
      * @param $direction
      * @return mixed
      */
     public function urlSortable($query, $direction)
     {
         $column = DB::connection()->getDriverName() == 'sqlite'
-            ? DB::raw('domains.url || urls.url')
-            : DB::raw('CONCAT(domains.url, urls.url)');
+            ? DB::raw('(domains.url || COALESCE(organizations.prefix, "") || urls.url)')
+            : DB::raw('CONCAT(domains.url, COALESCE(organizations.prefix, ""), urls.url)'); // TODO: test
 
-        return $query->join('domains', 'urls.domain_id', 'domains.id')
+        return $query->select(["{$this->getTable()}.*"])
+            ->join('domains', 'urls.domain_id', 'domains.id')
+            ->leftJoin('organizations', function ($join) {
+                /* @var JoinClause $join */
+                $join->on('urls.organization_id', 'organizations.id')
+                    ->where('urls.prefix', true)
+                    ->whereNotNull('organizations.prefix');
+            })
             ->orderBy($column, $direction);
     }
 
@@ -163,7 +172,7 @@ class Url extends Model
      * Override default redirect URL sorting in order to sort URLs
      * without their protocol.
      *
-     * @param $query
+     * @param \Illuminate\Database\Query\Builder $query
      * @param $direction
      * @return mixed
      */

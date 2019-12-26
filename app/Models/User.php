@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Libraries\Vatsim;
+use App\Services\VatsimService;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -24,12 +24,16 @@ use Illuminate\Notifications\Notifiable;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @property-read int|null $data_changes_count
  * @property-read \App\Models\EmailVerification $emailVerification
  * @property-read string $display_info
  * @property-read string $full_name
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications
+ * @property-read int|null $notifications_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organization[] $organizations
+ * @property-read int|null $organizations_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
+ * @property-read int|null $urls_count
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\User query()
@@ -168,7 +172,7 @@ class User extends Model implements
      */
     public static function createFromCert(int $id)
     {
-        $attributes = app(Vatsim::class)->getUser($id);
+        $attributes = app(VatsimService::class)->getUser($id);
 
         $user = new self();
         $user->id = $attributes['id'];

@@ -12,6 +12,7 @@ namespace App\Models;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
+ * @property-read int|null $data_changes_count
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News published()
