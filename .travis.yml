@@ -11,7 +11,7 @@ matrix:
     - php: nightly
 
 addons:
-  mariadb: '10.2'
+  mariadb: '10.3'
 
 install:
   - composer self-update --no-interaction
