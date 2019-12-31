@@ -8,10 +8,12 @@ php:
 
 matrix:
   allow_failures:
+    - php: '7.2'
+    - php: '7.3'
     - php: nightly
 
 addons:
-  mariadb: '10.2'
+  mariadb: '10.3'
 
 install:
   - composer self-update --no-interaction
@@ -29,7 +31,8 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
-  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+  - vendor/bin/phpunit --configuration phpunit.xml
+  - vendor/bin/phpunit --configuration phpunit.mysql.xml --coverage-clover build/logs/clover.xml
 
 after_failure:
   - cat storage/logs/laravel.log
