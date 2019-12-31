@@ -29,7 +29,8 @@ before_script:
   - ./cc-test-reporter before-build
 
 script:
-  - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+  - vendor/bin/phpunit --configuration phpunit.xml
+  - vendor/bin/phpunit --configuration phpunit.mysql.xml --coverage-clover build/logs/clover.xml
 
 after_failure:
   - cat storage/logs/laravel.log
