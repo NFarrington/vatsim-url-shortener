@@ -9,8 +9,6 @@ use Illuminate\Support\Str;
  *
  * @property int $id
  * @property string $url
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
- * @property-read int|null $data_changes_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @property-read int|null $urls_count
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain newModelQuery()

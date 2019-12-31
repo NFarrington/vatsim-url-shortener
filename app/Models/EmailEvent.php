@@ -12,8 +12,6 @@ namespace App\Models;
  * @property string $recipient
  * @property array $data
  * @property \Illuminate\Support\Carbon $triggered_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
- * @property-read int|null $data_changes_count
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\EmailEvent query()

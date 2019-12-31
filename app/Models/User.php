@@ -23,8 +23,6 @@ use Illuminate\Notifications\Notifiable;
  * @property array|null $vatsim_status_data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
- * @property-read int|null $data_changes_count
  * @property-read \App\Models\EmailVerification $emailVerification
  * @property-read string $display_info
  * @property-read string $full_name

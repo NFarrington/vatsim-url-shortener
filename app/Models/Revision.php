@@ -14,8 +14,6 @@ namespace App\Models;
  * @property string|null $new_value
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Revision[] $dataChanges
- * @property-read int|null $data_changes_count
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Revision newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Revision newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Revision query()
