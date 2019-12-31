@@ -2,58 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Organization;
-use App\Models\Url;
+use App\Services\UrlService;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 class UrlController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    private UrlService $urlService;
+
+    public function __construct(UrlService $urlService)
     {
         $this->middleware('log-requests');
+        $this->urlService = $urlService;
     }
 
     /**
      * Redirect a short URL to the intended URL.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @param string|null $prefix
      * @param string|null $shortUrl
-     * @return \Illuminate\Http\RedirectResponse
+     * @return Response
      */
-    public function redirect(Request $request, $prefix = null, $shortUrl = null)
+    public function redirect(Request $request, string $prefix = null, string $shortUrl = null): Response
     {
         if ($prefix && !$shortUrl) {
             $shortUrl = $prefix;
             $prefix = null;
         }
 
-        $url = Url::where('url', $shortUrl ?: '/')
-            ->whereHas('domain', function ($query) use ($request) {
-                $query->where('url', $request->root().'/');
-            });
+        $url = $this->urlService->getRedirectForUrl($request->root().'/', $shortUrl, $prefix);
 
-        if ($prefix) {
-            $organization = Organization::where('prefix', $prefix)->first();
-            if (!$organization) {
-                throw new NotFoundHttpException();
-            }
-            $url = $url->where('organization_id', $organization->id);
-        }
-
-        $url = $url->first();
-
-        if (!$url) {
-            throw new NotFoundHttpException();
-        }
-
-        request()->session()->flash('short.url', $url);
+        $request->session()->flash('short.url', $url);
 
         return redirect()->to($url->redirect_url);
     }
