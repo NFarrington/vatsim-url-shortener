@@ -59,29 +59,32 @@ class VatsimServiceTest extends TestCase
 
     private function given_cert_responds_with_a_valid_user()
     {
-        $rawXmlResponse = <<<EOT
-<?xml version="1.0" encoding="utf-8"?>
-<root><user cid="%s"><name_last>%s</name_last><name_first>%s</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
-EOT;
+        $rawXmlResponse = /** @lang text */
+            <<<EOT
+            <?xml version="1.0" encoding="utf-8"?>
+            <root><user cid="%s"><name_last>%s</name_last><name_first>%s</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
+            EOT;
         $rawXmlResponse = sprintf($rawXmlResponse, self::USER_CID, self::USER_LAST_NAME, self::USER_FIRST_NAME);
         $this->mock_cert_response($rawXmlResponse);
     }
 
     private function given_cert_responds_with_a_deleted_user()
     {
-        $rawXmlResponse = <<<EOT
-<?xml version="1.0" encoding="utf-8"?>
-<root><user cid=""><name_last></name_last><name_first></name_first><email>[hidden]</email><rating>Suspended</rating><regdate></regdate><pilotrating>P0</pilotrating><country></country><region></region><division></division><atctime></atctime><pilottime></pilottime></user></root>
-EOT;
+        $rawXmlResponse = /** @lang text */
+            <<<EOT
+            <?xml version="1.0" encoding="utf-8"?>
+            <root><user cid=""><name_last></name_last><name_first></name_first><email>[hidden]</email><rating>Suspended</rating><regdate></regdate><pilotrating>P0</pilotrating><country></country><region></region><division></division><atctime></atctime><pilottime></pilottime></user></root>
+            EOT;
         $this->mock_cert_response($rawXmlResponse);
     }
 
     private function given_cert_responds_with_a_user_with_no_last_name()
     {
-        $rawXmlResponse = <<<EOT
-<?xml version="1.0" encoding="utf-8"?>
-<root><user cid="%s"><name_first>%s</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
-EOT;
+        $rawXmlResponse = /** @lang text */
+            <<<EOT
+            <?xml version="1.0" encoding="utf-8"?>
+            <root><user cid="%s"><name_first>%s</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
+            EOT;
         $rawXmlResponse = sprintf($rawXmlResponse, self::USER_CID, self::USER_FIRST_NAME);
         $this->mock_cert_response($rawXmlResponse);
     }
