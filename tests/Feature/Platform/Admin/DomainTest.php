@@ -41,10 +41,12 @@ class DomainTest extends TestCase
         $this->get(route('platform.admin.domains.create'));
         $this->post(route('platform.admin.domains.store'), [
             'url' => $domain->url,
+            'public' => $domain->public,
         ])->assertRedirect()
             ->assertSessionHas('success');
         $this->assertDatabaseHas($domain->getTable(), [
             'url' => $domain->url,
+            'public' => $domain->public,
         ]);
     }
 
@@ -78,11 +80,13 @@ class DomainTest extends TestCase
         $this->get(route('platform.admin.domains.edit', $domain));
         $this->put(route('platform.admin.domains.update', $domain), [
             'url' => $domain->url,
+            'public' => $domain->public,
         ])->assertRedirect()
             ->assertSessionHas('success');
         $this->assertDatabaseHas($template->getTable(), [
             'id' => $domain->id,
             'url' => $domain->url,
+            'public' => $domain->public,
         ]);
     }
 

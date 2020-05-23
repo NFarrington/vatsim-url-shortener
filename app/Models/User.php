@@ -23,7 +23,7 @@ use Illuminate\Notifications\Notifiable;
  * @property array|null $vatsim_status_data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\EmailVerification $emailVerification
+ * @property-read \App\Models\EmailVerification|null $emailVerification
  * @property-read string $display_info
  * @property-read string $full_name
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection|\Illuminate\Notifications\DatabaseNotification[] $notifications

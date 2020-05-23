@@ -25,13 +25,11 @@ use Kyslik\ColumnSortable\Sortable;
  * @property-read string $full_url
  * @property-read \App\Models\Organization|null $organization
  * @property-read \App\Models\User|null $user
- * @method static bool|null forceDelete()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url newQuery()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Url onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url public()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url query()
- * @method static bool|null restore()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url sortable($defaultParameters = null)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereAnalyticsDisabled($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Url whereCreatedAt($value)

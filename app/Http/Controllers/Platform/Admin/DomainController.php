@@ -55,6 +55,7 @@ class DomainController extends Controller
     {
         $attributes = $this->validate($request, [
             'url' => 'required|string|max:250',
+            'public' => 'required|boolean',
         ]);
 
         Domain::create($attributes);
@@ -100,6 +101,7 @@ class DomainController extends Controller
     {
         $attributes = $this->validate($request, [
             'url' => 'required|string|max:250',
+            'public' => 'boolean',
         ]);
 
         $domain->update($attributes);
