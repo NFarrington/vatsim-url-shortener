@@ -72,11 +72,13 @@ function breadcrumbs_array()
  * Retrieves a Docker secret.
  *
  * @param string $name
+ * @param string $path
  * @return string|null
  */
-function docker_secret($name)
+function docker_secret($name, $path = '/run/secrets')
 {
-    $file = "/run/secrets/$name";
+    $path = rtrim($path, '/');
+    $file = "$path/$name";
 
     if (empty($name) || !file_exists($file)) {
         return null;

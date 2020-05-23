@@ -29,6 +29,7 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
+     * @codeCoverageIgnore
      * @param  \Exception  $exception
      * @return void
      */
@@ -40,6 +41,7 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
+     * @codeCoverageIgnore
      * @param  \Illuminate\Http\Request  $request
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
