@@ -85,6 +85,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewarePriority = [
         \Illuminate\Session\Middleware\StartSession::class,
+        \App\Http\Middleware\StartOptionalSession::class,
         \Illuminate\View\Middleware\ShareErrorsFromSession::class,
         \App\Http\Middleware\Authenticate::class,
         \Illuminate\Routing\Middleware\ThrottleRequests::class,
