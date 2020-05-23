@@ -41,8 +41,12 @@ class LogRequests
      */
     public function terminate(Request $request, Response $response)
     {
-        /** @var Url $url */
-        $url = $request->session()->pull('short.url');
+        /** @var Url|null $url */
+        $url = null;
+        if (property_exists($response, 'shortUrl')) {
+            $url = $response->shortUrl;
+        }
+
         $analyticsDisabled = $url && $url->analytics_disabled;
 
         if (!$analyticsDisabled) {

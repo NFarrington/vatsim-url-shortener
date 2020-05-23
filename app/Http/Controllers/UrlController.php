@@ -33,8 +33,9 @@ class UrlController extends Controller
 
         $url = $this->urlService->getRedirectForUrl($request->root().'/', $shortUrl, $prefix);
 
-        $request->session()->flash('short.url', $url);
+        $response = redirect()->to($url->redirect_url);
+        $response->shortUrl = $url;
 
-        return redirect()->to($url->redirect_url);
+        return $response;
     }
 }
