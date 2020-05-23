@@ -1,6 +1,6 @@
 <?php
 
-use App\Logging\JsonLogger;
+use App\Logging\LogTypeCustomizer;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
@@ -62,7 +62,7 @@ return [
                 'level' => Logger::DEBUG,
             ],
             'formatter' => JsonFormatter::class,
-            'tap' => [JsonLogger::class],
+            'tap' => [LogTypeCustomizer::class],
         ],
 
         'daily' => [

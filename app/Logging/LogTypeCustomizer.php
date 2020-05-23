@@ -2,7 +2,7 @@
 
 namespace App\Logging;
 
-class JsonLogger
+class LogTypeCustomizer
 {
     /**
      * Customize the given logger instance.
