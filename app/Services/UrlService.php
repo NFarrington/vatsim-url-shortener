@@ -12,8 +12,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UrlService
 {
-    const URL_CACHE_KEY = "App\Services\UrlService.domain-%s.prefix-%s.url-%s.";
-
     public function getRedirectForUrl(string $domain, string $url, string $prefix = null): Url
     {
         /** @var Url|Builder $urlQuery */
@@ -36,13 +34,15 @@ class UrlService
             $urlModel = $urlQuery->first();
         } catch (PDOException $e) {
             report($e);
-            Log::info('Failed to retrieve URL from database, attempting to retrieve from cache...',
+            Log::warning('Failed to retrieve URL from database, attempting to retrieve from cache.',
                 ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
             $urlModel = $this->loadUrlFromCache($domain, $url, $prefix);
             if ($urlModel) {
                 Log::info('Successfully retrieved cached version of URL.',
                     ['domain' => $domain, 'prefix' => $prefix, 'url' => $url, 'last_updated' => $urlModel->updated_at]);
             } else {
+                Log::error('Failed to retrieve cached version of URL.',
+                    ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
                 throw new ReportedException('', 0, $e);
             }
         }
@@ -51,14 +51,11 @@ class UrlService
             throw new NotFoundHttpException();
         }
 
-        // TODO: also store this at URL save
-        Cache::set(sprintf(self::URL_CACHE_KEY, $domain, $prefix, $url), $urlModel);
-
         return $urlModel;
     }
 
     private function loadUrlFromCache(string $domain, string $url, string $prefix = null)
     {
-        return Cache::get(sprintf(self::URL_CACHE_KEY, $domain, $prefix, $url));
+        return Cache::get(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url));
     }
 }

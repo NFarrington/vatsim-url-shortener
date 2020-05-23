@@ -32,7 +32,7 @@ class UrlServiceTest extends TestCase
         $domain = 'http://test-domain/';
         $url = 'my-url';
         $prefix = null;
-        cache()->set(sprintf(UrlService::URL_CACHE_KEY, $domain, $prefix, $url), new Url(['my_url' => $url]));
+        cache()->set(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url), new Url(['my_url' => $url]));
         $service = new UrlService();
 
         $shortUrl = $service->getRedirectForUrl($domain, $url);
