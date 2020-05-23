@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Organization;
 use App\Models\Url;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -16,11 +15,9 @@ class UrlService
             });
 
         if ($prefix) {
-            $organization = Organization::where('prefix', $prefix)->first();
-            if (!$organization) {
-                throw new NotFoundHttpException();
-            }
-            $urlQuery = $urlQuery->where('organization_id', $organization->id);
+            $urlQuery->whereHas('organization', function ($query) use ($prefix) {
+                $query->where('prefix', $prefix);
+            });
         }
 
         /** @var Url $url */
