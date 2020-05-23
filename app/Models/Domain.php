@@ -49,4 +49,15 @@ class Domain extends Model
             ? $value
             : "{$value}/";
     }
+
+    /**
+     * Scope a query to only public domains.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePublic($query)
+    {
+        return $query->where('public', true);
+    }
 }

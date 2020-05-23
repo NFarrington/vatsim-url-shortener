@@ -68,7 +68,7 @@ class UrlController extends Controller
         })->pluck('prefix');
 
         return view('platform.urls.create')->with([
-            'domains' => Domain::orderBy('id')->get(),
+            'domains' => Domain::public()->orderBy('id')->get(),
             'organizations' => $organizations,
             'prefixes' => $prefixes,
             'url' => new Url(),
@@ -85,7 +85,11 @@ class UrlController extends Controller
     public function store(Request $request)
     {
         $attributes = $this->validate($request, [
-            'domain_id' => 'required|integer|exists:domains,id',
+            'domain_id' => [
+                'required',
+                'integer',
+                Rule::in(Domain::public()->pluck('id')),
+            ],
             'prefix' => 'nullable|string',
             'url' => [
                 'required',
@@ -181,7 +185,7 @@ class UrlController extends Controller
         $this->authorize('update', $url);
 
         return view('platform.urls.edit')->with([
-            'domains' => Domain::orderBy('id')->get(),
+            'domains' => Domain::public()->orderBy('id')->get(),
             'organizations' => $request->user()->organizations,
             'url' => $url,
         ]);
