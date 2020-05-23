@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\ReportedException;
 use App\Models\Url;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
@@ -41,6 +42,8 @@ class UrlService
             if ($urlModel) {
                 Log::info('Successfully retrieved cached version of URL.',
                     ['domain' => $domain, 'prefix' => $prefix, 'url' => $url, 'last_updated' => $urlModel->updated_at]);
+            } else {
+                throw new ReportedException('', 0, $e);
             }
         }
 

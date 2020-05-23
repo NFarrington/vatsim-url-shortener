@@ -39,4 +39,29 @@ class UrlServiceTest extends TestCase
 
         $this->assertEquals($url, $shortUrl->my_url);
     }
+
+    /** @test */
+    function rethrows_pdo_exception_if_missing_from_cache()
+    {
+        app()->bind(Url::class, function () {
+            return new class extends Url {
+                public function get($columns = ['*'])
+                {
+                    throw new QueryException('', [], null);
+                }
+            };
+        });
+        $domain = 'http://test-domain/';
+        $url = 'my-url';
+        $service = new UrlService();
+
+        try {
+            $service->getRedirectForUrl($domain, $url);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(\PDOException::class, $e->getPrevious());
+            return;
+        }
+
+        $this->fail('Method getRedirectForUrl() did not throw an exception.');
+    }
 }
