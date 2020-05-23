@@ -20,17 +20,15 @@ use Kyslik\ColumnSortable\Sortable;
  * @property-read int|null $members_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $owners
  * @property-read int|null $owners_count
- * @property-read \App\Models\OrganizationPrefixApplication $prefixApplication
+ * @property-read \App\Models\OrganizationPrefixApplication|null $prefixApplication
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @property-read int|null $urls_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $users
  * @property-read int|null $users_count
- * @method static bool|null forceDelete()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization newQuery()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\Organization onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization query()
- * @method static bool|null restore()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization sortable($defaultParameters = null)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Organization whereDeletedAt($value)

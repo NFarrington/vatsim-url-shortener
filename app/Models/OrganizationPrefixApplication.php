@@ -16,12 +16,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Organization $organization
- * @method static bool|null forceDelete()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\OrganizationPrefixApplication newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\OrganizationPrefixApplication newQuery()
  * @method static \Illuminate\Database\Query\Builder|\App\Models\OrganizationPrefixApplication onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\OrganizationPrefixApplication query()
- * @method static bool|null restore()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\OrganizationPrefixApplication whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\OrganizationPrefixApplication whereDeletedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\OrganizationPrefixApplication whereId($value)

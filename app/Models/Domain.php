@@ -9,12 +9,15 @@ use Illuminate\Support\Str;
  *
  * @property int $id
  * @property string $url
+ * @property int $public
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @property-read int|null $urls_count
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain public()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain query()
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain wherePublic($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain whereUrl($value)
  * @mixin \Eloquent
  */
