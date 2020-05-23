@@ -3,13 +3,22 @@
 namespace App\Services;
 
 use App\Models\Url;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use PDOException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UrlService
 {
+    const URL_CACHE_KEY = "App\Services\UrlService.domain-%s.prefix-%s.url-%s.";
+
     public function getRedirectForUrl(string $domain, string $url, string $prefix = null): Url
     {
-        $urlQuery = Url::where('url', $url ?: '/')
+        /** @var Url|Builder $urlQuery */
+        $urlQuery = app(Url::class)->query();
+
+        $urlQuery->where('url', $url ?: '/')
             ->whereHas('domain', function ($query) use ($domain) {
                 $query->where('url', $domain);
             });
@@ -20,13 +29,33 @@ class UrlService
             });
         }
 
-        /** @var Url $url */
-        $url = $urlQuery->first();
+        /** @var Url|null $urlModel */
+        $urlModel = null;
+        try {
+            $urlModel = $urlQuery->first();
+        } catch (PDOException $e) {
+            report($e);
+            Log::info('Failed to retrieve URL from database, attempting to retrieve from cache...',
+                ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
+            $urlModel = $this->loadUrlFromCache($domain, $url, $prefix);
+            if ($urlModel) {
+                Log::info('Successfully retrieved cached version of URL.',
+                    ['domain' => $domain, 'prefix' => $prefix, 'url' => $url, 'last_updated' => $urlModel->updated_at]);
+            }
+        }
 
-        if (!$url) {
+        if (!$urlModel) {
             throw new NotFoundHttpException();
         }
 
-        return $url;
+        // TODO: also store this at URL save
+        Cache::set(sprintf(self::URL_CACHE_KEY, $domain, $prefix, $url), $urlModel);
+
+        return $urlModel;
+    }
+
+    private function loadUrlFromCache(string $domain, string $url, string $prefix = null)
+    {
+        return Cache::get(sprintf(self::URL_CACHE_KEY, $domain, $prefix, $url));
     }
 }
