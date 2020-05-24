@@ -38,12 +38,13 @@ class CacheShortUrl implements ShouldQueue
         $modelAttributes = $url->attributesToArray();
         if (!array_key_exists('domain_id', $modelAttributes)
             || !array_key_exists('organization_id', $modelAttributes)
-            || !array_key_exists('url', $modelAttributes)) {
+            || !array_key_exists('url', $modelAttributes)
+            || !array_key_exists('prefix', $modelAttributes)) {
             return;
         }
 
         $domain = $url->domain->url;
-        $prefix = $url->organization ? $url->organization->prefix : null;
+        $prefix = $url->prefix ? $url->organization->prefix : null;
         $urlName = $url->url;
 
         Cache::set(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $urlName), $url);
