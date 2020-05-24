@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\UrlRetrieved;
+use App\Events\UrlSaved;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +52,8 @@ class Url extends Model
 {
     use SoftDeletes, Sortable;
 
+    public const URL_CACHE_KEY = self::class.'.domain-%s.prefix-%s.url-%s.';
+
     /**
      * The attributes that should be cast to native types.
      *
@@ -85,6 +89,18 @@ class Url extends Model
      * @var array
      */
     protected $with = ['domain'];
+
+    /**
+     * The event map for the model.
+     *
+     * @var array
+     */
+    protected $dispatchesEvents = [
+        // the 'retrieved' event on the model causes infinite recursion when being
+        // unserialised on the queue, so it should be fired manually elsewhere
+        //'retrieved' => UrlRetrieved::class,
+        'saved' => UrlSaved::class,
+    ];
 
     /**
      * The domain the URL relates to.

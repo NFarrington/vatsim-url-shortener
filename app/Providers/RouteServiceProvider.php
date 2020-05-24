@@ -46,7 +46,7 @@ class RouteServiceProvider extends ServiceProvider
 
         $this->mapPlatformRoutes();
 
-        $this->mapWebRoutes();
+        $this->mapUrlRoutes();
     }
 
     /**
@@ -56,11 +56,11 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function mapWebRoutes()
+    protected function mapUrlRoutes()
     {
-        Route::middleware('web')
+        Route::middleware('web-with-optional-sessions')
             ->namespace($this->namespace)
-            ->group(base_path('routes/web.php'));
+            ->group(base_path('routes/url.php'));
     }
 
     /**

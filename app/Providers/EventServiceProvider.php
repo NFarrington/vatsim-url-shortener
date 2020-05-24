@@ -5,6 +5,9 @@ namespace App\Providers;
 use App\Events\EmailChangedEvent;
 use App\Events\EmailVerifiedEvent;
 use App\Events\PrefixApplicationCreatedEvent;
+use App\Events\UrlRetrieved;
+use App\Events\UrlSaved;
+use App\Listeners\CacheShortUrl;
 use App\Listeners\DeleteEmailVerificationListener;
 use App\Listeners\NotifyApplicationSubmittedListener;
 use App\Listeners\RecordJobProcessingListener;
@@ -34,6 +37,14 @@ class EventServiceProvider extends ServiceProvider
 
         PrefixApplicationCreatedEvent::class => [
             NotifyApplicationSubmittedListener::class,
+        ],
+
+        UrlRetrieved::class => [
+            CacheShortUrl::class,
+        ],
+
+        UrlSaved::class => [
+            CacheShortUrl::class,
         ],
     ];
 

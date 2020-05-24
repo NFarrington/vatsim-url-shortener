@@ -1,6 +1,7 @@
 <?php
 
 use App\Logging\LogTypeCustomizer;
+use App\Logging\StacktraceCustomizer;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
@@ -62,7 +63,7 @@ return [
                 'level' => Logger::DEBUG,
             ],
             'formatter' => JsonFormatter::class,
-            'tap' => [LogTypeCustomizer::class],
+            'tap' => [LogTypeCustomizer::class, StacktraceCustomizer::class],
         ],
 
         'daily' => [
