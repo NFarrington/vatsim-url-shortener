@@ -20,9 +20,10 @@ class UrlService
             });
 
         if ($prefix) {
-            $urlQuery->whereHas('organization', function ($query) use ($prefix) {
-                $query->where('prefix', $prefix);
-            });
+            $urlQuery->where('prefix', true)
+                ->whereHas('organization', function ($query) use ($prefix) {
+                    $query->where('prefix', $prefix);
+                });
         }
 
         $urlModel = null;

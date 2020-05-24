@@ -5,11 +5,10 @@ namespace Tests\Unit\Services;
 use App\Exceptions\CacheFallbackException;
 use App\Models\Url;
 use App\Services\UrlService;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\DB;
 use PDOException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 
 /**
@@ -66,5 +65,15 @@ class UrlServiceTest extends TestCase
         }
 
         $this->fail('Method getRedirectForUrl() did not throw an exception.');
+    }
+
+    /** @test */
+    function prefixed_requests_dont_match_non_prefixed_organization_urls()
+    {
+        $url = factory(Url::class)->states('org')->create(['prefix' => false]);
+        $service = new UrlService();
+
+        $this->expectException(NotFoundHttpException::class);
+        $service->getRedirectForUrl($url->domain->url, $url->url, $url->organization->prefix);
     }
 }
