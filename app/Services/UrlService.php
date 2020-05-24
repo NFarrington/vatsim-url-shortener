@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
-use App\Exceptions\ReportedException;
+use App\Exceptions\CacheFallbackException;
 use App\Models\Url;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use PDOException;
@@ -14,10 +13,8 @@ class UrlService
 {
     public function getRedirectForUrl(string $domain, string $url, string $prefix = null): Url
     {
-        /** @var Url|Builder $urlQuery */
-        $urlQuery = app(Url::class)->query();
-
-        $urlQuery->where('url', $url ?: '/')
+        $urlQuery = app(Url::class)->query()
+            ->where('url', $url ?: '/')
             ->whereHas('domain', function ($query) use ($domain) {
                 $query->where('url', $domain);
             });
@@ -28,22 +25,15 @@ class UrlService
             });
         }
 
-        /** @var Url|null $urlModel */
         $urlModel = null;
         try {
             $urlModel = $urlQuery->first();
         } catch (PDOException $e) {
-            report($e);
-            Log::warning('Failed to retrieve URL from database, attempting to retrieve from cache.',
-                ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
-            $urlModel = $this->loadUrlFromCache($domain, $url, $prefix);
-            if ($urlModel) {
-                Log::info('Successfully retrieved cached version of URL.',
-                    ['domain' => $domain, 'prefix' => $prefix, 'url' => $url, 'last_updated' => $urlModel->updated_at]);
+            $urlModel = $this->fallbackToCache($domain, $url, $prefix);
+            if (!$urlModel) {
+                throw new CacheFallbackException('Could not find URL in fallback cache.', 0, $e);
             } else {
-                Log::error('Failed to retrieve cached version of URL.',
-                    ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
-                throw new ReportedException('', 0, $e);
+                report($e);
             }
         }
 
@@ -54,8 +44,27 @@ class UrlService
         return $urlModel;
     }
 
-    private function loadUrlFromCache(string $domain, string $url, string $prefix = null)
+    /**
+     * @param string $domain
+     * @param string $url
+     * @param string|null $prefix
+     * @return Url|null
+     */
+    private function fallbackToCache(string $domain, string $url, string $prefix = null)
     {
-        return Cache::get(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url));
+        Log::warning('Failed to retrieve URL from database, attempting to retrieve from cache.',
+            ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
+
+        $cachedModel = Cache::get(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url));
+
+        if ($cachedModel) {
+            Log::info('Successfully retrieved cached version of URL.',
+                ['domain' => $domain, 'prefix' => $prefix, 'url' => $url, 'last_updated' => $cachedModel->updated_at]);
+        } else {
+            Log::error('Failed to retrieve cached version of URL.',
+                ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
+        }
+
+        return $cachedModel;
     }
 }

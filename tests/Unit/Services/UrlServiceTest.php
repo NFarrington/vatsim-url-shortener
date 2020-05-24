@@ -2,12 +2,14 @@
 
 namespace Tests\Unit\Services;
 
+use App\Exceptions\CacheFallbackException;
 use App\Models\Url;
 use App\Services\UrlService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use PDOException;
 use Tests\TestCase;
 
 /**
@@ -58,7 +60,8 @@ class UrlServiceTest extends TestCase
         try {
             $service->getRedirectForUrl($domain, $url);
         } catch (\Exception $e) {
-            $this->assertInstanceOf(\PDOException::class, $e->getPrevious());
+            $this->assertInstanceOf(CacheFallbackException::class, $e);
+            $this->assertInstanceOf(PDOException::class, $e->getPrevious());
             return;
         }
 
