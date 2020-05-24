@@ -33,6 +33,7 @@ services:
         - APP_COMMIT=local
         - APP_VERSION=0.0.0
     command: php artisan queue:work --sleep=3 --tries=3 --queue=default
+    stop_signal: SIGTERM
     volumes:
       - app-storage:/var/www/storage
     env_file: .env.docker
