@@ -76,4 +76,15 @@ class UrlServiceTest extends TestCase
         $this->expectException(NotFoundHttpException::class);
         $service->getRedirectForUrl($url->domain->url, $url->url, $url->organization->prefix);
     }
+
+    /** @test */
+    function resolves_blank_paths_to_index_url()
+    {
+        $url = factory(Url::class)->states('org')->create(['url' => '/']);
+        $service = new UrlService();
+
+        $shortUrl = $service->getRedirectForUrl($url->domain->url, null, null);
+
+        $this->assertEquals($url->id, $shortUrl->id);
+    }
 }

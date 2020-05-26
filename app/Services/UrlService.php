@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UrlService
 {
-    public function getRedirectForUrl(string $domain, string $url, string $prefix = null): Url
+    public function getRedirectForUrl(string $domain, string $url = null, string $prefix = null): Url
     {
         $urlQuery = app(Url::class)->query()
             ->where('url', $url ?: '/')
