@@ -92,27 +92,6 @@
             "@log-rotate",
             "@php artisan up"
         ],
-        "deploy-prod": [
-            "npm install",
-            "@update-version",
-            "@php artisan down --retry=120",
-            "@install-prod",
-            "@php artisan config:cache",
-            "@php artisan route:cache",
-            "@php artisan cache:clear",
-            "@php artisan migrate --step --force --no-interaction",
-            "npm run production",
-            "@log-rotate",
-            "@php artisan queue:restart",
-            "@php artisan up"
-        ],
-        "deploy-prod-basic": [
-            "@update-version",
-            "@php artisan config:cache",
-            "@php artisan route:cache",
-            "@php artisan cache:clear",
-            "@log-rotate"
-        ],
         "docker-build": [
             "@install-prod"
         ],
