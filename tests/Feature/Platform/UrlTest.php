@@ -2,11 +2,13 @@
 
 namespace Tests\Feature\Platform;
 
+use App\Models\Domain;
 use App\Models\Organization;
 use App\Models\OrganizationUser;
 use App\Models\Url;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -45,6 +47,19 @@ class UrlTest extends TestCase
     {
         $this->get(route('platform.urls.create'))
             ->assertStatus(200);
+    }
+
+    /** @test */
+    function create_page_shows_private_domains()
+    {
+        $domain = factory(Domain::class)->state('private')->create();
+        $organization = create(Organization::class);
+        $organization->domains()->attach($domain);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+
+        $this->get(route('platform.urls.create'))
+            ->assertStatus(200)
+            ->assertSee($domain->url);
     }
 
     /** @test */
@@ -115,7 +130,7 @@ class UrlTest extends TestCase
     }
 
     /** @test */
-    function user_can_cannot_create_new_url_with_an_invalid_prefix()
+    function user_cannot_create_new_url_with_an_invalid_prefix()
     {
         $this->expectException(ValidationException::class);
 
@@ -361,5 +376,74 @@ class UrlTest extends TestCase
         $this->delete(route('platform.urls.destroy', $url))
             ->assertForbidden();
         $this->assertDatabaseHas($url->getTable(), ['id' => $url->id, 'deleted_at' => null]);
+    }
+
+    /** @test */
+    function user_can_create_url_for_private_domain()
+    {
+        $domain = factory(Domain::class)->state('private')->create();
+        $organization = create(Organization::class);
+        $organization->domains()->attach($domain);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $url = make(Url::class);
+
+        $this->get(route('platform.urls.create'));
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $domain->id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas($url->getTable(), [
+            'domain_id' => $url->domain_id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ]);
+    }
+
+    /** @test */
+    function user_cannot_create_url_for_private_domain_they_do_not_own()
+    {
+        $this->withExceptionHandling();
+        $domain = factory(Domain::class)->state('private')->create();
+        $organization = create(Organization::class);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $url = make(Url::class);
+
+        $this->get(route('platform.urls.create'));
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $domain->id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => $organization->id,
+        ])->assertStatus(Response::HTTP_FORBIDDEN);
+        $this->assertDatabaseMissing($url->getTable(), [
+            'domain_id' => $url->domain_id,
+        ]);
+    }
+
+    /** @test */
+    function user_cannot_create_url_with_mismatched_domain_and_organization()
+    {
+        $this->withExceptionHandling();
+        $domain = factory(Domain::class)->state('private')->create();
+        $organization = create(Organization::class);
+        $organization->domains()->attach($domain);
+        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $url = make(Url::class);
+
+        $this->get(route('platform.urls.create'));
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $domain->id,
+            'url' => $url->url,
+            'redirect_url' => $url->redirect_url,
+            'organization_id' => null,
+        ])->assertRedirect()
+            ->assertSessionHasErrors('organization_id');
+        $this->assertDatabaseMissing($url->getTable(), [
+            'domain_id' => $url->domain_id,
+        ]);
     }
 }

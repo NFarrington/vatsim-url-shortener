@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Domain;
 use App\Models\Organization;
 use App\Models\Url;
+use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rule;
@@ -35,7 +38,7 @@ class UrlController extends Controller
 
         $urls = Url::with('organization', 'organization.users')
             ->where('user_id', $request->user()->id)
-            ->orWhereHas('organization', function ($query) use ($user) {
+            ->orWhereHas('organization', function (Builder $query) use ($user) {
                 $query->whereIn('id', $user->organizations->pluck('id'));
             })->sortable('url')
             ->paginate(20, ['urls.*']);
@@ -61,14 +64,20 @@ class UrlController extends Controller
      */
     public function create(Request $request)
     {
-        /* @var Organization[]|\Illuminate\Database\Eloquent\Collection $organizations */
-        $organizations = $request->user()->organizations;
+        $user = $request->user(); /** @var User $user */
+        $domains = Domain::public()
+            ->orWhereHas('organizations', function (Builder $query) use ($user) {
+                $query->whereHas('users', function (Builder $query) use ($user) {
+                    $query->where('users.id', $user->id);
+                });
+            })->orderBy('id')->get();
+        $organizations = $user->organizations;
         $prefixes = $organizations->filter(function ($organization) {
             return (bool) $organization->prefix;
         })->pluck('prefix');
 
         return view('platform.urls.create')->with([
-            'domains' => Domain::public()->orderBy('id')->get(),
+            'domains' => $domains,
             'organizations' => $organizations,
             'prefixes' => $prefixes,
             'url' => new Url(),
@@ -84,12 +93,9 @@ class UrlController extends Controller
      */
     public function store(Request $request)
     {
+        $user = $request->user(); /** @var User $user */
         $attributes = $this->validate($request, [
-            'domain_id' => [
-                'required',
-                'integer',
-                Rule::in(Domain::public()->pluck('id')),
-            ],
+            'domain_id' => 'required|integer|exists:domains,id',
             'prefix' => 'nullable|string',
             'url' => [
                 'required',
@@ -122,10 +128,6 @@ class UrlController extends Controller
             'url.regex' => 'The url may not start or end with special characters.',
         ]);
 
-        if ($attributes['organization_id']) {
-            $this->authorize('act-as-member', Organization::find($attributes['organization_id']));
-        }
-
         if (!empty($attributes['prefix'])) {
             $organization = $request->user()->organizations
                 ->filter(function ($organization) use ($attributes) {
@@ -151,8 +153,23 @@ class UrlController extends Controller
 
         $url = new Url($attributes);
         if ($attributes['organization_id'] === null) {
+            if (!$url->domain->public) {
+                $validOrganizations = $url->domain->organizations()
+                    ->whereIn('organizations.id', $user->organizations->pluck('id'))
+                    ->orderBy('id')
+                    ->get();
+                if ($validOrganizations->isEmpty()) {
+                    throw new AuthorizationException();
+                }
+                throw ValidationException::withMessages([
+                    'organization_id' => [
+                        "The domain '{$url->domain->url}' can only be used with the {$validOrganizations->first()->name} organization.",
+                    ],
+                ]);
+            }
             $url->user_id = $request->user()->id;
         }
+        $this->authorize('create', $url);
         $url->save();
 
         return redirect()->route('platform.urls.index')

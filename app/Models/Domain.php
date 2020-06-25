@@ -10,6 +10,8 @@ use Illuminate\Support\Str;
  * @property int $id
  * @property string $url
  * @property int $public
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Organization[] $organizations
+ * @property-read int|null $organizations_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Url[] $urls
  * @property-read int|null $urls_count
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Domain newModelQuery()
@@ -29,6 +31,17 @@ class Domain extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * Organizations that can manage this domain.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function organizations()
+    {
+        return $this->belongsToMany(Organization::class)
+            ->withTimestamps();
+    }
 
     /**
      * The URLs associated with this domain.

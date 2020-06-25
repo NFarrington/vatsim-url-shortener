@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Domain;
 use App\Models\Organization;
 use App\Models\Url;
 use App\Models\User;
+use App\Policies\DomainPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\UrlPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -18,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
+        Domain::class => DomainPolicy::class,
         Organization::class => OrganizationPolicy::class,
         Url::class => UrlPolicy::class,
     ];
