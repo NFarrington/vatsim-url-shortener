@@ -14,6 +14,8 @@ use Kyslik\ColumnSortable\Sortable;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Domain[] $domains
+ * @property-read int|null $domains_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $managers
  * @property-read int|null $managers_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\User[] $members
@@ -62,6 +64,17 @@ class Organization extends Model
         'created_at',
         'updated_at',
     ];
+
+    /**
+     * Domains the organization can manage.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function domains()
+    {
+        return $this->belongsToMany(Domain::class)
+            ->withTimestamps();
+    }
 
     /**
      * The organization's URLs.

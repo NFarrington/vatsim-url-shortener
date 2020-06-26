@@ -10,3 +10,9 @@ $factory->define(Domain::class, function (Faker $faker) {
         'public' => 1,
     ];
 });
+
+$factory->state(Domain::class, 'private', function (Faker $faker) {
+    return [
+        'public' => 0,
+    ];
+});
