@@ -14,8 +14,8 @@ class OrganizationPolicy
     /**
      * Determine whether the user can act as an owner of the organization.
      *
-     * @param  \App\Models\User $user
-     * @param  \App\Models\Organization $organization
+     * @param \App\Models\User $user
+     * @param \App\Models\Organization $organization
      * @return mixed
      */
     public function actAsOwner(User $user, Organization $organization)
@@ -28,8 +28,8 @@ class OrganizationPolicy
     /**
      * Determine whether the user can act as a manager of the organization.
      *
-     * @param  \App\Models\User $user
-     * @param  \App\Models\Organization $organization
+     * @param \App\Models\User $user
+     * @param \App\Models\Organization $organization
      * @return mixed
      */
     public function actAsManager(User $user, Organization $organization)
@@ -45,8 +45,8 @@ class OrganizationPolicy
     /**
      * Determine whether the user can act as a member of the organization.
      *
-     * @param  \App\Models\User $user
-     * @param  \App\Models\Organization $organization
+     * @param \App\Models\User $user
+     * @param \App\Models\Organization $organization
      * @return mixed
      */
     public function actAsMember(User $user, Organization $organization)

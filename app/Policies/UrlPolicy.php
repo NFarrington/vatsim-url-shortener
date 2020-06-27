@@ -2,8 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\Domain;
-use App\Models\Organization;
 use App\Models\Url;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -25,7 +23,7 @@ class UrlPolicy
     /**
      * Determine whether the user can update the url.
      *
-     * @param  \App\Models\User $user
+     * @param \App\Models\User $user
      * @param \App\Models\Url $url
      * @return mixed
      */
@@ -41,7 +39,7 @@ class UrlPolicy
     /**
      * Determine whether the user can move the url.
      *
-     * @param  \App\Models\User $user
+     * @param \App\Models\User $user
      * @param \App\Models\Url $url
      * @return mixed
      */
@@ -65,8 +63,8 @@ class UrlPolicy
     /**
      * Determine whether the user can delete the url.
      *
-     * @param  \App\Models\User $user
-     * @param  \App\Models\Url $url
+     * @param \App\Models\User $user
+     * @param \App\Models\Url $url
      * @return mixed
      */
     public function delete(User $user, Url $url)
