@@ -18,6 +18,7 @@ install:
 
 before_script:
   - cp .env.travis .env
+  - touch database/database.tests.sqlite
   - mysql -e 'CREATE DATABASE laravel;'
   - mysql -e 'CREATE USER IF NOT EXISTS travis@localhost;'
   - mysql -e 'GRANT ALL ON laravel.* to travis@localhost;'
