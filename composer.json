@@ -110,14 +110,13 @@
             "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest --no-autoloader --no-scripts"
         ],
         "ide-helper": [
-            "@ide-helper-basic",
-            "@php artisan ide-helper:models --reset --write"
-        ],
-        "ide-helper-basic": [
             "@php artisan ide-helper:generate",
-            "@php artisan ide-helper:meta"
+            "@php artisan ide-helper:generate-factories",
+            "mkdir -p .phpstorm.meta.php",
+            "@php artisan ide-helper:meta --filename .phpstorm.meta.php/meta-standard.php",
+            "@php artisan ide-helper:entity-meta --filename .phpstorm.meta.php/meta-entities.php",
+            "@php artisan ide-helper:user-meta --filename .phpstorm.meta.php/meta-users.php"
         ],
-        "install-prod": "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest",
         "log-rotate": "if [ -f storage/logs/laravel.log ]; then mv storage/logs/laravel.log storage/logs/laravel.log.`date +%s`; fi",
         "update-version": [
             "sed -i \"s/^APP_COMMIT=.*$/APP_COMMIT=$(git rev-parse --short HEAD)/\" .env",

@@ -13,7 +13,7 @@ return [
 
     'filename' => '_ide_helper',
     'format' => 'php',
-    'meta_filename' => '.phpstorm.meta.php',
+    'meta_filename' => '.phpstorm.meta.php/ide-helper.meta.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -26,6 +26,8 @@ return [
 
     'include_fluent' => true,
 
+    'include_factory_builders' => false,
+
     /*
     |--------------------------------------------------------------------------
     | Write Model Magic methods
@@ -35,7 +37,7 @@ return [
     |
     */
 
-    'write_model_magic_where' => true,
+    'write_model_magic_where' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -65,9 +67,7 @@ return [
     |
     */
 
-    'model_locations' => [
-        'app/Models',
-    ],
+    'model_locations' => [],
 
 
     /*
