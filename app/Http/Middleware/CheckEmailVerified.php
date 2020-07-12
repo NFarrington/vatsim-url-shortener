@@ -27,12 +27,12 @@ class CheckEmailVerified
         if (!$this->inExceptArray($request)) {
             $user = $request->user();
 
-            if ($user->email && !$user->email_verified) {
+            if ($user->getEmail() && !$user->getEmailVerified()) {
                 return redirect()->route('platform.register')
                     ->with('error', 'You must validate your email address before continuing.');
             }
 
-            if (!$user->email) {
+            if (!$user->getEmail()) {
                 return redirect()->route('platform.register');
             }
         }

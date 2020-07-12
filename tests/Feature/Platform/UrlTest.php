@@ -2,14 +2,16 @@
 
 namespace Tests\Feature\Platform;
 
-use App\Models\Domain;
-use App\Models\Organization;
-use App\Models\OrganizationUser;
-use App\Models\Url;
+use App\Entities\Domain;
+use App\Entities\DomainOrganization;
+use App\Entities\Organization;
+use App\Entities\OrganizationUser;
+use App\Entities\Url;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 
 class UrlTest extends TestCase
@@ -29,17 +31,18 @@ class UrlTest extends TestCase
         $this->get(route('platform.urls.index'))
             ->assertStatus(200);
 
-        $url = create(Url::class, ['user_id' => $this->user->id]);
+        $url = create(Url::class, ['user' => $this->user]);
         $this->get(route('platform.urls.index'))
             ->assertStatus(200)
-            ->assertSee($url->url);
+            ->assertSee($url->getUrl());
 
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
-        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        $url = entity(Url::class)->states('org')->create(['organization' => $organization]);
         $this->get(route('platform.urls.index'))
             ->assertStatus(200)
-            ->assertSee($url->url);
+            ->assertSee($url->getUrl());
     }
 
     /** @test */
@@ -52,14 +55,16 @@ class UrlTest extends TestCase
     /** @test */
     function create_page_shows_private_domains()
     {
-        $domain = factory(Domain::class)->state('private')->create();
+        $domain = entity(Domain::class)->states('private')->create();
         $organization = create(Organization::class);
-        $organization->domains()->attach($domain);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        create(DomainOrganization::class, ['domain' => $domain, 'organization' => $organization]);
+        EntityManager::refresh($domain);
+        EntityManager::refresh($organization);
 
         $this->get(route('platform.urls.create'))
             ->assertStatus(200)
-            ->assertSee($domain->url);
+            ->assertSee($domain->getUrl());
     }
 
     /** @test */
@@ -69,16 +74,16 @@ class UrlTest extends TestCase
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
             'organization_id' => null,
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($url->getTable(), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
         ]);
     }
 
@@ -86,46 +91,49 @@ class UrlTest extends TestCase
     function user_can_create_new_url_in_an_organization()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($url->getTable(), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ]);
     }
 
     /** @test */
     function user_can_create_new_url_with_a_prefix()
     {
-        $organization = factory(Organization::class)->states('prefix')->create();
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $url->domain_id,
-            'prefix' => $organization->prefix,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+            'domain_id' => $url->getDomain()->getId(),
+            'prefix' => $organization->getPrefix(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($url->getTable(), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ]);
     }
 
@@ -134,24 +142,25 @@ class UrlTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        $organization = factory(Organization::class)->states('prefix')->create();
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $url->domain_id,
-            'prefix' => $organization->prefix.'1',
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+            'domain_id' => $url->getDomain()->getId(),
+            'prefix' => $organization->getPrefix().'1',
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertRedirect()
             ->assertRedirect();
-        $this->assertDatabaseMissing($url->getTable(), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ]);
     }
 
@@ -160,31 +169,32 @@ class UrlTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        $organization = factory(Organization::class)->states('prefix')->create();
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $url->domain_id,
-            'prefix' => $organization->prefix,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
+            'domain_id' => $url->getDomain()->getId(),
+            'prefix' => $organization->getPrefix(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
             'organization_id' => null,
         ])->assertRedirect()
             ->assertSessionHas('error');
-        $this->assertDatabaseMissing($url->getTable(), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ]);
     }
 
     /** @test */
     function show_page_redirects_to_edit_page()
     {
-        $url = create(Url::class, ['user_id' => $this->user->id]);
+        $url = create(Url::class, ['user' => $this->user]);
 
         $this->get(route('platform.urls.show', $url))
             ->assertRedirect(route('platform.urls.edit', $url));
@@ -193,7 +203,7 @@ class UrlTest extends TestCase
     /** @test */
     function edit_page_loads_successfully()
     {
-        $url = create(Url::class, ['user_id' => $this->user]);
+        $url = create(Url::class, ['user' => $this->user]);
 
         $this->get(route('platform.urls.edit', $url))
             ->assertStatus(200);
@@ -202,17 +212,17 @@ class UrlTest extends TestCase
     /** @test */
     function user_can_edit_url_owned_by_user()
     {
-        $url = create(Url::class, ['user_id' => $this->user->id]);
+        $url = create(Url::class, ['user' => $this->user]);
         $template = make(Url::class);
 
         $this->get(route('platform.urls.edit', $url));
         $this->put(route('platform.urls.update', $url), [
-            'redirect_url' => $template->redirect_url,
+            'redirect_url' => $template->getRedirectUrl(),
             'organization_id' => null,
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($url->getTable(), [
-            'redirect_url' => $template->redirect_url,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'redirect_url' => $template->getRedirectUrl(),
             'organization_id' => null,
         ]);
     }
@@ -222,37 +232,40 @@ class UrlTest extends TestCase
     {
         $template = make(Url::class);
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
-        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
+        $url = entity(Url::class)->states('org')->create(['organization' => $organization]);
 
         $this->get(route('platform.urls.edit', $url));
         $this->put(route('platform.urls.update', $url), [
-            'redirect_url' => $template->redirect_url,
-            'organization_id' => $organization->id,
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($url->getTable(), [
-            'redirect_url' => $template->redirect_url,
-            'organization_id' => $organization->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ]);
     }
 
     /** @test */
     function user_can_move_url_into_an_organization()
     {
-        $url = create(Url::class, ['user_id' => $this->user->id]);
+        $url = create(Url::class, ['user' => $this->user]);
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
 
         $this->get(route('platform.urls.edit', $url));
         $this->put(route('platform.urls.update', $url), [
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($url->getTable(), [
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ]);
     }
 
@@ -261,20 +274,23 @@ class UrlTest extends TestCase
     {
         $template = make(Url::class);
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
-        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MANAGER]);
+        EntityManager::refresh($organization);
+        $url = entity(Url::class)->states('org')->create(['organization' => $organization]);
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
 
         $this->get(route('platform.urls.edit', $url));
         $this->put(route('platform.urls.update', $url), [
-            'redirect_url' => $template->redirect_url,
-            'organization_id' => $organization->id,
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($url->getTable(), [
-            'redirect_url' => $template->redirect_url,
-            'organization_id' => $organization->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ]);
     }
 
@@ -285,19 +301,21 @@ class UrlTest extends TestCase
 
         $template = make(Url::class);
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
-        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id, 'prefix' => true]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MANAGER]);
+        EntityManager::refresh($organization);
+        $url = entity(Url::class)->states('org')->create(['organization' => $organization, 'prefix' => true]);
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
 
         $this->get(route('platform.urls.edit', $url));
         $this->put(route('platform.urls.update', $url), [
-            'redirect_url' => $template->redirect_url,
-            'organization_id' => $organization->id,
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertRedirect()
             ->assertForbidden();
-        $this->assertDatabaseHas($url->getTable(), [
-            'redirect_url' => $url->redirect_url,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'redirect_url' => $url->getRedirectUrl(),
             'organization_id' => $url->organization_id,
         ]);
     }
@@ -305,26 +323,29 @@ class UrlTest extends TestCase
     /** @test */
     function user_can_delete_url_owned_by_user()
     {
-        $url = create(Url::class, ['user_id' => $this->user->id]);
+        $url = create(Url::class, ['user' => $this->user]);
         $this->get(route('platform.urls.index'));
         $this->delete(route('platform.urls.destroy', $url))
             ->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseMissing($url->getTable(), ['id' => $url->id, 'deleted_at' => null]);
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), ['id' => $url->getId(), 'deleted_at' => null]);
     }
 
     /** @test */
     function user_can_delete_url_owned_by_organization()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MANAGER]);
-        $url = factory(Url::class)->states('org')->create(['organization_id' => $organization->id]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MANAGER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
+        $url = entity(Url::class)->states('org')->create(['organization' => $organization]);
 
         $this->get(route('platform.urls.index'));
         $this->delete(route('platform.urls.destroy', $url))
             ->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseMissing($url->getTable(), ['id' => $url->id, 'deleted_at' => null]);
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(),
+            ['id' => $url->getId(), 'deleted_at' => null]);
     }
 
     /** @test */
@@ -336,10 +357,10 @@ class UrlTest extends TestCase
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $url->domain_id,
+            'domain_id' => $url->getDomain()->getId(),
             'organization_id' => null,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
         ])->assertRedirect()
             ->assertSessionHasErrors('url');
     }
@@ -354,15 +375,15 @@ class UrlTest extends TestCase
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertForbidden();
-        $this->assertDatabaseMissing($url->getTable(), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
         ]);
     }
 
@@ -375,31 +396,33 @@ class UrlTest extends TestCase
         $this->get(route('platform.urls.index'));
         $this->delete(route('platform.urls.destroy', $url))
             ->assertForbidden();
-        $this->assertDatabaseHas($url->getTable(), ['id' => $url->id, 'deleted_at' => null]);
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), ['id' => $url->getId(), 'deleted_at' => null]);
     }
 
     /** @test */
     function user_can_create_url_for_private_domain()
     {
-        $domain = factory(Domain::class)->state('private')->create();
+        $domain = entity(Domain::class)->states('private')->create();
         $organization = create(Organization::class);
-        $organization->domains()->attach($domain);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        create(DomainOrganization::class, ['domain' => $domain, 'organization' => $organization]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $domain->id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+            'domain_id' => $domain->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($url->getTable(), [
-            'domain_id' => $url->domain_id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ]);
     }
 
@@ -407,20 +430,22 @@ class UrlTest extends TestCase
     function user_cannot_create_url_for_private_domain_they_do_not_own()
     {
         $this->withExceptionHandling();
-        $domain = factory(Domain::class)->state('private')->create();
+        $domain = entity(Domain::class)->states('private')->create();
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $domain->id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
-            'organization_id' => $organization->id,
+            'domain_id' => $domain->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
         ])->assertStatus(Response::HTTP_FORBIDDEN);
-        $this->assertDatabaseMissing($url->getTable(), [
-            'domain_id' => $url->domain_id,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
         ]);
     }
 
@@ -428,22 +453,24 @@ class UrlTest extends TestCase
     function user_cannot_create_url_with_mismatched_domain_and_organization()
     {
         $this->withExceptionHandling();
-        $domain = factory(Domain::class)->state('private')->create();
+        $domain = entity(Domain::class)->states('private')->create();
         $organization = create(Organization::class);
-        $organization->domains()->attach($domain);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        create(DomainOrganization::class, ['domain' => $domain, 'organization' => $organization]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($this->user);
+        EntityManager::clear();
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));
         $this->post(route('platform.urls.store'), [
-            'domain_id' => $domain->id,
-            'url' => $url->url,
-            'redirect_url' => $url->redirect_url,
+            'domain_id' => $domain->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
             'organization_id' => null,
         ])->assertRedirect()
             ->assertSessionHasErrors('organization_id');
-        $this->assertDatabaseMissing($url->getTable(), [
-            'domain_id' => $url->domain_id,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'domain_id' => $url->getDomain()->getId(),
         ]);
     }
 }

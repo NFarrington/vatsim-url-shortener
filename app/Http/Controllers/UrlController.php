@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\UrlRetrieved;
 use App\Services\UrlService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,12 +33,9 @@ class UrlController extends Controller
 
         $url = $this->urlService->getRedirectForUrl($request->root().'/', $shortUrl, $prefix);
 
-        // the 'retrieved' event on the model causes infinite recursion when
-        // being unserialised on the queue, so we fire it manually here
-        event(new UrlRetrieved($url));
+        $response = redirect()->to($url->getRedirectUrl());
 
-        $response = redirect()->to($url->redirect_url);
-        $response->shortUrl = $url;
+        $response->shortUrl = $url; // used by App\Http\Middleware\LogRequests
 
         return $response;
     }

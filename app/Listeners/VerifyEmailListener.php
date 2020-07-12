@@ -2,22 +2,19 @@
 
 namespace App\Listeners;
 
+use App\Entities\EmailVerification;
 use App\Events\EmailChangedEvent;
-use App\Models\EmailVerification;
 use App\Notifications\VerifyEmailNotification;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 
 class VerifyEmailListener
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        //
+        $this->em = $em;
     }
 
     /**
@@ -31,13 +28,12 @@ class VerifyEmailListener
         $user = $event->user;
 
         $key = app_key();
-        $user->email_verified = false;
-        $user->save();
+        $user->setEmailVerified(false);
         $token = hash_hmac('sha256', Str::random(40), $key);
-        $verification = $user->emailVerification ?: new EmailVerification();
-        $verification->token = Hash::make($token);
-        $verification->user_id = $user->id;
-        $verification->save();
-        $user->notify(new VerifyEmailNotification($token));
+        $verification = $user->getEmailVerification() ?: new EmailVerification();
+        $verification->setToken(Hash::make($token));
+        $verification->setUser($user);
+        $this->em->flush();
+        Notification::send($user, new VerifyEmailNotification($token, $event->newEmail, $event->oldEmail));
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Policies;
 
-use App\Models\Url;
-use App\Models\User;
+use App\Entities\Url;
+use App\Entities\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Facades\Gate;
 
 class UrlPolicy
 {
@@ -12,67 +13,49 @@ class UrlPolicy
 
     public function create(User $user, Url $url)
     {
-        if ($url->organization) {
-            return $user->can('create-url', $url->domain)
-                && $user->can('act-as-member', $url->organization);
+        if ($url->getOrganization()) {
+            return Gate::check('create-url', $url->getDomain())
+                && Gate::check('act-as-member', $url->getOrganization());
         }
 
-        return $user->can('create-url', $url->domain);
+        return Gate::check('create-url', $url->getDomain());
     }
 
-    /**
-     * Determine whether the user can update the url.
-     *
-     * @param \App\Models\User $user
-     * @param \App\Models\Url $url
-     * @return mixed
-     */
     public function update(User $user, Url $url)
     {
-        if ($url->organization) {
-            return $user->can('act-as-member', $url->organization);
+        if ($url->getOrganization()) {
+            $organization = $url->getOrganization();
+            $organization->getId();
+
+            return Gate::check('act-as-member', $organization);
         }
 
-        return $user->id == $url->user_id;
+        return $user == $url->getUser();
     }
 
-    /**
-     * Determine whether the user can move the url.
-     *
-     * @param \App\Models\User $user
-     * @param \App\Models\Url $url
-     * @return mixed
-     */
     public function move(User $user, Url $url)
     {
-        if (!$url->domain->public) {
+        if (!$url->getDomain()->isPublic()) {
             return false;
         }
 
-        if ($url->prefix) {
+        if ($url->getPrefix()) {
             return false;
         }
 
-        if ($url->organization) {
-            return $user->can('act-as-manager', $url->organization);
+        if ($url->getOrganization()) {
+            return Gate::check('act-as-manager', $url->getOrganization());
         }
 
-        return $user->id == $url->user_id;
+        return $user == $url->getUser();
     }
 
-    /**
-     * Determine whether the user can delete the url.
-     *
-     * @param \App\Models\User $user
-     * @param \App\Models\Url $url
-     * @return mixed
-     */
     public function delete(User $user, Url $url)
     {
-        if ($url->organization) {
-            return $user->can('act-as-manager', $url->organization);
+        if ($url->getOrganization()) {
+            return Gate::check('act-as-manager', $url->getOrganization());
         }
 
-        return $user->id == $url->user_id;
+        return $user == $url->getUser();
     }
 }

@@ -1,20 +1,20 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
-use App\Models\Organization;
-use App\Models\User;
+/** @var \LaravelDoctrine\ORM\Testing\Factory $factory */
+use App\Entities\Organization;
+use App\Entities\User;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 
-$factory->define(App\Models\OrganizationPrefixApplication::class, function (Faker $faker) {
+$factory->define(App\Entities\OrganizationPrefixApplication::class, function (Faker $faker) {
     return [
-        'organization_id' => function () {
-            return create(Organization::class)->id;
+        'organization' => function () {
+            return create(Organization::class);
         },
-        'user_id' => function () {
-            return create(User::class)->id;
+        'user' => function () {
+            return create(User::class);
         },
-        'identity_url' => $faker->url,
+        'identityUrl' => $faker->url,
         'prefix' => Str::random(3),
     ];
 });

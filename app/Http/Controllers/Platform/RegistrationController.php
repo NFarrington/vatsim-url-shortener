@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Platform;
 
+use App\Entities\User;
 use App\Events\EmailChangedEvent;
 use Closure;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class RegistrationController extends Controller
     {
         $this->middleware('platform');
         $this->middleware(function ($request, Closure $next) {
-            if ($request->user()->email && $request->user()->email_verified) {
+            if ($request->user()->getEmail() && $request->user()->getEmailVerified()) {
                 return redirect()->intended(route('platform.dashboard'))
                     ->with('error', 'You are already registered.');
             }
@@ -47,15 +48,18 @@ class RegistrationController extends Controller
      */
     public function register(Request $request)
     {
-        /** @var \App\Models\User $user */
+        /** @var \App\Entities\User $user */
         $user = $request->user();
 
         $attributes = $this->validate($request, [
-            'email' => "required|email|max:255|unique:users,email,{$user->id}",
+            'email' => 'required|email|max:255|unique:'.User::class.",email,{$user->getId()}",
         ]);
 
-        $user->update($attributes);
-        event(new EmailChangedEvent($user));
+        $oldEmail = $user->getEmail();
+        $newEmail = $attributes['email'];
+
+        $user->setEmail($newEmail);
+        event(new EmailChangedEvent($user, $newEmail, $oldEmail));
 
         return redirect()->route('platform.register')
             ->with('success', 'Please check your inbox for a verification email.');

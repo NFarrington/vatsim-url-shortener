@@ -1,10 +1,11 @@
 <?php
 
-namespace Tests\Feature\Platform;
+namespace Tests\Feature\Platform\Admin;
 
-use App\Models\Domain;
-use App\Models\Url;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Entities\Domain;
+use App\Entities\Url;
+use Tests\Traits\RefreshDatabase;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 
 class DomainTest extends TestCase
@@ -40,13 +41,13 @@ class DomainTest extends TestCase
 
         $this->get(route('platform.admin.domains.create'));
         $this->post(route('platform.admin.domains.store'), [
-            'url' => $domain->url,
-            'public' => $domain->public,
+            'url' => $domain->getUrl(),
+            'public' => $domain->isPublic(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($domain->getTable(), [
-            'url' => $domain->url,
-            'public' => $domain->public,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(get_class($domain))->getTableName(), [
+            'url' => $domain->getUrl(),
+            'public' => $domain->isPublic(),
         ]);
     }
 
@@ -79,14 +80,14 @@ class DomainTest extends TestCase
 
         $this->get(route('platform.admin.domains.edit', $domain));
         $this->put(route('platform.admin.domains.update', $domain), [
-            'url' => $domain->url,
-            'public' => $domain->public,
+            'url' => $domain->getUrl(),
+            'public' => $domain->isPublic(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($template->getTable(), [
-            'id' => $domain->id,
-            'url' => $domain->url,
-            'public' => $domain->public,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(get_class($template))->getTableName(), [
+            'id' => $domain->getId(),
+            'url' => $domain->getUrl(),
+            'public' => $domain->isPublic(),
         ]);
     }
 
@@ -95,13 +96,14 @@ class DomainTest extends TestCase
     {
         $this->signInAdmin();
         $domain = create(Domain::class);
+        $domainId = $domain->getId();
 
         $this->get(route('platform.admin.domains.index'));
         $this->delete(route('platform.admin.domains.destroy', $domain))
             ->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseMissing($domain->getTable(), [
-            'id' => $domain->id,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Domain::class)->getTableName(), [
+            'id' => $domainId,
         ]);
     }
 
@@ -110,14 +112,14 @@ class DomainTest extends TestCase
     {
         $this->signInAdmin();
         $domain = create(Domain::class);
-        create(Url::class, ['domain_id' => $domain->id]);
+        $domain->addUrl(create(Url::class));
 
         $this->get(route('platform.admin.domains.index'));
         $this->delete(route('platform.admin.domains.destroy', $domain))
             ->assertRedirect()
             ->assertSessionHas('error');
-        $this->assertDatabaseHas($domain->getTable(), [
-            'id' => $domain->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(get_class($domain))->getTableName(), [
+            'id' => $domain->getId(),
         ]);
     }
 }

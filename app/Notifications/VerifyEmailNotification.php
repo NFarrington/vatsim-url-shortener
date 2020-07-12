@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -13,60 +12,30 @@ class VerifyEmailNotification extends Notification implements ShouldQueue
 
     /**
      * The token used to verify the email address.
-     *
-     * @var string
      */
-    protected $token;
+    protected string $token;
+    private string $newEmail;
+    private ?string $oldEmail;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @param string $token
-     * @return void
-     */
-    public function __construct(string $token)
+    public function __construct(string $token, string $newEmail, ?string $oldEmail = null)
     {
         $this->token = $token;
+        $this->newEmail = $newEmail;
+        $this->oldEmail = $oldEmail;
     }
 
-    /**
-     * Get the notification's delivery channels.
-     *
-     * @param  mixed $notifiable
-     * @return array
-     */
     public function via($notifiable)
     {
-        return ['database', 'mail'];
+        return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         $appName = config('app.name');
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject("$appName - Verify Email Address")
             ->line('Please click the button below to verify your email address:')
             ->action('Verify Email Address', route('platform.register.verify', $this->token));
-    }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  User $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [
-            'old_email' => $notifiable->getOriginal('email'),
-            'new_email' => $notifiable->getAttribute('email'),
-        ];
     }
 }

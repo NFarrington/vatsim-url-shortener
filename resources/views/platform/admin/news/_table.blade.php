@@ -12,11 +12,11 @@
             </tr>
             @foreach($news as $post)
                 <tr>
-                    <td>{{ $post->id }}</td>
-                    <td>{{ $post->title }}</td>
-                    <td><i class="material-icons">{{ $post->published ? 'check' : 'close' }}</i></td>
-                    <td>{{ hyphen_nobreak($post->created_at) }}</td>
-                    <td>{{ hyphen_nobreak($post->updated_at) }}</td>
+                    <td>{{ $post->getId() }}</td>
+                    <td>{{ $post->getTitle() }}</td>
+                    <td><i class="material-icons">{{ $post->isPublished() ? 'check' : 'close' }}</i></td>
+                    <td>{{ hyphen_nobreak($post->getCreatedAt()) }}</td>
+                    <td>{{ hyphen_nobreak($post->getUpdatedAt()) }}</td>
                     <td><a href="{{ route('platform.admin.news.edit', $post) }}">Edit</a></td>
                     <td>
                         <delete-resource link-only route="{{ route('platform.admin.news.destroy', $post) }}">

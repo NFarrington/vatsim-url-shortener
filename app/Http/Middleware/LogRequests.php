@@ -2,9 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Url;
-use App\Models\UrlAnalytics;
+use App\Entities\Url;
+use App\Entities\UrlAnalytics;
 use Closure;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -21,11 +22,18 @@ class LogRequests
         'http_cookie',
     ];
 
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+    }
+
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -47,24 +55,25 @@ class LogRequests
             $url = $response->shortUrl;
         }
 
-        $analyticsDisabled = $url && $url->analytics_disabled;
+        $analyticsDisabled = $url && $url->isAnalyticsDisabled();
 
         if (!$analyticsDisabled) {
-            $serverData = $this->filterFillable($_SERVER);
-            UrlAnalytics::create([
-                'user_id' => Auth::check() ? Auth::user()->id : null,
-                'url_id' => $url ? $url->id : null,
-                'request_time' => $_SERVER['REQUEST_TIME'],
-                'http_host' => $request->root(),
-                'http_referer' => $request->headers->get('referer'),
-                'http_user_agent' => $request->userAgent(),
-                'remote_addr' => $request->ip(),
-                'request_uri' => $request->path(),
-                'get_data' => $_GET,
-                'post_data' => $_POST,
-                'custom_headers' => array_diff_key($this->getHeaders(), $serverData),
-                'response_code' => $response->getStatusCode(),
-            ]);
+            $urlAnalytic = new UrlAnalytics();
+            $urlAnalytic->setUser(Auth::check() ? Auth::user() : null);
+            $urlAnalytic->setUrl($url ? $url : null);
+            $urlAnalytic->setRequestTime($_SERVER['REQUEST_TIME']);
+            $urlAnalytic->setHttpHost($request->root());
+            $urlAnalytic->setHttpReferer($request->headers->get('referer'));
+            $urlAnalytic->setHttpUserAgent($request->userAgent());
+            $urlAnalytic->setRemoteAddr($request->ip());
+            $urlAnalytic->setRequestUri($request->path());
+            $urlAnalytic->setGetData($_GET);
+            //$urlAnalytic->setPostData($_POST);
+            // headers that aren't added to other fields
+            $urlAnalytic->setCustomHeaders(array_diff_key($this->getHeaders(), $this->filterFillable($_SERVER)));
+            $urlAnalytic->setResponseCode($response->getStatusCode());
+            $this->em->persist($urlAnalytic);
+            $this->em->flush();
         }
     }
 
@@ -76,7 +85,13 @@ class LogRequests
      */
     protected function filterFillable($arr)
     {
-        return array_intersect_key(array_change_key_case($arr), array_flip((new UrlAnalytics)->getFillable()));
+        $fillable = [
+            'http_host',
+            'http_referer',
+            'http_user_agent',
+        ];
+
+        return array_intersect_key(array_change_key_case($arr), array_flip($fillable));
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Events\PrefixApplicationCreatedEvent;
 use App\Events\UrlRetrieved;
 use App\Events\UrlSaved;
 use App\Listeners\CacheShortUrl;
+use App\Listeners\CacheShortUrlFromQueue;
 use App\Listeners\DeleteEmailVerificationListener;
 use App\Listeners\NotifyApplicationSubmittedListener;
 use App\Listeners\RecordJobProcessingListener;
@@ -44,7 +45,7 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         UrlSaved::class => [
-            CacheShortUrl::class,
+            CacheShortUrlFromQueue::class,
         ],
     ];
 

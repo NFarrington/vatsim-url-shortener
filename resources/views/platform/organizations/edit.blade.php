@@ -40,16 +40,16 @@
                     <div class="col-sm-10">
                         <select id="role_id" name="role_id"
                                 class="custom-select{{ $errors->has('role_id') ? ' is-invalid' : '' }}">
-                            <option value="{{ \App\Models\OrganizationUser::ROLE_OWNER }}"
-                                    {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_OWNER ? 'selected' : '' }}>
+                            <option value="{{ \App\Entities\OrganizationUser::ROLE_OWNER }}"
+                                    {{ (old('role_id') ?: \App\Entities\OrganizationUser::ROLE_MEMBER) == \App\Entities\OrganizationUser::ROLE_OWNER ? 'selected' : '' }}>
                                 Owner
                             </option>
-                            <option value="{{ \App\Models\OrganizationUser::ROLE_MANAGER }}"
-                                    {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_MANAGER ? 'selected' : '' }}>
+                            <option value="{{ \App\Entities\OrganizationUser::ROLE_MANAGER }}"
+                                    {{ (old('role_id') ?: \App\Entities\OrganizationUser::ROLE_MEMBER) == \App\Entities\OrganizationUser::ROLE_MANAGER ? 'selected' : '' }}>
                                 Manager
                             </option>
-                            <option value="{{ \App\Models\OrganizationUser::ROLE_MEMBER }}"
-                                    {{ (old('role_id') ?: \App\Models\OrganizationUser::ROLE_MEMBER) == \App\Models\OrganizationUser::ROLE_MEMBER ? 'selected' : '' }}>
+                            <option value="{{ \App\Entities\OrganizationUser::ROLE_MEMBER }}"
+                                    {{ (old('role_id') ?: \App\Entities\OrganizationUser::ROLE_MEMBER) == \App\Entities\OrganizationUser::ROLE_MEMBER ? 'selected' : '' }}>
                                 Member
                             </option>
                         </select>

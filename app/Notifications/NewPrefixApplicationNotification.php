@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Entities\OrganizationPrefixApplication;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -10,20 +11,9 @@ class NewPrefixApplicationNotification extends Notification implements ShouldQue
 {
     use Queueable;
 
-    /**
-     * The prefix application.
-     *
-     * @var \App\Models\OrganizationPrefixApplication
-     */
-    protected $application;
+    protected OrganizationPrefixApplication $application;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @param \App\Models\OrganizationPrefixApplication $application
-     * @return void
-     */
-    public function __construct($application)
+    public function __construct(OrganizationPrefixApplication $application)
     {
         $this->application = $application;
     }
@@ -39,18 +29,12 @@ class NewPrefixApplicationNotification extends Notification implements ShouldQue
         return ['mail'];
     }
 
-    /**
-     * Get the mail representation of the notification.
-     *
-     * @param  mixed $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
-     */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         $appName = config('app.name');
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject("$appName - New Prefix Application")
-            ->line("A new prefix application has been submitted for {$this->application->organization->name}.");
+            ->line("A new prefix application has been submitted for {$this->application->getOrganization()->getName()}.");
     }
 }

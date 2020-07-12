@@ -3,7 +3,7 @@
 namespace Tests\Feature\Platform;
 
 use Illuminate\Cache\RateLimiter;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Tests\TestCase;

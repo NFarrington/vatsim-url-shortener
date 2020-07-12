@@ -1,15 +1,15 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
-use App\Models\EmailVerification;
-use App\Models\User;
+/** @var \LaravelDoctrine\ORM\Testing\Factory $factory */
+use App\Entities\EmailVerification;
+use App\Entities\User;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 
 $factory->define(EmailVerification::class, function (Faker $faker) {
     return [
-        'user_id' => function () {
-            return create(User::class)->id;
+        'user' => function () {
+            return create(User::class);
         },
         'token' => Hash::make(Str::random(40)),
     ];

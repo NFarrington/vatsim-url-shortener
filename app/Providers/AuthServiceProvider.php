@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use App\Models\Domain;
-use App\Models\Organization;
-use App\Models\Url;
-use App\Models\User;
+use App\Entities\Domain;
+use App\Entities\Organization;
+use App\Entities\Url;
+use App\Entities\User;
 use App\Policies\DomainPolicy;
 use App\Policies\OrganizationPolicy;
 use App\Policies\UrlPolicy;
@@ -32,6 +32,14 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // Guessing policy names doesn't work when Doctrine has proxied an entity
+        // object, instead causing a fatal E_COMPILE_ERROR level error due to
+        // attempting to load a class that does not exist.
+        // https://www.doctrine-project.org/projects/doctrine-orm/en/2.7/reference/advanced-configuration.html#proxy-objects
+        // https://www.doctrine-project.org/projects/doctrine-common/en/3.0/reference/class-loading.html
+        // TODO: re-enable policy auto-loading using the parent of proxied classes
+        Gate::guessPolicyNamesUsing(fn () => null);
+
         $this->registerPolicies();
 
         Gate::define('admin', function (User $user) {

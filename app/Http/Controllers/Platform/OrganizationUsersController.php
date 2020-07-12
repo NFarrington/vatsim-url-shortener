@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Platform;
 
+use App\Entities\Organization;
+use App\Entities\OrganizationUser;
+use App\Entities\User;
 use App\Exceptions\Cert\InvalidResponseException;
-use App\Models\Organization;
-use App\Models\OrganizationUser;
-use App\Models\User;
-use Carbon\Carbon;
+use App\Repositories\OrganizationUserRepository;
+use App\Repositories\UserRepository;
+use App\Services\VatsimService;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,34 +17,30 @@ use Illuminate\Validation\ValidationException;
 
 class OrganizationUsersController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected EntityManagerInterface $entityManager;
+    protected UserRepository $userRepository;
+    protected VatsimService $vatsimService;
+    protected OrganizationUserRepository $organizationUserRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, UserRepository $userRepository, VatsimService $vatsimService, OrganizationUserRepository $organizationUserRepository)
     {
         $this->middleware('platform');
+        $this->entityManager = $entityManager;
+        $this->userRepository = $userRepository;
+        $this->vatsimService = $vatsimService;
+        $this->organizationUserRepository = $organizationUserRepository;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param \App\Models\Organization $organization
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function store(Request $request, Organization $organization)
     {
         $this->authorize('act-as-owner', $organization);
 
-        $users = $organization->users->pluck('pivot.user_id');
+        $existingUserIds = array_map(fn ($user) => $user->getId(), $organization->getUsers());
         $attributes = $this->validate($request, [
             'id' => [
                 'required',
                 'integer',
-                Rule::notIn($users->toArray()),
+                Rule::notIn($existingUserIds),
             ],
             'role_id' => [
                 'required',
@@ -56,9 +55,10 @@ class OrganizationUsersController extends Controller
             'id.not_in' => 'That user is already in this organization.',
         ]);
 
-        if (!User::find($attributes['id'])) {
+        $user = $this->userRepository->find($attributes['id']);
+        if (!$user) {
             try {
-                User::createFromCert($attributes['id']);
+                $user = $this->vatsimService->createUserFromCert($attributes['id']);
             } catch (InvalidResponseException $e) {
                 throw ValidationException::withMessages([
                     'id' => ['Error retrieving user from VATSIM. Please check the CID and try again.'],
@@ -70,35 +70,28 @@ class OrganizationUsersController extends Controller
             }
         }
 
-        $organization->users()->attach(
-            $attributes['id'],
-            ['role_id' => $attributes['role_id']]
-        );
+        $organizationUser = new OrganizationUser();
+        $organizationUser->setOrganization($organization);
+        $organizationUser->setUser($user);
+        $organizationUser->setRoleId($attributes['role_id']);
+        $this->entityManager->persist($organizationUser);
+        $this->entityManager->flush();
 
         return redirect()->route('platform.organizations.edit', $organization)
             ->with('success', 'User added.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param  \App\Models\Organization $organization
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function destroy(Request $request, Organization $organization, User $user)
     {
         $this->authorize('act-as-owner', $organization);
 
-        if ($request->user()->id == $user->id) {
+        if ($request->user()->getId() == $user->getId()) {
             return redirect()->route('platform.organizations.edit', $organization)
                 ->with('error', 'You cannot remove yourself.');
         }
 
-        $organization->users()->where('users.id', $user->id)->first()->pivot
-            ->update(['deleted_at' => Carbon::now()]);
+        $this->entityManager->remove($this->organizationUserRepository->findByUserAndOrganization($user, $organization));
+        $this->entityManager->flush();
 
         return redirect()->route('platform.organizations.edit', $organization)
             ->with('success', 'User deleted.');

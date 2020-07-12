@@ -2,55 +2,48 @@
 
 namespace App\Policies;
 
-use App\Models\Organization;
-use App\Models\OrganizationUser;
-use App\Models\User;
+use App\Entities\Organization;
+use App\Entities\OrganizationUser;
+use App\Entities\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class OrganizationPolicy
 {
     use HandlesAuthorization;
 
-    /**
-     * Determine whether the user can act as an owner of the organization.
-     *
-     * @param \App\Models\User $user
-     * @param \App\Models\Organization $organization
-     * @return mixed
-     */
     public function actAsOwner(User $user, Organization $organization)
     {
-        $user = $organization->users->where('id', $user->id)->first();
+        $organizationOwners = $organization->getUsers(OrganizationUser::ROLE_OWNER);
+        foreach ($organizationOwners as $owner) {
+            if ($owner->getId() === $user->getId()) {
+                return true;
+            }
+        }
 
-        return $user && $user->pivot->role_id == OrganizationUser::ROLE_OWNER;
+        return false;
     }
 
-    /**
-     * Determine whether the user can act as a manager of the organization.
-     *
-     * @param \App\Models\User $user
-     * @param \App\Models\Organization $organization
-     * @return mixed
-     */
     public function actAsManager(User $user, Organization $organization)
     {
-        $user = $organization->users->where('id', $user->id)->first();
+        $organizationManagers = $organization->getUsers(OrganizationUser::ROLE_MANAGER);
+        foreach ($organizationManagers as $manager) {
+            if ($manager->getId() === $user->getId()) {
+                return true;
+            }
+        }
 
-        return $user && array_search(
-                $user->pivot->role_id,
-                [OrganizationUser::ROLE_OWNER, OrganizationUser::ROLE_MANAGER]
-            ) !== false;
+        return $this->actAsOwner($user, $organization);
     }
 
-    /**
-     * Determine whether the user can act as a member of the organization.
-     *
-     * @param \App\Models\User $user
-     * @param \App\Models\Organization $organization
-     * @return mixed
-     */
     public function actAsMember(User $user, Organization $organization)
     {
-        return $organization->users->where('id', $user->id)->isNotEmpty();
+        $organizationUsers = $organization->getUsers();
+        foreach ($organizationUsers as $user) {
+            if ($user->getId() === $user->getId()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

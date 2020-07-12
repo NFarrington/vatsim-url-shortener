@@ -7,14 +7,14 @@
             <form method="POST" action="{{ route('platform.register') }}">
                 {{ csrf_field() }}
 
-                @if(!$user->email)
+                @if(!$user->getEmail())
                     <p>To continue, please enter your email address.</p>
                 @endif
 
                 <div class="form-group">
                     <label for="inputEmail">Email</label>
                     <input type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
-                           id="inputEmail" name="email" value="{{ old('email') ?: $user->email }}" placeholder="Email"
+                           id="inputEmail" name="email" value="{{ old('email') ?: $user->getEmail() }}" placeholder="Email"
                            required autofocus>
                     @if($errors->has('email'))
                         <div class="invalid-feedback">
@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="form-group">
-                    @if($user->email)
+                    @if($user->getEmail())
                         <button type="submit" class="btn btn-primary">Resend Verification Email</button>
                     @else
                         <button type="submit" class="btn btn-primary">Submit</button>

@@ -3,17 +3,18 @@
 namespace Tests\Feature\Platform;
 
 use App\Exceptions\Cert\InvalidResponseException;
-use App\Models\Organization;
-use App\Models\OrganizationUser;
-use App\Models\User;
+use App\Entities\Organization;
+use App\Entities\OrganizationUser;
+use App\Entities\User;
 use App\Services\VatsimService;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 
 class OrganizationUsersTest extends TestCase
@@ -30,19 +31,20 @@ class OrganizationUsersTest extends TestCase
     /** @test */
     function user_can_be_added_to_organization()
     {
-        $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::clear();
         $user = create(User::class);
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->post(route('platform.organizations.users.store', $organization), [
-            'id' => $user->id,
+            'id' => $user->getId(),
             'role_id' => OrganizationUser::ROLE_MEMBER,
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($organization->users()->getTable(), [
-            'organization_id' => $organization->id,
-            'user_id' => $user->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(OrganizationUser::class)->getTableName(), [
+            'organization_id' => $organization->getId(),
+            'user_id' => $user->getId(),
             'role_id' => OrganizationUser::ROLE_MEMBER,
             'deleted_at' => null,
         ]);
@@ -51,13 +53,14 @@ class OrganizationUsersTest extends TestCase
     /** @test */
     function unregistered_user_can_be_added_to_organization()
     {
-        $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::clear();
 
         $user = make(User::class);
         $response = <<<EOT
 <?xml version="1.0" encoding="utf-8"?>
-<root><user cid="{$user->id}"><name_last>{$user->last_name}</name_last><name_first>{$user->first_name}</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
+<root><user cid="{$user->getId()}"><name_last>{$user->getLastName()}</name_last><name_first>{$user->getFirstName()}</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
 EOT;
         $mock = new MockHandler([
             new Response(200, [], $response),
@@ -68,13 +71,13 @@ EOT;
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->post(route('platform.organizations.users.store', $organization), [
-            'id' => $user->id,
+            'id' => $user->getId(),
             'role_id' => OrganizationUser::ROLE_MEMBER,
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($organization->users()->getTable(), [
-            'organization_id' => $organization->id,
-            'user_id' => $user->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(OrganizationUser::class)->getTableName(), [
+            'organization_id' => $organization->getId(),
+            'user_id' => $user->getId(),
             'role_id' => OrganizationUser::ROLE_MEMBER,
             'deleted_at' => null,
         ]);
@@ -85,17 +88,18 @@ EOT;
     {
         $this->expectException(ValidationException::class);
 
-        $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::clear();
 
         $user = make(User::class);
-        $mock = $this->createMock(VatsimService::class);
-        $mock->method('getUser')->willThrowException(new InvalidResponseException());
+        $mock = \Mockery::mock(VatsimService::class)->makePartial();
+        $mock->allows('getUser')->andThrow(new InvalidResponseException());
         $this->app->instance(VatsimService::class, $mock);
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->post(route('platform.organizations.users.store', $organization), [
-            'id' => $user->id,
+            'id' => $user->getId(),
             'role_id' => OrganizationUser::ROLE_MEMBER,
         ]);
     }
@@ -105,17 +109,18 @@ EOT;
     {
         $this->expectException(ValidationException::class);
 
-        $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::clear();
 
         $user = make(User::class);
-        $mock = $this->createMock(VatsimService::class);
-        $mock->method('getUser')->willThrowException(new Exception());
+        $mock = \Mockery::mock(VatsimService::class)->makePartial();
+        $mock->allows('getUser')->andThrow(new InvalidResponseException());
         $this->app->instance(VatsimService::class, $mock);
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->post(route('platform.organizations.users.store', $organization), [
-            'id' => $user->id,
+            'id' => $user->getId(),
             'role_id' => OrganizationUser::ROLE_MEMBER,
         ]);
     }
@@ -123,34 +128,36 @@ EOT;
     /** @test */
     function user_can_be_removed_from_organization()
     {
-        $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
         $user = create(User::class);
-        $user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_MEMBER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        create(OrganizationUser::class, ['user' => $user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::clear();
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->delete(route('platform.organizations.users.destroy', [$organization, $user]))
             ->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertSoftDeleted($organization->users()->getTable(), [
-            'organization_id' => $organization->id,
-            'user_id' => $user->id,
+        $this->assertSoftDeleted(EntityManager::getClassMetadata(OrganizationUser::class)->getTableName(), [
+            'organization_id' => $organization->getId(),
+            'user_id' => $user->getId(),
         ]);
     }
 
     /** @test */
     function user_cannot_remove_themselves_from_an_organization()
     {
-        $organization = create(Organization::class);
-        $this->user->organizations()->attach($organization, ['role_id' => OrganizationUser::ROLE_OWNER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::clear();
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->delete(route('platform.organizations.users.destroy', [$organization, $this->user]))
             ->assertRedirect()
             ->assertSessionHas('error');
-        $this->assertDatabaseHas($organization->users()->getTable(), [
-            'organization_id' => $organization->id,
-            'user_id' => $this->user->id,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(OrganizationUser::class)->getTableName(), [
+            'organization_id' => $organization->getId(),
+            'user_id' => $this->user->getId(),
             'deleted_at' => null,
         ]);
     }

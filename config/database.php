@@ -91,6 +91,10 @@ return [
             'prefix_indexes' => true,
         ],
 
+        // for tests that require the database to be inaccessible
+        'invalid' => [
+            'driver' => 'mysql',
+        ],
     ],
 
     /*

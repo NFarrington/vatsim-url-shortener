@@ -1,9 +1,10 @@
 <?php
 
-namespace Tests\Feature\Platform;
+namespace Tests\Feature\Platform\Admin;
 
-use App\Models\News;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Entities\News;
+use Tests\Traits\RefreshDatabase;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 
 class NewsTest extends TestCase
@@ -39,14 +40,14 @@ class NewsTest extends TestCase
 
         $this->get(route('platform.admin.news.create'));
         $this->post(route('platform.admin.news.store'), [
-            'title' => $news->title,
-            'content' => $news->content,
+            'title' => $news->getTitle(),
+            'content' => $news->getContent(),
             'published' => 1,
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($news->getTable(), [
-            'title' => $news->title,
-            'content' => $news->content,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(get_class($news))->getTableName(), [
+            'title' => $news->getTitle(),
+            'content' => $news->getContent(),
             'published' => 1,
         ]);
     }
@@ -80,14 +81,14 @@ class NewsTest extends TestCase
 
         $this->get(route('platform.admin.news.edit', $news));
         $this->put(route('platform.admin.news.update', $news), [
-            'title' => $template->title,
-            'content' => $template->content,
+            'title' => $template->getTitle(),
+            'content' => $template->getContent(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($template->getTable(), [
-            'id' => $news->id,
-            'title' => $template->title,
-            'content' => $template->content,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(get_class($template))->getTableName(), [
+            'id' => $news->getId(),
+            'title' => $template->getTitle(),
+            'content' => $template->getContent(),
             'published' => 0,
         ]);
     }
@@ -97,13 +98,14 @@ class NewsTest extends TestCase
     {
         $this->signInAdmin();
         $news = create(News::class);
+        $newsId = $news->getId();
 
         $this->get(route('platform.admin.news.index'));
         $this->delete(route('platform.admin.news.destroy', $news))
             ->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseMissing($news->getTable(), [
-            'id' => $news->id,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(News::class)->getTableName(), [
+            'id' => $newsId,
         ]);
     }
 }

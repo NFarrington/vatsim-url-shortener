@@ -4,49 +4,40 @@ namespace App\Http\Controllers\Platform;
 
 use App\Events\EmailVerifiedEvent;
 use Closure;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class EmailVerificationController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->middleware('auth');
-        $this->middleware(function ($request, Closure $next) {
-            if ($request->user()->email_verified) {
+        $this->middleware(function (Request $request, Closure $next) {
+            if ($request->user()->getEmailVerified()) {
                 return redirect()->intended(route('platform.dashboard'))
                     ->with('error', 'Your email has already been verified.');
             }
 
             return $next($request);
         });
+        $this->em = $entityManager;
     }
 
-    /**
-     * Verify a user's email address.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param $token
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Exception
-     */
-    public function verifyEmail(Request $request, $token)
+    public function verifyEmail(Request $request, string $token)
     {
-        /* @var \App\Models\User $user */
+        /* @var \App\Entities\User $user */
         $user = $request->user();
 
-        if (!$user->emailVerification || !Hash::check($token, $user->emailVerification->token)) {
+        if (!$user->getEmailVerification() || !Hash::check($token, $user->getEmailVerification()->getToken())) {
             return redirect()->route('platform.register')
                 ->with('error', 'Invalid verification token.');
         }
 
-        $user->email_verified = true;
-        $user->save();
+        $user->setEmailVerified(true);
+        $this->em->flush();
         event(new EmailVerifiedEvent($user));
 
         return redirect()->route('platform.dashboard')

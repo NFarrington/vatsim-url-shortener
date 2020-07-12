@@ -1,35 +1,37 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
-use App\Models\Domain;
-use App\Models\Organization;
-use App\Models\Url;
-use App\Models\User;
+/** @var \LaravelDoctrine\ORM\Testing\Factory $factory */
+
+use App\Entities\Domain;
+use App\Entities\Organization;
+use App\Entities\Url;
+use App\Entities\User;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 
 $factory->define(Url::class, function (Faker $faker) {
     return [
-        'domain_id' => function () {
-            return ($domain = Domain::inRandomOrder()->first())
-                ? $domain->id
-                : create(Domain::class)->id;
+        'domain' => function () {
+            $domains = EntityManager::getRepository(Domain::class)->findAll();
+            $domain = count($domains) > 0 ? $domains[0] : null;
+            return $domain ?: create(Domain::class);
         },
-        'user_id' => function () {
-            return create(User::class)->id;
+        'user' => function () {
+            return create(User::class);
         },
-        'organization_id' => null,
+        'organization' => null,
         'url' => substr(implode('', $faker->unique()->words), 0, 30),
-        'redirect_url' => $faker->imageUrl(),
+        'redirectUrl' => $faker->imageUrl(),
     ];
 });
 
 $factory->state(Url::class, 'org', function (Faker $faker) {
     return [
-        'organization_id' => function () {
-            return create(Organization::class, ['prefix' => Str::random(3)])->id;
+        'organization' => function () {
+            return create(Organization::class, ['prefix' => Str::random(3)]);
         },
-        'user_id' => null,
+        'user' => null,
     ];
 });
 
@@ -41,6 +43,6 @@ $factory->state(Url::class, 'prefix', function (Faker $faker) {
 
 $factory->state(Url::class, 'analytics_disabled', function (Faker $faker) {
     return [
-        'analytics_disabled' => true,
+        'analyticsDisabled' => true,
     ];
 });

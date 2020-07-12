@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Platform;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
 

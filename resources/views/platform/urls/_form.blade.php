@@ -1,9 +1,9 @@
 <div class="form-group row">
     <label for="inputUrl" class="col-sm-2 col-form-label">Short URL</label>
-    @if ($url->exists)
+    @if (!$newUrl)
         <div class="col-sm-10">
             <input type="text" class="form-control" id="inputUrl" disabled
-                   value="{{ $url->domain->url }}{{ $url->prefix ? $url->organization->prefix.'/' : '' }}{{ $url->url }}">
+                   value="{{ $url->getDomain()->getUrl() }}{{ $url->getPrefix() ? $url->getOrganization()->getPrefix().'/' : '' }}{{ $url->getUrl() }}">
         </div>
     @else
         <div class="col-sm-10 form-row">
@@ -11,8 +11,8 @@
                 <select name="domain_id" class="custom-select{{ $errors->has('domain_id') ? ' is-invalid' : '' }}"
                         autofocus>
                     @foreach($domains as $domain)
-                        <option value="{{ $domain->id }}" {{ old('domain_id') == $domain->id ? 'selected' : '' }}>
-                            {{ $domain->url }}
+                        <option value="{{ $domain->getId() }}" {{ old('domain_id') == $domain->getId() ? 'selected' : '' }}>
+                            {{ $domain->getUrl() }}
                         </option>
                     @endforeach
                 </select>
@@ -22,7 +22,7 @@
                     </div>
                 @endif
             </div>
-            @if ($prefixes->isNotEmpty())
+            @if (!empty($prefixes))
                 <div class="col-auto">
                     <select name="prefix" class="custom-select{{ $errors->has('prefix') ? ' is-invalid' : '' }}">
                         <option value="" {{ old('prefix') == '' ? 'selected' : '' }}></option>
@@ -41,8 +41,8 @@
             @endif
             <div class="col">
                 <input type="text" class="form-control{{ $errors->has('url') ? ' is-invalid' : '' }}"
-                       id="inputUrl" name="url" value="{{ old('url') ?: $url->url }}"
-                       placeholder="my-short-url" maxlength="30" required {{ $url->exists ? 'disabled' : '' }}>
+                       id="inputUrl" name="url" value="{{ old('url') ?: $url->getUrl() }}"
+                       placeholder="my-short-url" maxlength="30" required {{ !$newUrl ? 'disabled' : '' }}>
                 @if ($errors->has('url'))
                     <div class="invalid-feedback">
                         {{ $errors->first('url') }}
@@ -60,7 +60,7 @@
     <label for="inputRedirectUrl" class="col-sm-2 col-form-label">Redirect URL</label>
     <div class="col-sm-10">
         <input type="text" class="form-control{{ $errors->has('redirect_url') ? ' is-invalid' : '' }}"
-               id="inputRedirectUrl" name="redirect_url" value="{{ old('redirect_url') ?: $url->redirect_url }}"
+               id="inputRedirectUrl" name="redirect_url" value="{{ old('redirect_url') ?: $url->getRedirectUrl() }}"
                placeholder="https://example.com/redirect-here" required maxlength="1000">
         @if ($errors->has('redirect_url'))
             <div class="invalid-feedback">
@@ -76,20 +76,20 @@
 <div class="form-group row">
     <label for="inputOrganizationId" class="col-sm-2 col-form-label">Organization</label>
     <div class="col-sm-10">
-        @if($url->exists && !Auth::user()->can('move', $url))
+        @if(!$newUrl && !Gate::check('move', $url))
             <select id="inputOrganizationId" disabled
                     class="custom-select {{ $errors->has('organization_id') ? 'is-invalid' : '' }}">
-                <option value="">{{ $url->organization->name ?? 'None' }}</option>
+                <option value="">{{ $url->getOrganization()->getName() ?? 'None' }}</option>
             </select>
-            <input type="hidden" name="organization_id" value="{{ $url->organization_id }}">
+            <input type="hidden" name="organization_id" value="{{ $url->getOrganization()->getId() }}">
         @else
             <select id="inputOrganizationId" name="organization_id"
                     class="custom-select {{ $errors->has('organization_id') ? 'is-invalid' : '' }}">
                 <option value="">None</option>
                 @foreach($organizations as $organization)
-                    <option value="{{ $organization->id }}"
-                            {{ (old('organization_id') ?: $url->organization_id) == $organization->id ? 'selected' : '' }}>
-                        {{ $organization->name }}
+                    <option value="{{ $organization->getId() }}"
+                            {{ (old('organization_id') ?: ($url->getOrganization() ? $url->getOrganization()->getId() : null)) == $organization->getId() ? 'selected' : '' }}>
+                        {{ $organization->getName() }}
                     </option>
                 @endforeach
             </select>

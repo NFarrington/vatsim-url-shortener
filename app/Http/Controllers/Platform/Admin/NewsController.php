@@ -2,55 +2,46 @@
 
 namespace App\Http\Controllers\Platform\Admin;
 
-use App\Models\News;
+use App\Entities\News;
+use App\Repositories\NewsRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 
 class NewsController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected EntityManagerInterface $em;
+    protected NewsRepository $newsRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, NewsRepository $newsRepository)
     {
         $this->middleware('platform');
         $this->middleware('admin');
+
+        $this->em = $entityManager;
+        $this->newsRepository = $newsRepository;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $news = News::orderByDesc('created_at')->paginate(20);
+        $news = $this->newsRepository->findAll();
 
         return view('platform.admin.news.index')->with([
             'news' => $news,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
+        $news = new News();
+        $news->setTitle('');
+        $news->setContent('');
+
         return view('platform.admin.news.create')->with([
-            'news' => new News(),
+            'news' => $news,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $attributes = $this->validate($request, [
@@ -60,20 +51,16 @@ class NewsController extends Controller
         ]);
 
         $news = new News();
-        $news->published = false;
-        $news->fill($attributes);
-        $news->save();
+        $news->setTitle($attributes['title']);
+        $news->setContent($attributes['content']);
+        $news->setPublished($attributes['published'] ?? false);
+        $this->em->persist($news);
+        $this->em->flush();
 
         return redirect()->route('platform.admin.news.index')
             ->with('success', 'News article created.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\News $news
-     * @return \Illuminate\Http\Response
-     */
     public function show(News $news)
     {
         Session::reflash();
@@ -81,12 +68,6 @@ class NewsController extends Controller
         return redirect()->route('platform.admin.news.edit', $news);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\News $news
-     * @return \Illuminate\Http\Response
-     */
     public function edit(News $news)
     {
         return view('platform.admin.news.edit')->with([
@@ -94,13 +75,6 @@ class NewsController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\News $news
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, News $news)
     {
         $attributes = $this->validate($request, [
@@ -109,24 +83,19 @@ class NewsController extends Controller
             'published' => 'boolean',
         ]);
 
-        $news->published = false;
-        $news->fill($attributes);
-        $news->save();
+        $news->setTitle($attributes['title']);
+        $news->setContent($attributes['content']);
+        $news->setPublished($attributes['published'] ?? false);
+        $this->em->flush();
 
         return redirect()->route('platform.admin.news.index')
             ->with('success', 'News article updated.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\News $news
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
-     */
     public function destroy(News $news)
     {
-        $news->delete();
+        $this->em->remove($news);
+        $this->em->flush();
 
         return redirect()->route('platform.admin.news.index')
             ->with('success', 'News article deleted.');

@@ -2,10 +2,10 @@
 
 namespace Tests\Unit\Notifications;
 
-use App\Models\OrganizationPrefixApplication;
-use App\Models\User;
+use App\Entities\OrganizationPrefixApplication;
+use App\Entities\User;
 use App\Notifications\NewPrefixApplicationNotification;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -37,7 +37,7 @@ class NewPrefixApplicationNotificationTest extends TestCase
         $mail = $notification->toMail($user);
 
         $this->assertStringContainsString('New Prefix Application', $mail->subject);
-        $this->assertContains("A new prefix application has been submitted for {$application->organization->name}.",
+        $this->assertContains("A new prefix application has been submitted for {$application->getOrganization()->getName()}.",
             $mail->introLines);
     }
 }

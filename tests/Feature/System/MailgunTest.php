@@ -2,8 +2,10 @@
 
 namespace Tests\Feature\Site;
 
-use App\Models\SystemUser;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Entities\EmailEvent;
+use App\Entities\SystemUser;
+use LaravelDoctrine\ORM\Facades\EntityManager;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Tests\TestCase;
@@ -30,11 +32,11 @@ class MailgunTest extends TestCase
             'recipient' => 'alice@example.com',
             'event' => 'delivered',
         ], [
-            'PHP_AUTH_USER' => $user->username,
+            'PHP_AUTH_USER' => $user->getUsername(),
             'PHP_AUTH_PW' => 'secret',
         ])->assertStatus(200);
 
-        $this->assertDatabaseHas((new \App\Models\EmailEvent())->getTable(), [
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(EmailEvent::class)->getTableName(), [
             'message_id' => '<20130503182626.18666.16540@vats.im>',
         ]);
     }
@@ -58,11 +60,11 @@ class MailgunTest extends TestCase
             'recipient' => 'alice@example.com',
             'event' => 'delivered',
         ], [
-            'PHP_AUTH_USER' => $user->username,
+            'PHP_AUTH_USER' => $user->getUsername(),
             'PHP_AUTH_PW' => 'not-secret',
         ])->assertStatus(200);
 
-        $this->assertDatabaseMissing((new \App\Models\EmailEvent())->getTable(), [
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(EmailEvent::class)->getTableName(), [
             'message_id' => '<20130503182626.18666.16540@vats.im>',
         ]);
     }
@@ -85,11 +87,11 @@ class MailgunTest extends TestCase
             'recipient' => 'alice@example.com',
             'event' => 'delivered',
         ], [
-            'PHP_AUTH_USER' => $user->username,
+            'PHP_AUTH_USER' => $user->getUsername(),
             'PHP_AUTH_PW' => 'secret',
         ])->assertStatus(406);
 
-        $this->assertDatabaseMissing((new \App\Models\EmailEvent())->getTable(), [
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(EmailEvent::class)->getTableName(), [
             'message_id' => '<20130503182626.18666.16540@vats.im>',
         ]);
     }

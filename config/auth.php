@@ -73,13 +73,13 @@ return [
 
     'providers' => [
         'users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\User::class,
+            'driver' => 'doctrine',
+            'model' => App\Entities\User::class,
         ],
 
         'system_users' => [
-            'driver' => 'eloquent',
-            'model' => App\Models\SystemUser::class,
+            'driver' => 'doctrine',
+            'model' => App\Entities\SystemUser::class,
         ],
 
         // 'users' => [
@@ -110,8 +110,6 @@ return [
             'expire' => 60,
         ],
     ],
-
-    'admins' => explode(',', env('AUTH_ADMINS', '')),
 
     'banned_users' => explode(',', env('AUTH_BANNED_USERS', '')),
 
