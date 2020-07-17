@@ -6,6 +6,7 @@ use App\Entities\Domain;
 use App\Repositories\DomainRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
 
 class DomainController extends Controller
@@ -24,7 +25,7 @@ class DomainController extends Controller
 
     public function index()
     {
-        $domains = $this->domainRepository->findAll();
+        $domains = $this->domainRepository->findAll('id', 'asc', 20, Paginator::resolveCurrentPage());
 
         return view('platform.admin.domains.index')->with([
             'domains' => $domains,

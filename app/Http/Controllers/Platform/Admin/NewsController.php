@@ -6,6 +6,7 @@ use App\Entities\News;
 use App\Repositories\NewsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
 
 class NewsController extends Controller
@@ -24,7 +25,7 @@ class NewsController extends Controller
 
     public function index()
     {
-        $news = $this->newsRepository->findAll();
+        $news = $this->newsRepository->findAll('id', 'asc', 20, Paginator::resolveCurrentPage());
 
         return view('platform.admin.news.index')->with([
             'news' => $news,

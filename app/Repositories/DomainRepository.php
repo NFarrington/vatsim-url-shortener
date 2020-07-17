@@ -6,13 +6,13 @@ use App\Entities\User;
 
 class DomainRepository extends Repository
 {
-    public function findPublicOrOwnedByUser(User $user, string $orderBy = 'id', string $order = 'ASC', ?int $perPage = 20)
-    {
-        // TODO
-        if (!$perPage) {
-            $perPage = PHP_INT_MAX;
-        }
-
+    public function findPublicOrOwnedByUser(
+        User $user,
+        string $orderBy = 'id',
+        string $order = 'ASC',
+        int $perPage = null,
+        int $page = null
+    ) {
         $dql = <<<DQL
             SELECT d FROM App\Entities\Domain d
             LEFT JOIN d.domainOrganizations do
@@ -23,8 +23,14 @@ class DomainRepository extends Repository
                 OR u.id = :userId
             ORDER BY u.$orderBy $order
         DQL;
-        $query = $this->getEntityManager()->createQuery($dql)->setParameters(['userId' => $user->getId()]);
+        $query = $this->getEntityManager()
+            ->createQuery($dql)
+            ->setParameters(['userId' => $user->getId()]);
 
-        return $this->paginate($query, $perPage);
+        if ($perPage !== null) {
+            return $this->paginateQuery($query, $perPage, $page);
+        }
+
+        return $query->execute();
     }
 }

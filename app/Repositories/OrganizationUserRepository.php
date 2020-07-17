@@ -8,7 +8,7 @@ use App\Entities\User;
 
 class OrganizationUserRepository extends Repository
 {
-    public function findByUserAndOrganization(User $user, Organization $organization): OrganizationUser
+    public function findByUserAndOrganization(User $user, Organization $organization): ?OrganizationUser
     {
         return $this->findOneBy(['user' => $user, 'organization' => $organization]);
     }

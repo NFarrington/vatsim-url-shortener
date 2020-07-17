@@ -12,6 +12,7 @@ use App\Repositories\UrlRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
@@ -43,8 +44,8 @@ class UrlController extends Controller
         $order = $attributes['direction'] ?? 'asc';
 
         $urls = $this->urlRepository
-            ->findByUserOrTheirOrganizations($request->user(), $orderBy, $order);
-        $publicUrls = $this->urlRepository->findPublic('fullUrl', 'asc');
+            ->findByUserOrTheirOrganizations($request->user(), $orderBy, $order, 20, Paginator::resolveCurrentPage());
+        $publicUrls = $this->urlRepository->findPublic('fullUrl', 'asc', 20, Paginator::resolveCurrentPage());
 
         return view('platform.urls.index')->with([
             'user' => $request->user(),
@@ -56,8 +57,11 @@ class UrlController extends Controller
     public function create(Request $request)
     {
         $user = $request->user();
-        $domains = $this->domainRepository->findPublicOrOwnedByUser($user, 'id', 'asc', null);
+
+        $domains = $this->domainRepository->findPublicOrOwnedByUser($user, 'id', 'asc');
+
         $organizations = $user->getOrganizations();
+
         $prefixes = [];
         foreach ($organizations as $organization) {
             if ($prefix = $organization->getPrefix()) {

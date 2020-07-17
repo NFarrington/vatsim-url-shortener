@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Platform;
 
 use App\Repositories\NewsRepository;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
 
 class DashboardController extends Controller
@@ -24,7 +25,7 @@ class DashboardController extends Controller
 
     public function dashboard()
     {
-        $news = $this->newsRepository->findPublished('createdAt', 'desc', 5);
+        $news = $this->newsRepository->findPublished('createdAt', 'desc', 5, Paginator::resolveCurrentPage());
 
         return view('platform.dashboard')->with([
             'news' => $news,

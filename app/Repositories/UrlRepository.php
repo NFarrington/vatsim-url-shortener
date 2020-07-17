@@ -8,8 +8,13 @@ use App\Exceptions\NonUniqueUrlException;
 
 class UrlRepository extends Repository
 {
-    public function findByUserOrTheirOrganizations(User $user, string $orderBy = 'id', string $order = 'ASC', int $perPage = 20)
-    {
+    public function findByUserOrTheirOrganizations(
+        User $user,
+        string $orderBy = 'id',
+        string $order = 'ASC',
+        int $perPage = null,
+        int $page = null
+    ) {
         if ($orderBy === 'fullUrl') {
             $extraSelect = ', CONCAT(d.url, COALESCE(o.prefix, \'\'), u.url) as HIDDEN fullUrl';
             $orderByQuery = "ORDER BY fullUrl $order";
@@ -35,10 +40,14 @@ class UrlRepository extends Repository
 
         $query = $this->getEntityManager()->createQuery($dql)->setParameters(['userId' => $user->getId()]);
 
-        return $this->paginate($query, $perPage);
+        if ($perPage !== null) {
+            return $this->paginateQuery($query, $perPage, $page);
+        }
+
+        return $query->execute();
     }
 
-    public function findPublic(string $orderBy = 'id', string $order = 'ASC', int $perPage = 20)
+    public function findPublic(string $orderBy = 'id', string $order = 'ASC', int $perPage = null, int $page = null)
     {
         if ($orderBy === 'fullUrl') {
             $orderByQuery = "ORDER BY d.url $order, u.url $order";
@@ -46,7 +55,7 @@ class UrlRepository extends Repository
             $orderByQuery = "ORDER BY u.$orderBy $order";
         }
 
-        $query = <<<DQL
+        $dql = <<<DQL
             SELECT u, d FROM App\Entities\Url u 
             JOIN u.domain d
             WHERE u.user IS NULL
@@ -54,7 +63,13 @@ class UrlRepository extends Repository
             $orderByQuery
         DQL;
 
-        return $this->paginate($this->getEntityManager()->createQuery($query), $perPage);
+        $query = $this->getEntityManager()->createQuery($dql);
+
+        if ($perPage !== null) {
+            return $this->paginateQuery($query, $perPage, $page);
+        }
+
+        return $query->execute();
     }
 
     public function findByDomainAndUrlAndPrefix(string $domain, ?string $url, ?string $prefix): ?Url

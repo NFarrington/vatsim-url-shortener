@@ -7,6 +7,7 @@ use App\Entities\OrganizationUser;
 use App\Repositories\OrganizationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
 
 class OrganizationController extends Controller
@@ -31,7 +32,7 @@ class OrganizationController extends Controller
         $orderBy = $attributes['sort'] ?? 'name';
         $order = $attributes['direction'] ?? 'asc';
 
-        $organizations = $this->organizationRepository->findByUser($request->user(), $orderBy, $order);
+        $organizations = $this->organizationRepository->findByUser($request->user(), $orderBy, $order, 20, Paginator::resolveCurrentPage());
 
         return view('platform.organizations.index')->with([
             'organizations' => $organizations,
