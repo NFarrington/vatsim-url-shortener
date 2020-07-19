@@ -21,7 +21,9 @@ services:
         - APP_COMMIT=local
         - APP_VERSION=0.0.0
     volumes:
-      - app-storage:/var/www/storage
+      - ./app:/var/www/html/app:ro
+      - ./resources:/var/www/html/resources:ro
+      - ./storage:/var/www/html/storage
     env_file: .env.docker
     restart: always
 
