@@ -33,6 +33,7 @@ class VerifyEmailListener
         $verification = $user->getEmailVerification() ?: new EmailVerification();
         $verification->setToken(Hash::make($token));
         $verification->setUser($user);
+        $this->em->persist($verification);
         $this->em->flush();
         Notification::send($user, new VerifyEmailNotification($token, $event->newEmail, $event->oldEmail));
     }
