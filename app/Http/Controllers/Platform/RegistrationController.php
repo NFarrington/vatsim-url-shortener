@@ -5,16 +5,14 @@ namespace App\Http\Controllers\Platform;
 use App\Entities\User;
 use App\Events\EmailChangedEvent;
 use Closure;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 
 class RegistrationController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->middleware('platform');
         $this->middleware(function ($request, Closure $next) {
@@ -25,14 +23,9 @@ class RegistrationController extends Controller
 
             return $next($request);
         });
+        $this->entityManager = $entityManager;
     }
 
-    /**
-     * Show the application's registration form.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function showRegistrationForm(Request $request)
     {
         return view('platform.register')->with([
@@ -40,15 +33,8 @@ class RegistrationController extends Controller
         ]);
     }
 
-    /**
-     * Handle a registration request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function register(Request $request)
     {
-        /** @var \App\Entities\User $user */
         $user = $request->user();
 
         $attributes = $this->validate($request, [
@@ -60,6 +46,7 @@ class RegistrationController extends Controller
 
         $user->setEmail($newEmail);
         event(new EmailChangedEvent($user, $newEmail, $oldEmail));
+        $this->entityManager->flush();
 
         return redirect()->route('platform.register')
             ->with('success', 'Please check your inbox for a verification email.');
