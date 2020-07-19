@@ -24,52 +24,61 @@ class UrlService
 
     public function getRedirectForUrl(string $domain, string $url = null, string $prefix = null): Url
     {
-        $urlEntity = null;
-
         if ($this->urlRepository === null) {
-            $urlEntity = $this->fallbackToCache($domain, $url, $prefix);
-            if (!$urlEntity) {
-                throw new CacheFallbackException('Could not find URL in fallback cache.');
-            }
-        } else {
-            try {
-                $urlEntity = $this->urlRepository->findByDomainAndUrlAndPrefix($domain, $url ?: '/', $prefix);
-                if (!$urlEntity) {
-                    throw new NotFoundHttpException();
-                }
-            } catch (DBALException $e) {
-                $urlEntity = $this->fallbackToCache($domain, $url, $prefix);
-                if (!$urlEntity) {
-                    throw new CacheFallbackException('Could not find URL in fallback cache.', 0, $e);
-                } else {
-                    report($e);
-                }
-            }
+            return $this->findModelInCacheOrFail($domain, $url, $prefix);
+        }
+
+        $urlEntity = null;
+        try {
+            $urlEntity = $this->urlRepository->findByDomainAndUrlAndPrefix($domain, $url ?: '/', $prefix);
+        } catch (DBALException $e) {
+            report($e);
+
+            return $this->findModelInCacheOrFail($domain, $url, $prefix);
+        }
+
+        if (!$urlEntity) {
+            throw new NotFoundHttpException();
         }
 
         return $urlEntity;
     }
 
-    /**
-     * @param string $domain
-     * @param string $url
-     * @param string|null $prefix
-     * @return Url|null
-     */
-    private function fallbackToCache(string $domain, string $url = null, string $prefix = null)
+    private function findModelInCacheOrFail(string $domain, ?string $url, ?string $prefix): Url
     {
-        Log::warning('Failed to retrieve URL from database, attempting to retrieve from cache.',
-            ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
+        $urlEntity = $this->fallbackToCache($domain, $url, $prefix);
+        if ($urlEntity) {
+            return $urlEntity;
+        } else {
+            throw new CacheFallbackException('Database unavailable and URL not in fallback cache.');
+        }
+    }
 
-        /** @var Url $cachedModel */
+    private function fallbackToCache(string $domain, string $url = null, string $prefix = null): ?Url
+    {
+        Log::warning(
+            'Failed to retrieve URL from database, attempting to retrieve from cache.',
+            ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]
+        );
+
+        /** @var Url|null $cachedModel */
         $cachedModel = Cache::get(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url));
 
         if ($cachedModel) {
-            Log::info('Successfully retrieved cached version of URL.',
-                ['domain' => $domain, 'prefix' => $prefix, 'url' => $url, 'last_updated' => $cachedModel->getUpdatedAt()]);
+            Log::info(
+                'Successfully retrieved cached version of URL.',
+                [
+                    'domain' => $domain,
+                    'prefix' => $prefix,
+                    'url' => $url,
+                    'last_updated' => $cachedModel->getUpdatedAt(),
+                ]
+            );
         } else {
-            Log::error('Failed to retrieve cached version of URL.',
-                ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]);
+            Log::error(
+                'Failed to retrieve cached version of URL.',
+                ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]
+            );
         }
 
         return $cachedModel;

@@ -72,7 +72,7 @@ class UrlRepository extends Repository
         return $query->execute();
     }
 
-    public function findByDomainAndUrlAndPrefix(string $domain, ?string $url, ?string $prefix): ?Url
+    public function findByDomainAndUrlAndPrefix(string $domain, string $url, ?string $prefix): ?Url
     {
         $dql = <<<DQL
             SELECT u, d FROM App\Entities\Url u 
