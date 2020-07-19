@@ -40,7 +40,7 @@ class DoctrineSupport extends Migration
             DB::statement('CREATE INDEX IDX_58E115F1115F0EE5 ON domain_organization (domain_id)');
             DB::statement('CREATE INDEX IDX_58E115F132C8A3DE ON domain_organization (organization_id)');
             DB::statement('DROP INDEX users_email_unique ON users');
-            DB::statement('ALTER TABLE users ADD admin TINYINT(1) DEFAULT \'0\' NOT NULL, CHANGE vatsim_sso_data vatsim_sso_data LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE vatsim_status_data vatsim_status_data LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE created_at created_at DATETIME NOT NULL, CHANGE updated_at updated_at DATETIME NOT NULL');
+            DB::statement('ALTER TABLE users ADD admin TINYINT(1) DEFAULT \'0\' NOT NULL AFTER email_verified, CHANGE vatsim_sso_data vatsim_sso_data LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE vatsim_status_data vatsim_status_data LONGTEXT DEFAULT NULL COMMENT \'(DC2Type:json)\', CHANGE created_at created_at DATETIME NOT NULL, CHANGE updated_at updated_at DATETIME NOT NULL');
             DB::statement('ALTER TABLE organization_prefix_applications DROP FOREIGN KEY organization_prefix_applications_organization_id_foreign');
             DB::statement('ALTER TABLE organization_prefix_applications DROP FOREIGN KEY organization_prefix_applications_user_id_foreign');
             DB::statement('ALTER TABLE organization_prefix_applications CHANGE created_at created_at DATETIME NOT NULL, CHANGE updated_at updated_at DATETIME NOT NULL');
