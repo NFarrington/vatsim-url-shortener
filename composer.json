@@ -98,7 +98,7 @@
             "@php artisan up"
         ],
         "docker-build": [
-            "@install-prod"
+            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest"
         ],
         "docker-entrypoint": [
             "@php artisan config:cache",
