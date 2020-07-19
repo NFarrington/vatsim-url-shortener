@@ -16,6 +16,7 @@ use App\Repositories\UrlRepository;
 use App\Repositories\UserRepository;
 use App\Services\UrlService;
 use Doctrine\DBAL\DBALException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -29,22 +30,17 @@ class RepositoryServiceProvider extends ServiceProvider
         User::class => UserRepository::class,
     ];
 
-    /**
-     * Register services.
-     *
-     * @return void
-     */
+    protected array $nullableRepositories = [
+        UrlRepository::class => UrlService::class,
+    ];
+
     public function register()
     {
-        //
+        $this->registerRepositories();
+        $this->registerNullableRepositories();
     }
 
-    /**
-     * Bootstrap services.
-     *
-     * @return void
-     */
-    public function boot()
+    protected function registerRepositories()
     {
         foreach ($this->repositories as $entity => $repository) {
             $this->app->bind(
@@ -52,21 +48,35 @@ class RepositoryServiceProvider extends ServiceProvider
                 function ($app) use ($entity, $repository) {
                     return new $repository(
                         $app['em'],
-                        $app['em']->getClassMetaData($entity));
-                });
-        }
-
-        $this->app->when(UrlService::class)
-            ->needs(UrlRepository::class)
-            ->give(function ($app) {
-                try {
-                    return new UrlRepository(
-                        $app['em'],
-                        $app['em']->getClassMetaData(Url::class));
-                } catch (DBALException $e) {
-                    report($e);
-                    return null;
+                        $app['em']->getClassMetaData($entity),
+                    );
                 }
-            });
+            );
+        }
+    }
+
+    protected function registerNullableRepositories(): void
+    {
+        foreach ($this->nullableRepositories as $repository => $dependents) {
+            $entity = array_flip($this->repositories)[$repository];
+            foreach (Arr::wrap($dependents) as $dependent) {
+                $this->app->when($dependent)
+                    ->needs($repository)
+                    ->give(
+                        function ($app) use ($entity, $repository) {
+                            try {
+                                return new $repository(
+                                    $app['em'],
+                                    $app['em']->getClassMetaData($entity)
+                                );
+                            } catch (DBALException $e) {
+                                report($e);
+
+                                return null;
+                            }
+                        }
+                    );
+            }
+        }
     }
 }
