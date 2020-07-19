@@ -14,6 +14,8 @@ use App\Repositories\OrganizationRepository;
 use App\Repositories\OrganizationUserRepository;
 use App\Repositories\UrlRepository;
 use App\Repositories\UserRepository;
+use App\Services\UrlService;
+use Doctrine\DBAL\DBALException;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -47,11 +49,24 @@ class RepositoryServiceProvider extends ServiceProvider
         foreach ($this->repositories as $entity => $repository) {
             $this->app->bind(
                 $repository,
-                function ($app) use ($repository, $entity) {
+                function ($app) use ($entity, $repository) {
                     return new $repository(
                         $app['em'],
                         $app['em']->getClassMetaData($entity));
                 });
         }
+
+        $this->app->when(UrlService::class)
+            ->needs(UrlRepository::class)
+            ->give(function ($app) {
+                try {
+                    return new UrlRepository(
+                        $app['em'],
+                        $app['em']->getClassMetaData(Url::class));
+                } catch (DBALException $e) {
+                    report($e);
+                    return null;
+                }
+            });
     }
 }

@@ -75,15 +75,6 @@ return [
                 //'enum' => 'string'
             ]
         ],
-        // for tests that require the database to be inaccessible
-        'invalid' => [
-            'connection'    => 'invalid',
-            'proxies'       => [
-                'namespace'     => false,
-                'path'          => storage_path('proxies'),
-                'auto_generate' => env('DOCTRINE_PROXY_AUTOGENERATE', false)
-            ],
-        ],
     ],
     /*
     |--------------------------------------------------------------------------

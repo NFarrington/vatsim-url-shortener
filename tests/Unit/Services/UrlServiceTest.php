@@ -7,7 +7,10 @@ use App\Exceptions\CacheFallbackException;
 use App\Services\UrlService;
 use Carbon\Carbon;
 use Doctrine\DBAL\DBALException;
-use LaravelDoctrine\ORM\IlluminateRegistry;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use LaravelDoctrine\ORM\EntityManagerFactory;
+use Mockery;
+use Mockery\MockInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Traits\RefreshDatabase;
@@ -22,10 +25,7 @@ class UrlServiceTest extends TestCase
     /** @test */
     function falls_back_to_local_cache()
     {
-        $registry = $this->app->make(IlluminateRegistry::class);
-        $registry->setDefaultConnection('invalid');
-        $registry->purgeManager();
-        $this->app->singleton('em', fn ($app) => $registry->getManager());
+        $this->withInaccessibleDatabase();
 
         $domain = 'http://test-domain/';
         $url = new Url();
@@ -43,26 +43,23 @@ class UrlServiceTest extends TestCase
     }
 
     /** @test */
-    function rethrows_pdo_exception_if_missing_from_cache()
+    function reports_pdo_exception_if_missing_from_cache()
     {
-        $registry = $this->app->make(IlluminateRegistry::class);
-        $registry->setDefaultConnection('invalid');
-        $registry->purgeManager();
-        $this->app->singleton('em', fn ($app) => $registry->getManager());
+        $this->withInaccessibleDatabase();
+        $exceptionHandlerSpy = $this->trackReportedExceptions();
 
         $domain = 'http://test-domain/';
         $url = 'my-url';
         $service = $this->app->make(UrlService::class);
 
+        $exceptionHandlerSpy->shouldHaveReceived('report', [DBALException::class]);
+
         try {
             $service->getRedirectForUrl($domain, $url);
+            $this->fail('Method getRedirectForUrl() did not throw an exception.');
         } catch (\Exception $e) {
             $this->assertInstanceOf(CacheFallbackException::class, $e);
-            $this->assertInstanceOf(DBALException::class, $e->getPrevious());
-            return;
         }
-
-        $this->fail('Method getRedirectForUrl() did not throw an exception.');
     }
 
     /** @test */
@@ -84,5 +81,31 @@ class UrlServiceTest extends TestCase
         $shortUrl = $service->getRedirectForUrl($url->getDomain()->getUrl(), null, null);
 
         $this->assertEquals($url->getId(), $shortUrl->getId());
+    }
+
+    private function withInaccessibleDatabase()
+    {
+        $this->app['config']->set('database.connections.invalid', ['driver' => 'mysql', 'host' => '0.0.0.0']);
+        $factory = $this->app[EntityManagerFactory::class];
+        $entityManager = $factory->create(
+            ['connection' => 'invalid', 'proxies' => ['path' => storage_path('proxies')]]
+        );
+        $this->app->singleton('em', fn($app) => $entityManager);
+    }
+
+    /**
+     * @return MockInterface
+     */
+    private function trackReportedExceptions()
+    {
+        $this->app->extend(
+            ExceptionHandler::class,
+            function ($handler) use (&$mock) {
+                $mock = Mockery::mock($handler);
+                return $mock;
+            }
+        );
+
+        return $mock;
     }
 }

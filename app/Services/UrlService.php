@@ -14,28 +14,37 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class UrlService
 {
     protected EntityManagerInterface $em;
+    protected ?UrlRepository $urlRepository;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, ?UrlRepository $urlRepository)
     {
         $this->em = $em;
+        $this->urlRepository = $urlRepository;
     }
 
     public function getRedirectForUrl(string $domain, string $url = null, string $prefix = null): Url
     {
         $urlEntity = null;
-        try {
-            $urlEntity = app(UrlRepository::class)->findByDomainAndUrlAndPrefix($domain, $url ?: '/', $prefix);
-        } catch (DBALException $e) {
+
+        if ($this->urlRepository === null) {
             $urlEntity = $this->fallbackToCache($domain, $url, $prefix);
             if (!$urlEntity) {
-                throw new CacheFallbackException('Could not find URL in fallback cache.', 0, $e);
-            } else {
-                report($e);
+                throw new CacheFallbackException('Could not find URL in fallback cache.');
             }
-        }
-
-        if (!$urlEntity) {
-            throw new NotFoundHttpException();
+        } else {
+            try {
+                $urlEntity = $this->urlRepository->findByDomainAndUrlAndPrefix($domain, $url ?: '/', $prefix);
+                if (!$urlEntity) {
+                    throw new NotFoundHttpException();
+                }
+            } catch (DBALException $e) {
+                $urlEntity = $this->fallbackToCache($domain, $url, $prefix);
+                if (!$urlEntity) {
+                    throw new CacheFallbackException('Could not find URL in fallback cache.', 0, $e);
+                } else {
+                    report($e);
+                }
+            }
         }
 
         return $urlEntity;
