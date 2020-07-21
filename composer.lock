@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e5304de97a2e496987c26c656e717b3d",
+    "content-hash": "c8dbabd5e1c7455cd097db97ed7a1fbe",
     "packages": [
         {
             "name": "aws/aws-sdk-php",
@@ -5741,6 +5741,42 @@
                 }
             ],
             "time": "2018-12-13T10:34:14+00:00"
+        },
+        {
+            "name": "codeception/assert-throws",
+            "version": "1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Codeception/AssertThrows.git",
+                "reference": "20517b8997d029f8571443eb80ea437260c1c3d5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Codeception/AssertThrows/zipball/20517b8997d029f8571443eb80ea437260c1c3d5",
+                "reference": "20517b8997d029f8571443eb80ea437260c1c3d5",
+                "shasum": ""
+            },
+            "require": {
+                "phpunit/phpunit": "^6.4|^7.0|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Codeception\\": "./"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "davert",
+                    "email": "davert@codeception.com"
+                }
+            ],
+            "description": "Assert exception was thrown without stopping a test",
+            "time": "2019-08-15T13:29:46+00:00"
         },
         {
             "name": "composer/composer",

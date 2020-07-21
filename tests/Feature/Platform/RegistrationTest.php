@@ -55,7 +55,7 @@ class RegistrationTest extends TestCase
     /** @test */
     public function user_cannot_register_an_existing_email()
     {
-        $this->expectException(ValidationException::class);
+        $this->withExceptionHandling();
 
         $this->signIn(create(User::class, ['email' => null]));
 
@@ -65,8 +65,6 @@ class RegistrationTest extends TestCase
         $this->post(route('platform.register', ['email' => $email]))
             ->assertRedirect(route('platform.register'))
             ->assertSessionHasErrors('email');
-        $this->assertDatabaseMissing(EntityManager::getClassMetadata(User::class)->getTableName(),
-            ['email' => $email]);
     }
 
     /** @test */

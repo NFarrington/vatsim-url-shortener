@@ -68,8 +68,14 @@ class UrlServiceTest extends TestCase
         $url = entity(Url::class)->states('org')->create(['prefix' => false]);
         $service = $this->app->make(UrlService::class);
 
-        $this->expectException(NotFoundHttpException::class);
-        $service->getRedirectForUrl($url->getDomain()->getUrl(), $url->getUrl(), $url->getOrganization()->getPrefix());
+        $this->assertThrows(
+            NotFoundHttpException::class,
+            fn() => $service->getRedirectForUrl(
+                $url->getDomain()->getUrl(),
+                $url->getUrl(),
+                $url->getOrganization()->getPrefix()
+            )
+        );
     }
 
     /** @test */

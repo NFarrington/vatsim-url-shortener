@@ -44,7 +44,7 @@ class DashboardTest extends TestCase
     /** @test */
     function unauthenticated_user_is_redirected_to_login_page()
     {
-        $this->expectException(AuthenticationException::class);
+        $this->withExceptionHandling();
 
         $this->get(route('platform.dashboard'))
             ->assertRedirect(route('platform.login'));

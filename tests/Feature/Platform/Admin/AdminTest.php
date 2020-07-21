@@ -22,7 +22,7 @@ class AdminTest extends TestCase
     /** @test */
     function test_admin_pages_are_inaccessible_to_non_admins()
     {
-        $this->expectException(AuthorizationException::class);
+        $this->withExceptionHandling();
 
         $this->signIn();
 

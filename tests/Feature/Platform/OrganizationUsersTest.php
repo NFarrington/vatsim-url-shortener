@@ -2,20 +2,19 @@
 
 namespace Tests\Feature\Platform;
 
-use App\Exceptions\Cert\InvalidResponseException;
 use App\Entities\Organization;
 use App\Entities\OrganizationUser;
 use App\Entities\User;
+use App\Exceptions\Cert\InvalidResponseException;
 use App\Services\VatsimService;
-use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Tests\Traits\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
+use Tests\Traits\RefreshDatabase;
 
 class OrganizationUsersTest extends TestCase
 {
@@ -86,8 +85,6 @@ EOT;
     /** @test */
     function error_retrieving_unregistered_user_causes_validation_exception()
     {
-        $this->expectException(ValidationException::class);
-
         $organization = entity(Organization::class)->states('prefix')->create();
         create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
         EntityManager::clear();
@@ -98,17 +95,18 @@ EOT;
         $this->app->instance(VatsimService::class, $mock);
 
         $this->get(route('platform.organizations.edit', $organization));
-        $this->post(route('platform.organizations.users.store', $organization), [
-            'id' => $user->getId(),
-            'role_id' => OrganizationUser::ROLE_MEMBER,
-        ]);
+        $this->assertThrows(
+            ValidationException::class,
+            fn() => $this->post(
+                route('platform.organizations.users.store', $organization),
+                ['id' => $user->getId(), 'role_id' => OrganizationUser::ROLE_MEMBER]
+            )
+        );
     }
 
     /** @test */
     function perm_error_retrieving_unregistered_user_causes_validation_exception()
     {
-        $this->expectException(ValidationException::class);
-
         $organization = entity(Organization::class)->states('prefix')->create();
         create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
         EntityManager::clear();
@@ -119,10 +117,13 @@ EOT;
         $this->app->instance(VatsimService::class, $mock);
 
         $this->get(route('platform.organizations.edit', $organization));
-        $this->post(route('platform.organizations.users.store', $organization), [
-            'id' => $user->getId(),
-            'role_id' => OrganizationUser::ROLE_MEMBER,
-        ]);
+        $this->assertThrows(
+            ValidationException::class,
+            fn() => $this->post(
+                route('platform.organizations.users.store', $organization),
+                ['id' => $user->getId(), 'role_id' => OrganizationUser::ROLE_MEMBER]
+            )
+        );
     }
 
     /** @test */

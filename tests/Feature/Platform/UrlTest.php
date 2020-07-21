@@ -140,7 +140,7 @@ class UrlTest extends TestCase
     /** @test */
     function user_cannot_create_new_url_with_an_invalid_prefix()
     {
-        $this->expectException(ValidationException::class);
+        $this->withExceptionHandling();
 
         $organization = entity(Organization::class)->states('prefix')->create();
         create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
@@ -155,7 +155,7 @@ class UrlTest extends TestCase
             'redirect_url' => $url->getRedirectUrl(),
             'organization_id' => $organization->getId(),
         ])->assertRedirect()
-            ->assertRedirect();
+            ->assertSessionHasErrors();
         $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
             'domain_id' => $url->getDomain()->getId(),
             'url' => $url->getUrl(),
@@ -167,7 +167,7 @@ class UrlTest extends TestCase
     /** @test */
     function user_cannot_create_new_url_with_a_mismatched_prefix_and_organization()
     {
-        $this->expectException(ValidationException::class);
+        $this->withExceptionHandling();
 
         $organization = entity(Organization::class)->states('prefix')->create();
         create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
@@ -182,7 +182,7 @@ class UrlTest extends TestCase
             'redirect_url' => $url->getRedirectUrl(),
             'organization_id' => null,
         ])->assertRedirect()
-            ->assertSessionHas('error');
+            ->assertSessionHasErrors();
         $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
             'domain_id' => $url->getDomain()->getId(),
             'url' => $url->getUrl(),
@@ -297,7 +297,7 @@ class UrlTest extends TestCase
     /** @test */
     function user_cannot_move_url_with_prefix()
     {
-        $this->expectException(AuthorizationException::class);
+        $this->withExceptionHandling();
 
         $template = make(Url::class);
         $organization = create(Organization::class);
@@ -312,11 +312,10 @@ class UrlTest extends TestCase
         $this->put(route('platform.urls.update', $url), [
             'redirect_url' => $template->getRedirectUrl(),
             'organization_id' => $organization->getId(),
-        ])->assertRedirect()
-            ->assertForbidden();
+        ])->assertForbidden();
         $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
             'redirect_url' => $url->getRedirectUrl(),
-            'organization_id' => $url->organization_id,
+            'organization_id' => $url->getOrganization()->getId(),
         ]);
     }
 
@@ -351,7 +350,7 @@ class UrlTest extends TestCase
     /** @test */
     function user_cannot_create_existing_url()
     {
-        $this->expectException(ValidationException::class);
+        $this->withExceptionHandling();
 
         $url = create(Url::class);
 
@@ -368,7 +367,7 @@ class UrlTest extends TestCase
     /** @test */
     function user_cannot_create_url_in_another_organization()
     {
-        $this->expectException(AuthorizationException::class);
+        $this->withExceptionHandling();
 
         $organization = create(Organization::class);
         $url = make(Url::class);
@@ -390,7 +389,7 @@ class UrlTest extends TestCase
     /** @test */
     function user_cannot_delete_other_users_urls()
     {
-        $this->expectException(AuthorizationException::class);
+        $this->withExceptionHandling();
 
         $url = create(Url::class);
         $this->get(route('platform.urls.index'));

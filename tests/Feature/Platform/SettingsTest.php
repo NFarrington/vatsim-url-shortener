@@ -42,7 +42,7 @@ class SettingsTest extends TestCase
     /** @test */
     function user_cannot_use_an_existing_email()
     {
-        $this->expectException(ValidationException::class);
+        $this->withExceptionHandling();
 
         $this->signIn();
 
@@ -95,7 +95,7 @@ class SettingsTest extends TestCase
     /** @test */
     function user_cannot_configure_two_factor_auth_with_an_invalid_code()
     {
-        $this->expectException(ValidationException::class);
+        $this->withExceptionHandling();
 
         $mock = $this->createMock(Google2FA::class);
         $mock->method('verifyKey')->willReturn(false);
