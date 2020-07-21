@@ -44,7 +44,7 @@ class MailgunTest extends TestCase
     /** @test */
     function invalid_credentials_fail_with_unauthorized_error()
     {
-        $this->expectException(UnauthorizedHttpException::class);
+        $this->withExceptionHandling();
         $user = create(SystemUser::class);
 
         $timestamp = mt_rand();
@@ -62,7 +62,7 @@ class MailgunTest extends TestCase
         ], [
             'PHP_AUTH_USER' => $user->getUsername(),
             'PHP_AUTH_PW' => 'not-secret',
-        ])->assertStatus(200);
+        ])->assertUnauthorized();
 
         $this->assertDatabaseMissing(EntityManager::getClassMetadata(EmailEvent::class)->getTableName(), [
             'message_id' => '<20130503182626.18666.16540@vats.im>',

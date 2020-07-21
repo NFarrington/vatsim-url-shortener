@@ -29,20 +29,4 @@ class StartOptionalSessionTest extends TestCase
         }
         $this->expectNotToPerformAssertions();
     }
-
-    /** @test */
-    public function parent_middleware_throws_an_exception_when_the_session_cannot_be_started()
-    {
-        $request = new Request();
-        $middleware = new StartSession(new class(app()) extends SessionManager {
-            protected function buildSession($handler)
-            {
-                throw new Exception();
-            }
-        });
-
-        $this->expectException(Exception::class);
-
-        $middleware->handle($request, fn() => null);
-    }
 }

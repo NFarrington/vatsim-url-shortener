@@ -43,7 +43,7 @@ class UrlTest extends TestCase
     /** @test */
     function short_url_with_unknown_prefix_returns_404()
     {
-        $this->expectException(NotFoundHttpException::class);
+        $this->withExceptionHandling();
 
         $domain = create(Domain::class, ['url' => config('app.url').'/']);
         $url = entity(Url::class)->states('org')
@@ -56,7 +56,7 @@ class UrlTest extends TestCase
     /** @test */
     function short_url_returns_404_when_it_doesnt_exist()
     {
-        $this->expectException(NotFoundHttpException::class);
+        $this->withExceptionHandling();
 
         $this->get(route('short-url', Str::random()))->assertNotFound();
     }
@@ -64,7 +64,7 @@ class UrlTest extends TestCase
     /** @test */
     function short_url_returns_404_when_its_domain_doesnt_match()
     {
-        $this->expectException(NotFoundHttpException::class);
+        $this->withExceptionHandling();
 
         $url = create(Url::class);
         $this->get(route('short-url', $url->getUrl()))->assertNotFound();

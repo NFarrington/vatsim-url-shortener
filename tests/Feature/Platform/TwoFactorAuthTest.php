@@ -61,7 +61,7 @@ class TwoFactorAuthTest extends TestCase
     /** @test */
     function user_cannot_authenticate_with_an_invalid_code()
     {
-        $this->expectException(ValidationException::class);
+        $this->withExceptionHandling();
 
         $mock = $this->createMock(Google2FA::class);
         $mock->method('verifyKey')->willReturn(false);

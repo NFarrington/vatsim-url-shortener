@@ -3,6 +3,7 @@
 namespace Tests;
 
 use App\Entities\User;
+use Codeception\AssertThrows;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Tests\Traits\InteractsWithDatabase;
@@ -10,7 +11,7 @@ use Tests\Traits\RefreshDatabase;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication, InteractsWithDatabase;
+    use CreatesApplication, InteractsWithDatabase, AssertThrows;
 
     /**
      * The user currently signed in.

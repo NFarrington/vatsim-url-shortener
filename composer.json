@@ -33,6 +33,7 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.1",
         "barryvdh/laravel-ide-helper": "^2.4",
+        "codeception/assert-throws": "^1.0",
         "dms/phpunit-arraysubset-asserts": "^0.1.0",
         "facade/ignition": "^1.4",
         "fzaninotto/faker": "^1.4",
