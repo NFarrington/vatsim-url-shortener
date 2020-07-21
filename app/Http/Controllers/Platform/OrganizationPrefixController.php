@@ -2,63 +2,52 @@
 
 namespace App\Http\Controllers\Platform;
 
+use App\Entities\Organization;
+use App\Entities\OrganizationPrefixApplication;
 use App\Events\PrefixApplicationCreatedEvent;
-use App\Models\Organization;
-use App\Models\OrganizationPrefixApplication;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 
 class OrganizationPrefixController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->middleware('platform');
+        $this->entityManager = $entityManager;
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @param \App\Models\Organization $organization
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function create(Organization $organization)
     {
         $this->authorize('act-as-owner', $organization);
 
-        if ($organization->prefixApplication) {
+        if ($organization->getPrefixApplication()) {
             return redirect()->route('platform.organizations.show', $organization)
                 ->with('error', 'Your organization already has a prefix application pending approval.');
-        } elseif ($organization->prefix) {
+        } elseif ($organization->getPrefix()) {
             return redirect()->route('platform.organizations.show', $organization)
                 ->with('error', 'Your organization already has a prefix.');
         }
 
+        $application = new OrganizationPrefixApplication();
+        $application->setOrganization($organization);
+        $application->setIdentityUrl('');
+        $application->setPrefix('');
+
         return view('platform.organizations.prefix.create')->with([
-            'organization' => $organization,
+            'prefixApplication' => $application,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param \App\Models\Organization $organization
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function store(Request $request, Organization $organization)
     {
         $this->authorize('act-as-owner', $organization);
 
-        if ($organization->prefixApplication) {
+        if ($organization->getPrefixApplication()) {
             return redirect()->route('platform.organizations.show', $organization)
                 ->with('error', 'Your organization already has a prefix application pending approval.');
-        } elseif ($organization->prefix) {
+        } elseif ($organization->getPrefix()) {
             return redirect()->route('platform.organizations.show', $organization)
                 ->with('error', 'Your organization already has a prefix.');
         }
@@ -68,10 +57,13 @@ class OrganizationPrefixController extends Controller
             'prefix' => 'required|alpha_num|max:50',
         ]);
 
-        $application = new OrganizationPrefixApplication($attributes);
-        $application->organization_id = $organization->id;
-        $application->user_id = $request->user()->id;
-        $application->save();
+        $application = new OrganizationPrefixApplication();
+        $application->setIdentityUrl($attributes['identity_url']);
+        $application->setPrefix($attributes['prefix']);
+        $application->setOrganization($organization);
+        $application->setUser($request->user());
+        $this->entityManager->persist($application);
+        $this->entityManager->flush();
 
         event(new PrefixApplicationCreatedEvent($application));
 

@@ -2,14 +2,18 @@
 
 namespace Tests\Unit\Services;
 
+use App\Entities\Url;
 use App\Exceptions\CacheFallbackException;
-use App\Models\Url;
 use App\Services\UrlService;
-use Illuminate\Database\QueryException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use PDOException;
+use Carbon\Carbon;
+use Doctrine\DBAL\DBALException;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use LaravelDoctrine\ORM\EntityManagerFactory;
+use Mockery;
+use Mockery\MockInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
+use Tests\Traits\RefreshDatabase;
 
 /**
  * @covers \App\Services\UrlService
@@ -21,70 +25,87 @@ class UrlServiceTest extends TestCase
     /** @test */
     function falls_back_to_local_cache()
     {
-        app()->bind(Url::class, function () {
-            return new class extends Url {
-                public function get($columns = ['*'])
-                {
-                    throw new QueryException('', [], null);
-                }
-            };
-        });
+        $this->withInaccessibleDatabase();
 
         $domain = 'http://test-domain/';
-        $url = 'my-url';
+        $url = new Url();
+        $urlPath = 'my-url';
+        $url->setUrl($urlPath);
+        $url->setCreatedAt(Carbon::now());
+        $url->setUpdatedAt(Carbon::now());
         $prefix = null;
-        cache()->set(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url), new Url(['my_url' => $url]));
-        $service = new UrlService();
+        cache()->set(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $urlPath), $url);
+        $service = $this->app->make(UrlService::class);
 
-        $shortUrl = $service->getRedirectForUrl($domain, $url);
+        $shortUrl = $service->getRedirectForUrl($domain, $urlPath);
 
-        $this->assertEquals($url, $shortUrl->my_url);
+        $this->assertEquals($urlPath, $shortUrl->getUrl());
     }
 
     /** @test */
-    function rethrows_pdo_exception_if_missing_from_cache()
+    function reports_pdo_exception_if_missing_from_cache()
     {
-        app()->bind(Url::class, function () {
-            return new class extends Url {
-                public function get($columns = ['*'])
-                {
-                    throw new QueryException('', [], null);
-                }
-            };
-        });
+        $this->withInaccessibleDatabase();
+        $exceptionHandlerSpy = $this->trackReportedExceptions();
+
         $domain = 'http://test-domain/';
         $url = 'my-url';
-        $service = new UrlService();
+        $service = $this->app->make(UrlService::class);
+
+        $exceptionHandlerSpy->shouldHaveReceived('report', [DBALException::class]);
 
         try {
             $service->getRedirectForUrl($domain, $url);
+            $this->fail('Method getRedirectForUrl() did not throw an exception.');
         } catch (\Exception $e) {
             $this->assertInstanceOf(CacheFallbackException::class, $e);
-            $this->assertInstanceOf(PDOException::class, $e->getPrevious());
-            return;
         }
-
-        $this->fail('Method getRedirectForUrl() did not throw an exception.');
     }
 
     /** @test */
     function prefixed_requests_dont_match_non_prefixed_organization_urls()
     {
-        $url = factory(Url::class)->states('org')->create(['prefix' => false]);
-        $service = new UrlService();
+        $url = entity(Url::class)->states('org')->create(['prefix' => false]);
+        $service = $this->app->make(UrlService::class);
 
         $this->expectException(NotFoundHttpException::class);
-        $service->getRedirectForUrl($url->domain->url, $url->url, $url->organization->prefix);
+        $service->getRedirectForUrl($url->getDomain()->getUrl(), $url->getUrl(), $url->getOrganization()->getPrefix());
     }
 
     /** @test */
     function resolves_blank_paths_to_index_url()
     {
-        $url = factory(Url::class)->states('org')->create(['url' => '/']);
-        $service = new UrlService();
+        $url = entity(Url::class)->states('org')->create(['url' => '/']);
+        $service = $this->app->make(UrlService::class);
 
-        $shortUrl = $service->getRedirectForUrl($url->domain->url, null, null);
+        $shortUrl = $service->getRedirectForUrl($url->getDomain()->getUrl(), null, null);
 
-        $this->assertEquals($url->id, $shortUrl->id);
+        $this->assertEquals($url->getId(), $shortUrl->getId());
+    }
+
+    private function withInaccessibleDatabase()
+    {
+        $this->app['config']->set('database.connections.invalid', ['driver' => 'mysql', 'host' => '0.0.0.0']);
+        $factory = $this->app[EntityManagerFactory::class];
+        $entityManager = $factory->create(
+            ['connection' => 'invalid', 'proxies' => ['path' => storage_path('proxies')]]
+        );
+        $this->app->singleton('em', fn($app) => $entityManager);
+    }
+
+    /**
+     * @return MockInterface
+     */
+    private function trackReportedExceptions()
+    {
+        $this->app->extend(
+            ExceptionHandler::class,
+            function ($handler) use (&$mock) {
+                $mock = Mockery::mock($handler);
+                return $mock;
+            }
+        );
+
+        return $mock;
     }
 }

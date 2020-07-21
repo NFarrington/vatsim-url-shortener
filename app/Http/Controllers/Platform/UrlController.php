@@ -2,52 +2,50 @@
 
 namespace App\Http\Controllers\Platform;
 
+use App\Entities\Domain;
+use App\Entities\Organization;
+use App\Entities\Url;
 use App\Http\Controllers\Controller;
-use App\Models\Domain;
-use App\Models\Organization;
-use App\Models\Url;
-use App\Models\User;
+use App\Repositories\DomainRepository;
+use App\Repositories\OrganizationRepository;
+use App\Repositories\UrlRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
 
 class UrlController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected EntityManagerInterface $entityManager;
+    protected UrlRepository $urlRepository;
+    protected DomainRepository $domainRepository;
+    protected OrganizationRepository $organizationRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, UrlRepository $urlRepository, DomainRepository $domainRepository, OrganizationRepository $organizationRepository)
     {
         $this->middleware('platform');
+        $this->entityManager = $entityManager;
+        $this->urlRepository = $urlRepository;
+        $this->domainRepository = $domainRepository;
+        $this->organizationRepository = $organizationRepository;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
-        $user = $request->user()->load('organizations');
+        $attributes = $this->validate($request, [
+            'sort' => 'nullable|string|alpha_dash',
+            'direction' => 'nullable|string|in:asc,desc',
+        ]);
 
-        $urls = Url::with('organization', 'organization.users')
-            ->where('user_id', $request->user()->id)
-            ->orWhereHas('organization', function (Builder $query) use ($user) {
-                $query->whereIn('id', $user->organizations->pluck('id'));
-            })->sortable('url')
-            ->paginate(20, ['urls.*']);
+        $orderBy = $attributes['sort'] ?? 'fullUrl';
+        $order = $attributes['direction'] ?? 'asc';
 
-        $publicUrls = Url::public()
-            ->join('domains', 'urls.domain_id', 'domains.id')
-            ->orderBy('domains.url')
-            ->orderBy('urls.url')
-            ->get(['urls.*']);
+        $urls = $this->urlRepository
+            ->findByUserOrTheirOrganizations($request->user(), $orderBy, $order, 20, Paginator::resolveCurrentPage());
+        $publicUrls = $this->urlRepository->findPublic('fullUrl', 'asc', 20, Paginator::resolveCurrentPage());
 
         return view('platform.urls.index')->with([
             'user' => $request->user(),
@@ -56,46 +54,39 @@ class UrlController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function create(Request $request)
     {
-        $user = $request->user(); /** @var User $user */
-        $domains = Domain::public()
-            ->orWhereHas('organizations', function (Builder $query) use ($user) {
-                $query->whereHas('users', function (Builder $query) use ($user) {
-                    $query->where('users.id', $user->id);
-                });
-            })->orderBy('id')->get();
-        $organizations = $user->organizations;
-        $prefixes = $organizations->filter(function ($organization) {
-            return (bool) $organization->prefix;
-        })->pluck('prefix');
+        $user = $request->user();
+
+        $domains = $this->domainRepository->findPublicOrOwnedByUser($user, 'id', 'asc');
+
+        $organizations = $user->getOrganizations();
+
+        $prefixes = [];
+        foreach ($organizations as $organization) {
+            if ($prefix = $organization->getPrefix()) {
+                $prefixes[] = $prefix;
+            }
+        }
+
+        $url = new Url();
+        $url->setUrl('');
+        $url->setRedirectUrl('');
 
         return view('platform.urls.create')->with([
             'domains' => $domains,
             'organizations' => $organizations,
             'prefixes' => $prefixes,
-            'url' => new Url(),
+            'url' => $url,
+            'newUrl' => true,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function store(Request $request)
     {
-        $user = $request->user(); /** @var User $user */
-        $attributes = $this->validate($request, [
-            'domain_id' => 'required|integer|exists:domains,id',
+        $user = $request->user();
+        $attributes = $this->getValidationFactory()->make($request->all(), [
+            'domain_id' => 'required|integer|exists:'.\App\Entities\Domain::class.',id',
             'prefix' => 'nullable|string',
             'url' => [
                 'required',
@@ -104,23 +95,24 @@ class UrlController extends Controller
                 'max:30',
                 'regex:/^[0-9a-zA-Z_-]+$/',
                 'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy',
-                Rule::unique('urls')->where(function ($query) use ($request) {
-                    if ($request->input('prefix')) {
-                        $query = $query->where('organization_id', $request->input('organization_id'))
-                            ->where('prefix', true);
-                    } else {
-                        $query = $query->where('prefix', false);
-                    }
-
-                    return $query->where('domain_id', $request->input('domain_id'))
-                        ->whereNull('deleted_at');
-                }),
             ],
             'redirect_url' => 'required|url|max:1000',
-            'organization_id' => 'nullable|integer|exists:organizations,id',
+            'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
         ], [
             'url.regex' => 'The url may only include alphanumeric characters, dashes and underscores.',
-        ]);
+        ])->sometimes(
+            'url',
+            'unique:'.Url::class.',url,NULL,id,domain,'.$request->input('domain_id').',prefix,1,organization,'.$request->input('organization_id'),
+            function (Fluent $input) {
+                return (bool) $input->get('prefix');
+            }
+        )->sometimes(
+            'url',
+            'unique:'.Url::class.',url,NULL,id,domain,'.$request->input('domain_id').',prefix,0',
+            function (Fluent $input) {
+                return !(bool) $input->get('prefix');
+            }
+        )->validate();
 
         $this->validate($request, [
             'url' => 'regex:/^[0-9a-zA-Z][0-9a-zA-Z_-]*[0-9a-zA-Z]$/',
@@ -129,19 +121,20 @@ class UrlController extends Controller
         ]);
 
         if (!empty($attributes['prefix'])) {
-            $organization = $request->user()->organizations
-                ->filter(function ($organization) use ($attributes) {
-                    return $organization->prefix === $attributes['prefix'];
-                })->first();
+            $organizationsWithPrefix = array_filter($request->user()->getOrganizations(),
+                function ($organization) use ($attributes) {
+                    return $organization->getPrefix() === $attributes['prefix'];
+                });
+            $organization = !empty($organizationsWithPrefix) ? $organizationsWithPrefix[0] : null;
 
             if (!$organization) {
                 throw ValidationException::withMessages([
                     'prefix' => ['Prefix not found.'],
                 ]);
-            } elseif ($organization->id != $attributes['organization_id']) {
+            } elseif ($organization->getId() != $attributes['organization_id']) {
                 throw ValidationException::withMessages([
                     'organization_id' => [
-                        "The '{$attributes['prefix']}' prefix can only be used with the {$organization->name} organization.",
+                        "The '{$attributes['prefix']}' prefix can only be used with the {$organization->getName()} organization.",
                     ],
                 ]);
             }
@@ -151,37 +144,36 @@ class UrlController extends Controller
             $attributes['prefix'] = false;
         }
 
-        $url = new Url($attributes);
-        if ($attributes['organization_id'] === null) {
-            if (!$url->domain->public) {
-                $validOrganizations = $url->domain->organizations()
-                    ->whereIn('organizations.id', $user->organizations->pluck('id'))
-                    ->orderBy('id')
-                    ->get();
-                if ($validOrganizations->isEmpty()) {
+        $url = new Url();
+        $url->setUrl($attributes['url']);
+        $url->setRedirectUrl($attributes['redirect_url']);
+        $url->setDomain($this->entityManager->getReference(Domain::class, $attributes['domain_id']));
+        if ($attributes['organization_id'] !== null) {
+            $url->setOrganization($this->entityManager->getReference(Organization::class, $attributes['organization_id']));
+        } else {
+            if (!$url->getDomain()->isPublic()) {
+                $validOrganizations = array_filter($url->getDomain()->getOrganizations(), function ($organization) use ($user) {
+                    return array_search($organization, $user->getOrganizations()) !== false;
+                });
+                if (empty($validOrganizations)) {
                     throw new AuthorizationException();
                 }
                 throw ValidationException::withMessages([
                     'organization_id' => [
-                        "The domain '{$url->domain->url}' can only be used with the {$validOrganizations->first()->name} organization.",
+                        "The domain '{$url->getDomain()->getUrl()}' can only be used with the {$validOrganizations[0]->getName()} organization.",
                     ],
                 ]);
             }
-            $url->user_id = $request->user()->id;
+            $url->setUser($request->user());
         }
         $this->authorize('create', $url);
-        $url->save();
+        $this->entityManager->persist($url);
+        $this->entityManager->flush();
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL created.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param \App\Models\Url $url
-     * @return \Illuminate\Http\Response
-     */
     public function show(Url $url)
     {
         Session::reflash();
@@ -189,72 +181,56 @@ class UrlController extends Controller
         return redirect()->route('platform.urls.edit', $url);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Url $url
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function edit(Request $request, Url $url)
     {
         $this->authorize('update', $url);
 
         return view('platform.urls.edit')->with([
-            'domains' => Domain::public()->orderBy('id')->get(),
-            'organizations' => $request->user()->organizations,
+            'organizations' => $request->user()->getOrganizations(),
             'url' => $url,
+            'newUrl' => false,
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param \App\Models\Url $url
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function update(Request $request, Url $url)
     {
         $this->authorize('update', $url);
 
         $attributes = $this->validate($request, [
             'redirect_url' => 'required|url|max:1000',
-            'organization_id' => 'nullable|integer|exists:organizations,id',
+            'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
         ]);
 
-        if ($attributes['organization_id'] != $url->organization_id) {
+        $oldOrganizationId = $url->getOrganization() ? $url->getOrganization()->getId() : null;
+        if ($attributes['organization_id'] !== $oldOrganizationId) {
             $this->authorize('move', $url);
 
-            if ($attributes['organization_id'] != null) {
-                $this->authorize('act-as-member', Organization::find($attributes['organization_id']));
+            if ($attributes['organization_id'] !== null) {
+                $this->authorize('act-as-member', $this->organizationRepository->find($attributes['organization_id']));
             }
         }
 
-        $url->fill($attributes);
-        $url->user_id = $attributes['organization_id'] === null
-            ? $request->user()->id
-            : null;
-        $url->save();
+        $url->setRedirectUrl($attributes['redirect_url']);
+        if ($attributes['organization_id'] !== null) {
+            $url->setOrganization($this->entityManager->getReference(Organization::class, $attributes['organization_id']));
+            $url->setUser(null);
+        } else {
+            $url->setUser($request->user());
+            $url->setOrganization(null);
+        }
+
+        $this->entityManager->flush();
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL updated.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Url $url
-     * @return \Illuminate\Http\Response
-     * @throws \Exception|\Illuminate\Auth\Access\AuthorizationException
-     */
     public function destroy(Url $url)
     {
         $this->authorize('delete', $url);
 
-        $url->delete();
+        $this->entityManager->remove($url);
+        $this->entityManager->flush();
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL deleted.');

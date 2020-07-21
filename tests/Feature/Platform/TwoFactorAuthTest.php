@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Platform;
 
-use App\Models\User;
+use App\Entities\User;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -27,7 +27,7 @@ class TwoFactorAuthTest extends TestCase
     /** @test */
     function user_is_redirected_to_verification_page_if_unauthenticated()
     {
-        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));
 
         $this->get(route('platform.dashboard'))
             ->assertRedirect(route('platform.login.two-factor'));

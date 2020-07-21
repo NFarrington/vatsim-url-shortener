@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\System;
 
-use App\Models\EmailEvent;
+use App\Entities\EmailEvent;
 use Carbon\Carbon;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -15,15 +16,17 @@ class MailgunController extends Controller
      * @var array
      */
     protected $excludeData = ['Message-Id', 'message-id', 'event', 'recipient', 'timestamp', 'token', 'signature'];
+    protected EntityManagerInterface $entityManager;
 
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->middleware('auth.basic.once');
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -38,16 +41,15 @@ class MailgunController extends Controller
             return Response::make('Not Acceptable.', 406);
         }
 
-        $entry = [
-            'broker' => 'mailgun',
-            'message_id' => $request->input('Message-Id') ?: $request->input('message-id'),
-            'name' => $request->input('event'),
-            'recipient' => $request->input('recipient'),
-            'data' => array_diff_key($request->all(), array_flip($this->excludeData)),
-            'triggered_at' => Carbon::createFromTimestamp($request->input('timestamp')),
-        ];
-
-        EmailEvent::create($entry);
+        $emailEvent = new EmailEvent();
+        $emailEvent->setBroker('mailgun');
+        $emailEvent->setMessageId($request->input('Message-Id') ?: $request->input('message-id'));
+        $emailEvent->setName($request->input('event'));
+        $emailEvent->setRecipient($request->input('recipient'));
+        $emailEvent->setData(array_diff_key($request->all(), array_flip($this->excludeData)));
+        $emailEvent->setTriggeredAt(Carbon::createFromTimestamp($request->input('timestamp')));
+        $this->entityManager->persist($emailEvent);
+        $this->entityManager->flush();
 
         return response('');
     }

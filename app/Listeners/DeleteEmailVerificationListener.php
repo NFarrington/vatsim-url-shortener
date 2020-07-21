@@ -3,30 +3,22 @@
 namespace App\Listeners;
 
 use App\Events\EmailVerifiedEvent;
+use Doctrine\ORM\EntityManagerInterface;
 
 class DeleteEmailVerificationListener
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
-    public function __construct()
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em)
     {
-        //
+        $this->em = $em;
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param \App\Events\EmailVerifiedEvent $event
-     * @return void
-     * @throws \Exception
-     */
     public function handle(EmailVerifiedEvent $event)
     {
-        if ($verification = $event->user->emailVerification) {
-            $verification->delete();
+        if ($verification = $event->user->getEmailVerification()) {
+            $this->em->remove($verification);
+            $this->em->flush();
         }
     }
 }

@@ -21,7 +21,7 @@
     <label class="col-sm-2 col-form-label">Organization</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
-            {{ $organization->name }}
+            {{ $prefixApplication->getOrganization()->getName() }}
         </p>
     </div>
 </div>
@@ -31,7 +31,7 @@
     <div class="col-sm-10">
         <input type="text" class="form-control{{ $errors->has('identity_url') ? ' is-invalid' : '' }}"
                id="inputIdentityUrl" name="identity_url"
-               value="{{ old('identity_url') ?: $organization->identity_url }}"
+               value="{{ old('identity_url') ?: $prefixApplication->getIdentityUrl() }}"
                placeholder="Identity verification URL" required maxlength="50" autofocus>
         @if ($errors->has('identity_url'))
             <div class="invalid-feedback">
@@ -49,7 +49,7 @@
     <label for="inputName" class="col-sm-2 col-form-label">Requested Prefix</label>
     <div class="col-sm-10">
         <input type="text" class="form-control{{ $errors->has('prefix') ? ' is-invalid' : '' }}"
-               id="inputName" name="prefix" value="{{ old('prefix') ?: $organization->prefix }}"
+               id="inputName" name="prefix" value="{{ old('prefix') ?: $prefixApplication->getPrefix() }}"
                placeholder="Prefix" required maxlength="50" autofocus>
         @if ($errors->has('prefix'))
             <div class="invalid-feedback">

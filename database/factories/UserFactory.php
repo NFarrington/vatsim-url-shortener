@@ -1,14 +1,14 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+/** @var \LaravelDoctrine\ORM\Testing\Factory $factory */
 use Faker\Generator as Faker;
 
-$factory->define(App\Models\User::class, function (Faker $faker) {
+$factory->define(App\Entities\User::class, function (Faker $faker) {
     return [
         'id' => mt_rand(800000, 2000000),
-        'first_name' => $faker->firstName,
-        'last_name' => $faker->lastName,
+        'firstName' => $faker->firstName,
+        'lastName' => $faker->lastName,
         'email' => $faker->email,
-        'email_verified' => 1,
+        'emailVerified' => 1,
     ];
 });

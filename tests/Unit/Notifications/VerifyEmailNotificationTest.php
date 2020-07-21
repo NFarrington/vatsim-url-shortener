@@ -2,9 +2,9 @@
 
 namespace Tests\Unit\Notifications;
 
-use App\Models\User;
+use App\Entities\User;
 use App\Notifications\VerifyEmailNotification;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -19,30 +19,18 @@ class VerifyEmailNotificationTest extends TestCase
     public function routes_notification_via_database_and_mail()
     {
         $user = make(User::class);
-        $notification = new VerifyEmailNotification(Str::random(40));
+        $notification = new VerifyEmailNotification(Str::random(40), 'new@example.com', 'old@example.com');
 
         $routes = $notification->via($user);
 
-        $this->assertEquals(['database', 'mail'], $routes);
-    }
-
-    /** @test */
-    public function converts_to_array()
-    {
-        $user = make(User::class);
-        $notification = new VerifyEmailNotification(Str::random(40));
-
-        $array = $notification->toArray($user);
-
-        $this->assertArrayHasKey('old_email', $array);
-        $this->assertArrayHasKey('new_email', $array);
+        $this->assertEquals(['mail'], $routes);
     }
 
     /** @test */
     public function converts_to_mail_notification()
     {
         $user = make(User::class);
-        $notification = new VerifyEmailNotification(Str::random(40));
+        $notification = new VerifyEmailNotification(Str::random(40), 'new@example.com', 'old@example.com');
 
         $mail = $notification->toMail($user);
 

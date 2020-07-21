@@ -22,8 +22,8 @@
                     </tr>
                     @foreach($publicUrls as $url)
                         <tr>
-                            <td class="break-all"><a href="{{ url($url->full_url) }}">{{ preg_replace('#^https?://#', '', $url->full_url) }}</a></td>
-                            <td class="break-all"><a href="{{ $url->redirect_url }}">{{ preg_replace('#^https?://#', '', $url->redirect_url) }}</a></td>
+                            <td class="break-all"><a href="{{ url($url->getFullUrl()) }}">{{ preg_replace('#^https?://#', '', $url->getFullUrl()) }}</a></td>
+                            <td class="break-all"><a href="{{ $url->getRedirectUrl() }}">{{ preg_replace('#^https?://#', '', $url->getRedirectUrl()) }}</a></td>
                         </tr>
                     @endforeach
                 </table>

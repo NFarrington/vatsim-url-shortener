@@ -24,7 +24,7 @@ class TwoFactorAuth
      */
     public function handle($request, Closure $next)
     {
-        if ($this->inExceptArray($request) || ($request->user() && !$request->user()->totp_secret)) {
+        if ($this->inExceptArray($request) || ($request->user() && !$request->user()->getTotpSecret())) {
             return $next($request);
         }
 

@@ -9,7 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Tests\TestCase;
 
 /**
@@ -26,7 +26,7 @@ class VatsimServiceTest extends TestCase
     {
         $this->given_cert_responds_with_a_valid_user();
 
-        $user = (new VatsimService)->getUser(self::USER_CID);
+        $user = app(VatsimService::class)->getUser(self::USER_CID);
 
         $this->assertArraySubset([
             'id' => self::USER_CID,
@@ -43,7 +43,7 @@ class VatsimServiceTest extends TestCase
         $this->expectException(InvalidResponseException::class);
         $this->expectExceptionMessage(sprintf("User ID  does not match expected %s", self::USER_CID));
 
-        (new VatsimService)->getUser(self::USER_CID);
+        app(VatsimService::class)->getUser(self::USER_CID);
     }
 
     /** @test */
@@ -54,7 +54,7 @@ class VatsimServiceTest extends TestCase
         $this->expectException(InvalidResponseException::class);
         $this->expectExceptionMessage(sprintf("Missing keys from https://cert.vatsim.net/vatsimnet/idstatusint.php?cid=%s: name_last", self::USER_CID));
 
-        (new VatsimService)->getUser(self::USER_CID);
+        app(VatsimService::class)->getUser(self::USER_CID);
     }
 
     private function given_cert_responds_with_a_valid_user()

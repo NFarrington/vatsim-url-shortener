@@ -2,12 +2,13 @@
 
 namespace Tests\Feature\Platform;
 
-use App\Models\Organization;
-use App\Models\OrganizationPrefixApplication;
-use App\Models\OrganizationUser;
+use App\Entities\Organization;
+use App\Entities\OrganizationPrefixApplication;
+use App\Entities\OrganizationUser;
 use App\Notifications\NewPrefixApplicationNotification;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 
 class OrganizationPrefixTest extends TestCase
@@ -25,9 +26,10 @@ class OrganizationPrefixTest extends TestCase
     function create_page_loads_successfully()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
 
-        $this->get(route('platform.organizations.prefix.create', $organization))
+        $this->get(route('platform.organizations.prefix.create', $organization->getId()))
             ->assertStatus(200);
     }
 
@@ -40,40 +42,42 @@ class OrganizationPrefixTest extends TestCase
         );
 
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
 
         $application = make(OrganizationPrefixApplication::class);
 
         $this->get(route('platform.organizations.prefix.create', $organization));
         $this->post(route('platform.organizations.prefix.store', $organization), [
-            'identity_url' => $application->identity_url,
-            'prefix' => $application->prefix,
+            'identity_url' => $application->getIdentityUrl(),
+            'prefix' => $application->getPrefix(),
         ])->assertRedirect()
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($application->getTable(), [
-            'identity_url' => $application->identity_url,
-            'prefix' => $application->prefix,
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(get_class($application))->getTableName(), [
+            'identity_url' => $application->getIdentityUrl(),
+            'prefix' => $application->getPrefix(),
         ]);
     }
 
     /** @test */
     function organization_with_prefix_cannot_access_application_pages()
     {
-        $organization = factory(Organization::class)->states('prefix')->create();
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
         $application = make(OrganizationPrefixApplication::class);
 
         $this->get(route('platform.organizations.prefix.create', $organization))
             ->assertRedirect()
             ->assertSessionHas('error');
         $this->post(route('platform.organizations.prefix.store', $organization), [
-            'identity_url' => $application->identity_url,
-            'prefix' => $application->prefix,
+            'identity_url' => $application->getIdentityUrl(),
+            'prefix' => $application->getPrefix(),
         ])->assertRedirect()
             ->assertSessionHas('error');
-        $this->assertDatabaseMissing($application->getTable(), [
-            'identity_url' => $application->identity_url,
-            'prefix' => $application->prefix,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(get_class($application))->getTableName(), [
+            'identity_url' => $application->getIdentityUrl(),
+            'prefix' => $application->getPrefix(),
         ]);
     }
 
@@ -81,21 +85,22 @@ class OrganizationPrefixTest extends TestCase
     function organization_with_prefix_application_cannot_access_application_pages()
     {
         $organization = create(Organization::class);
-        $organization->users()->attach($this->user, ['role_id' => OrganizationUser::ROLE_OWNER]);
-        $application = create(OrganizationPrefixApplication::class, ['organization_id' => $organization->id]);
-        $applicationTemplate = make(OrganizationPrefixApplication::class, ['organization_id' => $organization->id]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        $application = create(OrganizationPrefixApplication::class, ['organization' => $organization]);
+        $applicationTemplate = make(OrganizationPrefixApplication::class, ['organization' => $organization]);
+        EntityManager::clear();
 
         $this->get(route('platform.organizations.prefix.create', $organization))
             ->assertRedirect()
             ->assertSessionHas('error');
         $this->post(route('platform.organizations.prefix.store', $organization), [
-            'identity_url' => $applicationTemplate->identity_url,
-            'prefix' => $applicationTemplate->prefix,
+            'identity_url' => $applicationTemplate->getIdentityUrl(),
+            'prefix' => $applicationTemplate->getPrefix(),
         ])->assertRedirect()
             ->assertSessionHas('error');
-        $this->assertDatabaseMissing($applicationTemplate->getTable(), [
-            'identity_url' => $applicationTemplate->identity_url,
-            'prefix' => $applicationTemplate->prefix,
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(get_class($applicationTemplate))->getTableName(), [
+            'identity_url' => $applicationTemplate->getIdentityUrl(),
+            'prefix' => $applicationTemplate->getPrefix(),
         ]);
     }
 }

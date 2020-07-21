@@ -2,55 +2,46 @@
 
 namespace App\Http\Controllers\Platform\Admin;
 
-use App\Models\Domain;
+use App\Entities\Domain;
+use App\Repositories\DomainRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
 
 class DomainController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected EntityManagerInterface $em;
+    protected DomainRepository $domainRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, DomainRepository $domainRepository)
     {
         $this->middleware('platform');
         $this->middleware('admin');
+
+        $this->domainRepository = $domainRepository;
+        $this->em = $entityManager;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $domains = Domain::orderBy('id')->paginate(20);
+        $domains = $this->domainRepository->findAll('id', 'asc', 20, Paginator::resolveCurrentPage());
 
         return view('platform.admin.domains.index')->with([
             'domains' => $domains,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
+        $domain = new Domain();
+        $domain->setUrl('');
+
         return view('platform.admin.domains.create')->with([
-            'domain' => new Domain(),
+            'domain' => $domain,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $attributes = $this->validate($request, [
@@ -58,18 +49,16 @@ class DomainController extends Controller
             'public' => 'required|boolean',
         ]);
 
-        Domain::create($attributes);
+        $domain = new Domain();
+        $domain->setUrl($attributes['url']);
+        $domain->setPublic($attributes['public']);
+        $this->em->persist($domain);
+        $this->em->flush();
 
         return redirect()->route('platform.admin.domains.index')
             ->with('success', 'Domain created.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Domain $domain
-     * @return \Illuminate\Http\Response
-     */
     public function show(Domain $domain)
     {
         Session::reflash();
@@ -77,12 +66,6 @@ class DomainController extends Controller
         return redirect()->route('platform.admin.domains.edit', $domain);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Domain $domain
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Domain $domain)
     {
         return view('platform.admin.domains.edit')->with([
@@ -90,13 +73,6 @@ class DomainController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\Domain $domain
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, Domain $domain)
     {
         $attributes = $this->validate($request, [
@@ -104,27 +80,23 @@ class DomainController extends Controller
             'public' => 'boolean',
         ]);
 
-        $domain->update($attributes);
+        $domain->setUrl($attributes['url']);
+        $domain->setPublic($attributes['public']);
+        $this->em->flush();
 
         return redirect()->route('platform.admin.domains.index')
             ->with('success', 'Domain updated.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Domain $domain
-     * @return \Illuminate\Http\Response
-     * @throws \Exception
-     */
     public function destroy(Domain $domain)
     {
-        if ($domain->urls->isNotEmpty()) {
+        if (!empty($domain->getUrls())) {
             return redirect()->back()
                 ->with('error', 'There are currently URLs associated with this domain.');
         }
 
-        $domain->delete();
+        $this->em->remove($domain);
+        $this->em->flush();
 
         return redirect()->route('platform.admin.domains.index')
             ->with('success', 'Domain deleted.');

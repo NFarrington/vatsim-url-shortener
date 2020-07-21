@@ -29,7 +29,8 @@
         <server name="BCRYPT_ROUNDS" value="4"/>
         <server name="CACHE_DRIVER" value="array"/>
         <server name="DB_CONNECTION" value="sqlite"/>
-        <server name="DB_DATABASE" value=":memory:"/>
+        <!-- Cannot use :memory: as Laravel migrations use a different PDO connection to Doctrine -->
+        <server name="DB_DATABASE" value="database/database.tests.sqlite"/>
         <server name="MAIL_DRIVER" value="array"/>
         <server name="QUEUE_CONNECTION" value="sync"/>
         <server name="SESSION_DRIVER" value="array"/>

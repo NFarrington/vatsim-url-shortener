@@ -2,13 +2,15 @@
 
 namespace Tests\Feature\Platform;
 
-use App\Models\EmailVerification;
-use App\Models\User;
+use App\Entities\EmailVerification;
+use App\Entities\User;
 use App\Notifications\VerifyEmailNotification;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -36,19 +38,18 @@ class RegistrationTest extends TestCase
     /** @test */
     public function user_can_provisionally_register_an_email_address()
     {
-        $this->signIn(create(User::class, ['email' => null]));
+        Notification::fake();
 
-        $this->expectsNotification(
-            $this->user,
-            VerifyEmailNotification::class
-        );
+        $this->signIn(create(User::class, ['email' => null]));
 
         $user = make(User::class);
 
         $this->get(route('platform.register'));
-        $this->post(route('platform.register'), ['email' => $user->email])
+        $this->post(route('platform.register'), ['email' => $user->getEmail()])
             ->assertRedirect();
-        $this->assertDatabaseHas($user->getTable(), ['email' => $user->email, 'email_verified' => 0]);
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(),
+            ['email' => $user->getEmail(), 'email_verified' => 0]);
+        Notification::assertSentTo($this->user, VerifyEmailNotification::class);
     }
 
     /** @test */
@@ -58,31 +59,35 @@ class RegistrationTest extends TestCase
 
         $this->signIn(create(User::class, ['email' => null]));
 
-        $email = create(User::class)->email;
+        $email = create(User::class)->getEmail();
 
         $this->get(route('platform.register'));
         $this->post(route('platform.register', ['email' => $email]))
             ->assertRedirect(route('platform.register'))
             ->assertSessionHasErrors('email');
-        $this->assertDatabaseMissing($this->user->getTable(), ['email' => $email]);
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(User::class)->getTableName(),
+            ['email' => $email]);
     }
 
     /** @test */
     public function user_can_verify_an_email_address()
     {
-        $user = create(User::class, ['email_verified' => 0]);
+        $user = create(User::class, ['emailVerified' => 0]);
         $this->signIn($user);
 
         $token = Str::random(40);
         create(EmailVerification::class, [
             'token' => Hash::make($token),
-            'user_id' => $user->id,
+            'user' => $user,
         ]);
+
+        EntityManager::refresh($user);
 
         $response = $this->get(route('platform.register.verify', $token));
         $response->assertRedirect(route('platform.dashboard'));
         $response->assertSessionHas('success');
-        $this->assertDatabaseHas($user->getTable(), ['id' => $user->id, 'email_verified' => 1]);
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(),
+            ['id' => $user->getId(), 'email_verified' => 1]);
     }
 
     /** @test */
@@ -98,7 +103,7 @@ class RegistrationTest extends TestCase
     /** @test */
     public function user_is_forced_to_verify_an_email_address()
     {
-        $this->signIn(create(User::class, ['email_verified' => 0]));
+        $this->signIn(create(User::class, ['emailVerified' => 0]));
 
         $this->get(route('platform.dashboard'))
             ->assertRedirect(route('platform.register'))
@@ -108,25 +113,26 @@ class RegistrationTest extends TestCase
     /** @test */
     public function user_cannot_verify_email_address_without_a_valid_token()
     {
-        $user = create(User::class, ['email_verified' => 0]);
+        $user = create(User::class, ['emailVerified' => 0]);
         $this->signIn($user);
 
         $token = Str::random(40);
         create(EmailVerification::class, [
             'token' => Hash::make($token),
-            'user_id' => $user->id,
+            'user_id' => $user->getId(),
         ]);
 
         $response = $this->get(route('platform.register.verify', Str::random(39)));
         $response->assertRedirect(route('platform.register'));
         $response->assertSessionHas('error');
-        $this->assertDatabaseHas($user->getTable(), ['id' => $user->id, 'email_verified' => 0]);
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(),
+            ['id' => $user->getId(), 'email_verified' => 0]);
     }
 
     /** @test */
     public function user_cannot_attempt_verification_when_already_verified()
     {
-        $user = create(User::class, ['email_verified' => 1]);
+        $user = create(User::class, ['emailVerified' => 1]);
         $this->signIn($user);
 
         $response = $this->get(route('platform.register.verify', Str::random(40)));

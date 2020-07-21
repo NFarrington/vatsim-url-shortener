@@ -2,26 +2,20 @@
 
 namespace App\Http\Controllers\Platform;
 
-use App\Models\News;
+use App\Repositories\NewsRepository;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
 
 class DashboardController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected NewsRepository $newsRepository;
+
+    public function __construct(NewsRepository $newsRepository)
     {
         $this->middleware('platform');
+        $this->newsRepository = $newsRepository;
     }
 
-    /**
-     * Redirect to the dashboard.
-     *
-     * @return \Illuminate\View\View
-     */
     public function platform()
     {
         Session::reflash();
@@ -29,14 +23,9 @@ class DashboardController extends Controller
         return redirect()->route('platform.dashboard');
     }
 
-    /**
-     * Display the dashboard page.
-     *
-     * @return \Illuminate\View\View
-     */
     public function dashboard()
     {
-        $news = News::published()->orderByDesc('created_at')->paginate(5);
+        $news = $this->newsRepository->findPublished('createdAt', 'desc', 5, Paginator::resolveCurrentPage());
 
         return view('platform.dashboard')->with([
             'news' => $news,

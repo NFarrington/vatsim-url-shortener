@@ -11,11 +11,6 @@ use PragmaRX\Google2FAQRCode\Google2FA;
 
 class TwoFactorAuthController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('platform');
@@ -29,23 +24,11 @@ class TwoFactorAuthController extends Controller
         })->only(['showForm', 'login']);
     }
 
-    /**
-     * Display the 2FA form.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
-     */
     public function showForm(Request $request)
     {
         return view('platform.two-factor');
     }
 
-    /**
-     * Authenticate 2FA.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function login(Request $request)
     {
         $attributes = $this->validate($request, [
@@ -53,7 +36,7 @@ class TwoFactorAuthController extends Controller
         ]);
 
         $valid = app(Google2FA::class)->verifyKey(
-            $request->user()->totp_secret,
+            $request->user()->getTotpSecret(),
             $attributes['code']
         );
 

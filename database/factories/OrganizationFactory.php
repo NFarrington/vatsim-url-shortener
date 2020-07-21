@@ -1,8 +1,8 @@
 <?php
 
-/** @var \Illuminate\Database\Eloquent\Factory $factory */
+/** @var \LaravelDoctrine\ORM\Testing\Factory $factory */
 
-use App\Models\Organization;
+use App\Entities\Organization;
 use Faker\Generator as Faker;
 use Illuminate\Support\Str;
 

@@ -2,39 +2,33 @@
 
 namespace App\Http\Controllers\Platform;
 
+use App\Entities\User;
 use App\Events\EmailChangedEvent;
 use Carbon\Carbon;
 use Closure;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use PragmaRX\Google2FAQRCode\Google2FA;
 
 class SettingsController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->middleware('platform');
-        $this->middleware(function ($request, Closure $next) {
-            if ($request->user()->totp_secret) {
+        $this->middleware(function (Request $request, Closure $next) {
+            if ($request->user()->getTotpSecret()) {
                 return redirect()->route('platform.settings')
                     ->with('error', 'Two factor authentication has already been configured.');
             }
 
             return $next($request);
         })->only(['show2FAForm', 'register2FA']);
+        $this->entityManager = $entityManager;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
-     */
     public function edit(Request $request)
     {
         return view('platform.settings.edit')->with([
@@ -42,39 +36,26 @@ class SettingsController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request)
     {
-        /** @var \App\Models\User $user */
         $user = $request->user();
 
         $attributes = $this->validate($request, [
-            'email' => "required|email|max:255|unique:users,email,{$user->id}",
+            'email' => 'required|email|max:255|unique:'.User::class.",email,{$user->getId()}",
         ]);
 
-        $user->fill($attributes);
-        $emailChanged = $user->isDirty('email');
-        $user->save();
-
-        if ($emailChanged) {
-            event(new EmailChangedEvent($user));
+        $oldEmail = $user->getEmail();
+        $newEmail = $attributes['email'];
+        if ($oldEmail !== $newEmail) {
+            $user->setEmail($attributes['email']);
+            $this->entityManager->flush();
+            event(new EmailChangedEvent($user, $attributes['email'], $oldEmail));
         }
 
         return redirect()->route('platform.settings')
             ->with('success', 'Settings updated.');
     }
 
-    /**
-     * Display the 2FA configuration form.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
-     */
     public function show2FAForm(Request $request)
     {
         $secret = $request->session()->get('totp-secret')
@@ -84,7 +65,7 @@ class SettingsController extends Controller
 
         $qrCode = app(Google2FA::class)->getQRCodeInline(
             config('app.name'),
-            $request->user()->email,
+            $request->user()->getEmail(),
             $secret,
             250
         );
@@ -95,12 +76,6 @@ class SettingsController extends Controller
         ]);
     }
 
-    /**
-     * Set up and register 2FA.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function register2FA(Request $request)
     {
         $attributes = $this->validate($request, [
@@ -120,22 +95,19 @@ class SettingsController extends Controller
 
         $request->session()->remove('totp-secret');
 
-        $request->user()->update(['totp_secret' => $secret]);
+        $request->user()->setTotpSecret($secret);
         $request->session()->put('auth.two-factor', new Carbon());
+
+        $this->entityManager->flush();
 
         return redirect()->route('platform.settings')
             ->with('success', 'Two factor authentication configured successfully.');
     }
 
-    /**
-     * Remove 2FA from the user.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function delete2FA(Request $request)
     {
-        $request->user()->update(['totp_secret' => null]);
+        $request->user()->setTotpSecret(null);
+        $this->entityManager->flush();
         $request->session()->forget(['auth.two-factor', 'totp-secret']);
 
         return redirect()->route('platform.settings')

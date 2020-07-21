@@ -7,20 +7,20 @@
                 <th>Owners</th>
                 <th>Managers</th>
                 <th>Members</th>
-                <th>@sortablelink('updated_at', 'Last Updated', null, ['class' => 'text-nowrap'])</th>
+                <th>@sortablelink('updatedAt', 'Last Updated', null, ['class' => 'text-nowrap'])</th>
                 <th></th>
                 <th></th>
             </tr>
             @foreach($organizations as $organization)
                 <tr>
-                    <td>{{ $organization->id }}</td>
-                    <td class="break-all">{{ $organization->name }}</td>
+                    <td>{{ $organization->getId() }}</td>
+                    <td class="break-all">{{ $organization->getName() }}</td>
                     <td>
                         <ul class="list-unstyled">
-                            @forelse($organization->owners as $owner)
+                            @forelse($organization->getUsers(\App\Entities\OrganizationUser::ROLE_OWNER) as $owner)
                                 <li>
-                                    <span title="{{ $owner->full_name }} ({{ $owner->id }})" class="text-limit">
-                                        {{ $owner->full_name }} ({{ $owner->id }})
+                                    <span title="{{ $owner->getFullName() }} ({{ $owner->getId() }})" class="text-limit">
+                                        {{ $owner->getFullName() }} ({{ $owner->getId() }})
                                     </span>
                                 </li>
                             @empty
@@ -32,10 +32,10 @@
                     </td>
                     <td>
                         <ul class="list-unstyled">
-                            @forelse($organization->managers as $manager)
+                            @forelse($organization->getUsers(\App\Entities\OrganizationUser::ROLE_MANAGER) as $manager)
                                 <li>
-                                    <span title="{{ $manager->full_name }} ({{ $manager->id }})" class="text-limit">
-                                        {{ $manager->full_name }} ({{ $manager->id }})
+                                    <span title="{{ $manager->getFullName() }} ({{ $manager->getId() }})" class="text-limit">
+                                        {{ $manager->getFullName() }} ({{ $manager->getId() }})
                                     </span>
                                 </li>
                             @empty
@@ -47,10 +47,10 @@
                     </td>
                     <td>
                         <ul class="list-unstyled">
-                            @forelse($organization->members as $member)
+                            @forelse($organization->getUsers(\App\Entities\OrganizationUser::ROLE_MEMBER) as $member)
                                 <li>
-                                    <span title="{{ $member->full_name }} ({{ $member->id }})" class="text-limit">
-                                        {{ $member->full_name }} ({{ $member->id }})
+                                    <span title="{{ $member->getFullName() }} ({{ $member->getId() }})" class="text-limit">
+                                        {{ $member->getFullName() }} ({{ $member->getId() }})
                                     </span>
                                 </li>
                             @empty
@@ -60,7 +60,7 @@
                             @endforelse
                         </ul>
                     </td>
-                    <td>{{ hyphen_nobreak($organization->updated_at) }}</td>
+                    <td>{{ hyphen_nobreak($organization->getUpdatedAt()) }}</td>
                     <td>
                         @can('act-as-owner', $organization)
                             <a href="{{ route('platform.organizations.edit', $organization) }}">Edit</a>

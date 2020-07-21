@@ -2,81 +2,74 @@
 
 namespace App\Http\Controllers\Platform;
 
-use App\Models\Organization;
-use App\Models\OrganizationUser;
-use Carbon\Carbon;
+use App\Entities\Organization;
+use App\Entities\OrganizationUser;
+use App\Repositories\OrganizationRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
 
 class OrganizationController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    protected OrganizationRepository $organizationRepository;
+    protected EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $entityManager, OrganizationRepository $organizationRepository)
     {
         $this->middleware('platform');
+        $this->organizationRepository = $organizationRepository;
+        $this->em = $entityManager;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
-        $organizations = Organization::with('owners', 'managers', 'members', 'users')
-            ->whereHas('users', function ($query) use ($request) {
-                $query->where('users.id', $request->user()->id);
-            })->sortable('name')->paginate(20);
+        $attributes = $this->validate($request, [
+            'sort' => 'nullable|string|alpha_dash',
+            'direction' => 'nullable|string|in:asc,desc',
+        ]);
+
+        $orderBy = $attributes['sort'] ?? 'name';
+        $order = $attributes['direction'] ?? 'asc';
+
+        $organizations = $this->organizationRepository->findByUser($request->user(), $orderBy, $order, 20, Paginator::resolveCurrentPage());
 
         return view('platform.organizations.index')->with([
             'organizations' => $organizations,
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
+        $organization = new Organization();
+        $organization->setName('');
+
         return view('platform.organizations.create')->with([
-            'organization' => new Organization(),
+            'organization' => $organization,
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         $attributes = $this->validate($request, [
             'name' => 'required|string|min:3|max:50',
         ]);
 
-        $organization = Organization::create($attributes);
-        $organization->users()->attach(
-            $request->user()->id, ['role_id' => OrganizationUser::ROLE_OWNER]
-        );
+        $organization = new Organization();
+        $organization->setName($attributes['name']);
+
+        $organizationUser = new OrganizationUser();
+        $organizationUser->setOrganization($organization);
+        $organizationUser->setUser($request->user());
+        $organizationUser->setRoleId(OrganizationUser::ROLE_OWNER);
+        $this->em->persist($organization);
+        $this->em->persist($organizationUser);
+        $this->em->flush();
 
         return redirect()->route('platform.organizations.index')
             ->with('success', 'Organization created.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Organization $organization
-     * @return \Illuminate\Http\Response
-     */
     public function show(Organization $organization)
     {
         Session::reflash();
@@ -84,32 +77,15 @@ class OrganizationController extends Controller
         return redirect()->route('platform.organizations.edit', $organization);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Organization $organization
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function edit(Organization $organization)
     {
         $this->authorize('act-as-owner', $organization);
-
-        $organization->load('owners', 'managers', 'members', 'prefixApplication');
 
         return view('platform.organizations.edit')->with([
             'organization' => $organization,
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \App\Models\Organization $organization
-     * @return \Illuminate\Http\Response
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     */
     public function update(Request $request, Organization $organization)
     {
         $this->authorize('act-as-owner', $organization);
@@ -118,32 +94,24 @@ class OrganizationController extends Controller
             'name' => 'required|string|min:3|max:50',
         ]);
 
-        $organization->update($attributes);
+        $organization->setName($attributes['name']);
+        $this->em->flush();
 
         return redirect()->route('platform.organizations.index')
             ->with('success', 'Organization updated.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Organization $organization
-     * @return \Illuminate\Http\Response
-     * @throws \Exception|\Illuminate\Auth\Access\AuthorizationException
-     */
     public function destroy(Organization $organization)
     {
         $this->authorize('act-as-owner', $organization);
 
-        if ($organization->urls->isNotEmpty()) {
+        if (!empty($organization->getUrls())) {
             return redirect()->route('platform.organizations.index')
                 ->with('error', 'This organization has URLs associated with it.');
         }
 
-        $organization->users()->get()->each(function ($user) {
-            $user->pivot->update(['deleted_at' => Carbon::now()]);
-        });
-        $organization->delete();
+        $this->em->remove($organization);
+        $this->em->flush();
 
         return redirect()->route('platform.organizations.index')
             ->with('success', 'Organization deleted.');

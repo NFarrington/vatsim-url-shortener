@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers\Platform;
 
-use App\Models\User;
+use App\Entities\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Foundation\Auth\RedirectsUsers;
 use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
@@ -13,63 +14,34 @@ class VatsimLoginController extends Controller
 {
     use RedirectsUsers, ThrottlesLogins;
 
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    private EntityManagerInterface $em;
+
+    public function __construct(EntityManagerInterface $em)
     {
         $this->middleware('guest');
+        $this->em = $em;
     }
 
-    /**
-     * The redirect path.
-     *
-     * @return string
-     */
     protected function redirectTo()
     {
         return route('platform.dashboard');
     }
 
-    /**
-     * Get the login username to be used by the controller.
-     *
-     * @return string
-     */
     public function username()
     {
         return 'id';
     }
 
-    /**
-     * Get the throttle key for the given request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return string
-     */
     protected function throttleKey(Request $request)
     {
         return $request->ip();
     }
 
-    /**
-     * Get the maximum number of attempts to allow.
-     *
-     * @return int
-     */
     public function maxAttempts()
     {
         return 20;
     }
 
-    /**
-     * Handle a login request to the application.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function login(Request $request)
     {
         $token = VatsimSso::requestToken(route('platform.login.vatsim.callback'));
@@ -84,12 +56,6 @@ class VatsimLoginController extends Controller
         return redirect()->to($url);
     }
 
-    /**
-     * Handle a login callback request.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return mixed
-     */
     public function callback(Request $request)
     {
         $session = $request->session()->pull('auth.vatsim', [
@@ -125,23 +91,16 @@ class VatsimLoginController extends Controller
         }
     }
 
-    /**
-     * Update and log in the user.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param $ssoUser
-     * @return \Illuminate\Http\RedirectResponse
-     */
     protected function processLogin($request, $ssoUser)
     {
         /* @var User $user */
-        User::updateOrCreate([
-            'id' => $ssoUser->id,
-        ], [
-            'first_name' => $ssoUser->name_first ?? '',
-            'last_name' => $ssoUser->name_last ?? '',
-            'vatsim_sso_data' => $ssoUser,
-        ]);
+        $user = $this->em->getRepository(User::class)->find($ssoUser->id) ?? new User();
+        $user->setId($ssoUser->id);
+        $user->setFirstName($ssoUser->name_first ?? '');
+        $user->setLastName($ssoUser->name_last ?? '');
+        $user->setVatsimSsoData($ssoUser);
+        $this->em->persist($user);
+        $this->em->flush();
 
         if (in_array($ssoUser->id, config('auth.banned_users'))) {
             return redirect()->route('platform.login')
@@ -155,24 +114,12 @@ class VatsimLoginController extends Controller
         return $this->sendLoginResponse($request);
     }
 
-    /**
-     * Get the failed login response instance.
-     *
-     * @param \Vatsim\OAuth\SSOException $e
-     * @return \Illuminate\Http\RedirectResponse
-     */
     protected function sendFailedVatsimLoginResponse(SSOException $e)
     {
         return redirect()->route('platform.login')
             ->with('error', 'SSO login failed: "'.$e->getMessage().'"');
     }
 
-    /**
-     * Redirect the user after determining they are locked out.
-     *
-     * @param $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     protected function sendLockoutResponse($request)
     {
         $seconds = $this->limiter()->availableIn(
@@ -183,12 +130,6 @@ class VatsimLoginController extends Controller
             ->with('error', trans('auth.throttle', ['seconds' => $seconds]));
     }
 
-    /**
-     * Send the response after the user was authenticated.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
     protected function sendLoginResponse($request)
     {
         $request->session()->regenerate();

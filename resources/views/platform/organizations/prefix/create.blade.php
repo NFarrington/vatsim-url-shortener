@@ -3,7 +3,7 @@
 @section('content')
     @component('platform.organizations.prefix._card')
         <div class="card-body">
-            <form method="POST" action="{{ route('platform.organizations.prefix.store', $organization) }}">
+            <form method="POST" action="{{ route('platform.organizations.prefix.store', $prefixApplication->getOrganization()) }}">
                 {{ csrf_field() }}
 
                 @include('platform.organizations.prefix._form')

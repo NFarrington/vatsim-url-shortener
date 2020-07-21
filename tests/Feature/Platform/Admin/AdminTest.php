@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Feature\Platform;
+namespace Tests\Feature\Platform\Admin;
 
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Tests\TestCase;
 
 class AdminTest extends TestCase

@@ -10,9 +10,9 @@
             </tr>
             @foreach($domains as $domain)
                 <tr>
-                    <td>{{ $domain->id }}</td>
-                    <td><a href="{{ $domain->url }}">{{ $domain->url }}</a></td>
-                    <td><i class="material-icons">{{ $domain->public ? 'check' : 'close' }}</i></td>
+                    <td>{{ $domain->getId() }}</td>
+                    <td><a href="{{ $domain->getUrl() }}">{{ $domain->getUrl() }}</a></td>
+                    <td><i class="material-icons">{{ $domain->isPublic() ? 'check' : 'close' }}</i></td>
                     <td><a href="{{ route('platform.admin.domains.edit', $domain) }}">Edit</a></td>
                     <td>
                         <delete-resource link-only route="{{ route('platform.admin.domains.destroy', $domain) }}">

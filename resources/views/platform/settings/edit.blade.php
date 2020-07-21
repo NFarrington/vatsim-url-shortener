@@ -13,7 +13,7 @@
                 <div class="form-group row">
                     <label for="inputFirstName" class="col-sm-2 col-form-label">Name</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="inputFirstName" value="{{ $user->full_name }}"
+                        <input type="text" class="form-control" id="inputFirstName" value="{{ $user->getFullName() }}"
                                disabled>
                         <small class="form-text text-muted">
                             To change your name, please contact <a href="https://membership.vatsim.net/">VATSIM
@@ -25,17 +25,17 @@
                     <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
                     <div class="col-sm-10">
                         <input type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
-                               id="inputEmail" name="email" value="{{ old('email') ?: $user->email }}"
+                               id="inputEmail" name="email" value="{{ old('email') ?: $user->getEmail() }}"
                                placeholder="Email">
                         @if ($errors->has('email'))
                             <div class="invalid-feedback">
                                 {{ $errors->first('email') }}
                             </div>
-                        @elseif($user->email && $user->email_verified)
+                        @elseif($user->getEmail() && $user->getEmailVerified())
                             <small class="form-text text-success">
                                 <i class="material-icons md-18">check</i> Verified
                             </small>
-                        @elseif($user->email)
+                        @elseif($user->getEmail())
                             <small class="form-text text-danger">
                                 <i class="material-icons md-18">close</i> Unverified
                             </small>
@@ -47,13 +47,13 @@
                     <label for="staticTwoFactor" class="col-sm-2 col-form-label">Two Factor Authentication</label>
                     <div class="col-sm-10">
                         <p class="form-control-plaintext">
-                            @if($user->totp_secret)
+                            @if($user->getTotpSecret())
                                 Active &mdash;
                                 <delete-resource link-only route="{{ route('platform.settings.two-factor') }}"
                                                  message="Are you sure you want to disable two factor authentication?">
                                     Disable
                                 </delete-resource>
-                            @elseif($user->email)
+                            @elseif($user->getEmail())
                                 Disabled &mdash;
                                 <a href="{{ route('platform.settings.two-factor') }}">Configure</a>
                             @endif

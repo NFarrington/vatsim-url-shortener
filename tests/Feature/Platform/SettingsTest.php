@@ -2,12 +2,13 @@
 
 namespace Tests\Feature\Platform;
 
-use App\Models\User;
+use App\Entities\User;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use Tests\TestCase;
 
@@ -32,10 +33,10 @@ class SettingsTest extends TestCase
         $user = make(User::class);
 
         $this->get(route('platform.settings'));
-        $this->put(route('platform.settings', ['email' => $user->email]))
+        $this->put(route('platform.settings', ['email' => $user->getEmail()]))
             ->assertRedirect(route('platform.settings'))
             ->assertSessionHas('success');
-        $this->assertDatabaseHas($user->getTable(), ['email' => $user->email, 'email_verified' => 0]);
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['email' => $user->getEmail(), 'email_verified' => 0]);
     }
 
     /** @test */
@@ -45,7 +46,7 @@ class SettingsTest extends TestCase
 
         $this->signIn();
 
-        $email = create(User::class)->email;
+        $email = create(User::class)->getEmail();
 
         $this->get(route('platform.settings'));
         $this->put(route('platform.settings', ['email' => $email]))
@@ -80,7 +81,7 @@ class SettingsTest extends TestCase
     /** @test */
     function user_can_remove_two_factor_auth()
     {
-        $this->signIn($user = create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn($user = create(User::class, ['totpSecret' => Str::random(16)]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.settings'));
@@ -88,7 +89,7 @@ class SettingsTest extends TestCase
             ->assertRedirect(route('platform.settings'))
             ->assertSessionHas('success')
             ->assertSessionMissing(['auth.two-factor', 'totp-secret']);
-        $this->assertDatabaseHas($user->getTable(), ['id' => $user->id, 'totp_secret' => null]);
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $user->getId(), 'totp_secret' => null]);
     }
 
     /** @test */
@@ -110,7 +111,7 @@ class SettingsTest extends TestCase
     /** @test */
     function user_cannot_configure_two_factor_auth_if_already_configured()
     {
-        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.settings.two-factor'))

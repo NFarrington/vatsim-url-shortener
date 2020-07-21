@@ -2,27 +2,38 @@
 
 namespace Tests;
 
-use App\Exceptions\Handler;
-use App\Models\User;
-use Illuminate\Contracts\Debug\ExceptionHandler;
+use App\Entities\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Tests\Traits\InteractsWithDatabase;
+use Tests\Traits\RefreshDatabase;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication;
+    use CreatesApplication, InteractsWithDatabase;
 
     /**
      * The user currently signed in.
-     *
-     * @var \App\Models\User
      */
-    protected $user;
+    protected ?User $user;
+
+    protected EntityManagerInterface $em;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->withoutExceptionHandling();
+        $this->em = $this->app->make('em');
+    }
+
+    protected function setUpTraits()
+    {
+        $uses = parent::setUpTraits();
+
+        if (isset($uses[RefreshDatabase::class])) {
+            $this->refreshDatabase();
+        }
     }
 
     protected function signIn($user = null)
@@ -34,12 +45,24 @@ abstract class TestCase extends BaseTestCase
         return $this;
     }
 
-    protected function signInAdmin($user = null)
+    protected function signInAdmin(User $user = null)
     {
-        $this->signIn($user);
+        $this->user = $user ?: create(User::class);
 
-        config(['auth.admins' => [$this->user->id]]);
+        $this->user->setAdmin(true);
+
+        $this->actingAs($this->user);
 
         return $this;
+    }
+
+    protected function refreshAllEntities(EntityManagerInterface $em = null)
+    {
+        $em = $em ?: $this->em;
+        foreach ($em->getUnitOfWork()->getIdentityMap() as $className => $entities) {
+            foreach ($entities as $entity) {
+                $em->refresh($entity);
+            }
+        }
     }
 }
