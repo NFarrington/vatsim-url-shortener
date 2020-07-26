@@ -8,6 +8,6 @@ trait RecordsDataChanges
 {
     public function getTrackedProperties(): array
     {
-        return isset($this->trackedProperties) ? $this->trackedProperties : [];
+        return $this->trackedProperties ?? [];
     }
 }

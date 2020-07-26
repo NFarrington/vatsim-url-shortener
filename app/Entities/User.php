@@ -143,9 +143,9 @@ class User extends Entity implements Authenticatable
         throw new UnexpectedCallException('Password requested for passwordless user.');
     }
 
-    public function getRememberToken()
+    public function getRememberToken(): string
     {
-        return $this->rememberToken;
+        return $this->rememberToken ?: '';
     }
 
     public function setRememberToken($token)
@@ -153,7 +153,7 @@ class User extends Entity implements Authenticatable
         $this->rememberToken = $token;
     }
 
-    public function getRememberTokenName()
+    public function getRememberTokenName(): string
     {
         return 'rememberToken';
     }

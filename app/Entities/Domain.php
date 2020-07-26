@@ -72,7 +72,7 @@ class Domain extends Entity
      */
     public function getDomainOrganizations(): array
     {
-        return $this->domainOrganizations;
+        return $this->domainOrganizations->toArray();
     }
 
     /**
