@@ -83,7 +83,7 @@ class LogRequests
      * @param $arr
      * @return array
      */
-    protected function filterFillable($arr)
+    protected function filterFillable(array $arr)
     {
         $fillable = [
             'http_host',

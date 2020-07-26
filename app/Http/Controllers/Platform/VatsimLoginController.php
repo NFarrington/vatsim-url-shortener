@@ -91,7 +91,7 @@ class VatsimLoginController extends Controller
         }
     }
 
-    protected function processLogin($request, $ssoUser)
+    protected function processLogin(Request $request, $ssoUser)
     {
         /* @var User $user */
         $user = $this->em->getRepository(User::class)->find($ssoUser->id) ?? new User();
@@ -120,7 +120,7 @@ class VatsimLoginController extends Controller
             ->with('error', 'SSO login failed: "'.$e->getMessage().'"');
     }
 
-    protected function sendLockoutResponse($request)
+    protected function sendLockoutResponse(Request $request)
     {
         $seconds = $this->limiter()->availableIn(
             $this->throttleKey($request)

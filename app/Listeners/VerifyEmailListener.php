@@ -12,6 +12,8 @@ use Illuminate\Support\Str;
 
 class VerifyEmailListener
 {
+    protected EntityManagerInterface $em;
+
     public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
