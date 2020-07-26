@@ -405,8 +405,7 @@ class UrlTest extends TestCase
         $organization = create(Organization::class);
         create(DomainOrganization::class, ['domain' => $domain, 'organization' => $organization]);
         create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
-        EntityManager::refresh($organization);
-        EntityManager::refresh($this->user);
+        $this->refreshAllEntities();
         $url = make(Url::class);
 
         $this->get(route('platform.urls.create'));

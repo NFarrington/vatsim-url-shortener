@@ -24,8 +24,12 @@ class UrlController extends Controller
     protected DomainRepository $domainRepository;
     protected OrganizationRepository $organizationRepository;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlRepository $urlRepository, DomainRepository $domainRepository, OrganizationRepository $organizationRepository)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        UrlRepository $urlRepository,
+        DomainRepository $domainRepository,
+        OrganizationRepository $organizationRepository
+    ) {
         $this->middleware('platform');
         $this->entityManager = $entityManager;
         $this->urlRepository = $urlRepository;
@@ -35,10 +39,13 @@ class UrlController extends Controller
 
     public function index(Request $request)
     {
-        $attributes = $this->validate($request, [
-            'sort' => 'nullable|string|alpha_dash',
-            'direction' => 'nullable|string|in:asc,desc',
-        ]);
+        $attributes = $this->validate(
+            $request,
+            [
+                'sort' => 'nullable|string|alpha_dash',
+                'direction' => 'nullable|string|in:asc,desc',
+            ]
+        );
 
         $orderBy = $attributes['sort'] ?? 'fullUrl';
         $order = $attributes['direction'] ?? 'asc';
@@ -47,11 +54,13 @@ class UrlController extends Controller
             ->findByUserOrTheirOrganizations($request->user(), $orderBy, $order, 20, Paginator::resolveCurrentPage());
         $publicUrls = $this->urlRepository->findPublic('fullUrl', 'asc', 20, Paginator::resolveCurrentPage());
 
-        return view('platform.urls.index')->with([
-            'user' => $request->user(),
-            'urls' => $urls,
-            'publicUrls' => $publicUrls,
-        ]);
+        return view('platform.urls.index')->with(
+            [
+                'user' => $request->user(),
+                'urls' => $urls,
+                'publicUrls' => $publicUrls,
+            ]
+        );
     }
 
     public function create(Request $request)
@@ -73,36 +82,44 @@ class UrlController extends Controller
         $url->setUrl('');
         $url->setRedirectUrl('');
 
-        return view('platform.urls.create')->with([
-            'domains' => $domains,
-            'organizations' => $organizations,
-            'prefixes' => $prefixes,
-            'url' => $url,
-            'newUrl' => true,
-        ]);
+        return view('platform.urls.create')->with(
+            [
+                'domains' => $domains,
+                'organizations' => $organizations,
+                'prefixes' => $prefixes,
+                'url' => $url,
+                'newUrl' => true,
+            ]
+        );
     }
 
     public function store(Request $request)
     {
         $user = $request->user();
-        $attributes = $this->getValidationFactory()->make($request->all(), [
-            'domain_id' => 'required|integer|exists:'.\App\Entities\Domain::class.',id',
-            'prefix' => 'nullable|string',
-            'url' => [
-                'required',
-                'string',
-                'min:3',
-                'max:30',
-                'regex:/^[0-9a-zA-Z_-]+$/',
-                'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy',
+        $attributes = $this->getValidationFactory()->make(
+            $request->all(),
+            [
+                'domain_id' => 'required|integer|exists:'.\App\Entities\Domain::class.',id',
+                'prefix' => 'nullable|string',
+                'url' => [
+                    'required',
+                    'string',
+                    'min:3',
+                    'max:30',
+                    'regex:/^[0-9a-zA-Z_-]+$/',
+                    'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy',
+                ],
+                'redirect_url' => 'required|url|max:1000',
+                'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
             ],
-            'redirect_url' => 'required|url|max:1000',
-            'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
-        ], [
-            'url.regex' => 'The url may only include alphanumeric characters, dashes and underscores.',
-        ])->sometimes(
+            [
+                'url.regex' => 'The url may only include alphanumeric characters, dashes and underscores.',
+            ]
+        )->sometimes(
             'url',
-            'unique:'.Url::class.',url,NULL,id,domain,'.$request->input('domain_id').',prefix,1,organization,'.$request->input('organization_id'),
+            'unique:'.Url::class.',url,NULL,id,domain,'.$request->input(
+                'domain_id'
+            ).',prefix,1,organization,'.$request->input('organization_id'),
             function (Fluent $input) {
                 return (bool) $input->get('prefix');
             }
@@ -114,29 +131,70 @@ class UrlController extends Controller
             }
         )->validate();
 
-        $this->validate($request, [
-            'url' => 'regex:/^[0-9a-zA-Z][0-9a-zA-Z_-]*[0-9a-zA-Z]$/',
-        ], [
-            'url.regex' => 'The url may not start or end with special characters.',
-        ]);
+        $this->validate(
+            $request,
+            [
+                'url' => 'regex:/^[0-9a-zA-Z][0-9a-zA-Z_-]*[0-9a-zA-Z]$/',
+            ],
+            [
+                'url.regex' => 'The url may not start or end with special characters.',
+            ]
+        );
+
+        /** @var Domain $domain */
+        $domain = $this->domainRepository->find($attributes['domain_id']);
+        if (!$domain->isPublic()) {
+            $validOrganizations = array_filter(
+                $domain->getOrganizations(),
+                function ($organization) use ($user) {
+                    return array_search($organization, $user->getOrganizations()) !== false;
+                }
+            );
+            if (empty($validOrganizations)) {
+                throw new AuthorizationException();
+            }
+            $validOrganizationIds = array_map(fn ($organization) => $organization->getId(), $validOrganizations);
+            if (!in_array($attributes['organization_id'], $validOrganizationIds)) {
+                $validOrganizationNames = implode(
+                    ', ',
+                    array_map(
+                        fn ($organization) => $organization->getName(),
+                        $validOrganizations
+                    )
+                );
+                throw ValidationException::withMessages(
+                    [
+                        'organization_id' => [
+                            "The domain '{$domain->getUrl()}' can only be used with the following organizations: $validOrganizationNames",
+                        ],
+                    ]
+                );
+            }
+        }
 
         if (!empty($attributes['prefix'])) {
-            $organizationsWithPrefix = array_filter($request->user()->getOrganizations(),
+            $organizationsWithPrefix = array_filter(
+                $request->user()->getOrganizations(),
                 function ($organization) use ($attributes) {
                     return $organization->getPrefix() === $attributes['prefix'];
-                });
+                }
+            );
             $organization = !empty($organizationsWithPrefix) ? $organizationsWithPrefix[0] : null;
 
             if (!$organization) {
-                throw ValidationException::withMessages([
-                    'prefix' => ['Prefix not found.'],
-                ]);
+                throw ValidationException::withMessages(
+                    [
+                        'prefix' => ['Prefix not found.'],
+                    ]
+                );
             } elseif ($organization->getId() != $attributes['organization_id']) {
-                throw ValidationException::withMessages([
-                    'organization_id' => [
-                        "The '{$attributes['prefix']}' prefix can only be used with the {$organization->getName()} organization.",
-                    ],
-                ]);
+                throw ValidationException::withMessages(
+                    [
+                        'organization_id' => [
+                            "The '{$attributes['prefix']}' prefix can only be used with the {$organization->getName()} organization.",
+                        ],
+                    ]
+                );
             }
 
             $attributes['prefix'] = true;
@@ -147,23 +205,12 @@ class UrlController extends Controller
         $url = new Url();
         $url->setUrl($attributes['url']);
         $url->setRedirectUrl($attributes['redirect_url']);
-        $url->setDomain($this->entityManager->getReference(Domain::class, $attributes['domain_id']));
+        $url->setDomain($domain);
         if ($attributes['organization_id'] !== null) {
-            $url->setOrganization($this->entityManager->getReference(Organization::class, $attributes['organization_id']));
+            $url->setOrganization(
+                $this->entityManager->getReference(Organization::class, $attributes['organization_id'])
+            );
         } else {
-            if (!$url->getDomain()->isPublic()) {
-                $validOrganizations = array_filter($url->getDomain()->getOrganizations(), function ($organization) use ($user) {
-                    return array_search($organization, $user->getOrganizations()) !== false;
-                });
-                if (empty($validOrganizations)) {
-                    throw new AuthorizationException();
-                }
-                throw ValidationException::withMessages([
-                    'organization_id' => [
-                        "The domain '{$url->getDomain()->getUrl()}' can only be used with the {$validOrganizations[0]->getName()} organization.",
-                    ],
-                ]);
-            }
             $url->setUser($request->user());
         }
         $this->authorize('create', $url);
@@ -185,21 +232,26 @@ class UrlController extends Controller
     {
         $this->authorize('update', $url);
 
-        return view('platform.urls.edit')->with([
-            'organizations' => $request->user()->getOrganizations(),
-            'url' => $url,
-            'newUrl' => false,
-        ]);
+        return view('platform.urls.edit')->with(
+            [
+                'organizations' => $request->user()->getOrganizations(),
+                'url' => $url,
+                'newUrl' => false,
+            ]
+        );
     }
 
     public function update(Request $request, Url $url)
     {
         $this->authorize('update', $url);
 
-        $attributes = $this->validate($request, [
-            'redirect_url' => 'required|url|max:1000',
-            'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
-        ]);
+        $attributes = $this->validate(
+            $request,
+            [
+                'redirect_url' => 'required|url|max:1000',
+                'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
+            ]
+        );
 
         $oldOrganizationId = $url->getOrganization() ? $url->getOrganization()->getId() : null;
         if ($attributes['organization_id'] !== $oldOrganizationId) {
@@ -212,7 +264,9 @@ class UrlController extends Controller
 
         $url->setRedirectUrl($attributes['redirect_url']);
         if ($attributes['organization_id'] !== null) {
-            $url->setOrganization($this->entityManager->getReference(Organization::class, $attributes['organization_id']));
+            $url->setOrganization(
+                $this->entityManager->getReference(Organization::class, $attributes['organization_id'])
+            );
             $url->setUser(null);
         } else {
             $url->setUser($request->user());
