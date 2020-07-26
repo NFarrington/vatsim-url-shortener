@@ -39,7 +39,7 @@ class UrlPolicy
             return false;
         }
 
-        if ($url->getPrefix()) {
+        if ($url->isPrefixed()) {
             return false;
         }
 

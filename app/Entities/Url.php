@@ -119,7 +119,7 @@ class Url extends Entity
         $this->domain = $domain;
     }
 
-    public function getPrefix(): bool
+    public function isPrefixed(): bool
     {
         return $this->prefix;
     }

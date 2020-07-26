@@ -3,7 +3,7 @@
     @if (!$newUrl)
         <div class="col-sm-10">
             <input type="text" class="form-control" id="inputUrl" disabled
-                   value="{{ $url->getDomain()->getUrl() }}{{ $url->getPrefix() ? $url->getOrganization()->getPrefix().'/' : '' }}{{ $url->getUrl() }}">
+                   value="{{ $url->getDomain()->getUrl() }}{{ $url->isPrefixed() ? $url->getOrganization()->getPrefix().'/' : '' }}{{ $url->getUrl() }}">
         </div>
     @else
         <div class="col-sm-10 form-row">
