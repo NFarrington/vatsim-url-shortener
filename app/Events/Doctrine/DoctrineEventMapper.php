@@ -34,21 +34,38 @@ class DoctrineEventMapper implements EventSubscriber
                 $changeSet = $uow->getEntityChangeSet($entity);
                 $trackableChangeSet = array_intersect_key($changeSet, array_flip($trackedProperties));
                 foreach ($trackableChangeSet as $property => $values) {
-                    $revision = new Revision();
-                    $revision->setModelId($entity->getId());
-                    $revision->setModelType(get_class($entity));
-                    $revision->setPropertyName($property);
-                    $revision->setOldValue(method_exists($values[0], 'getId') ? $values[0]->getId() : $values[0]);
-                    $revision->setNewValue(method_exists($values[1], 'getId') ? $values[1]->getId() : $values[1]);
-                    $revision->setUser(Auth::check() ? Auth::user() : null);
-                    $em->persist($revision);
+                    $oldValue = $this->stringValue(
+                        method_exists($values[0], 'getId') ? $values[0]->getId() : $values[0]
+                    );
+                    $newValue = $this->stringValue(
+                        method_exists($values[1], 'getId') ? $values[1]->getId() : $values[1]
+                    );
+                    if ($oldValue !== $newValue) {
+                        $revision = new Revision();
+                        $revision->setModelId($entity->getId());
+                        $revision->setModelType(get_class($entity));
+                        $revision->setPropertyName($property);
+                        $revision->setOldValue($oldValue);
+                        $revision->setNewValue($newValue);
+                        $revision->setUser(Auth::check() ? Auth::user() : null);
+                        $em->persist($revision);
 
-                    // required during onFlush() event handling
-                    $revisionClassMetadata = $em->getClassMetadata(get_class($revision));
-                    $uow->computeChangeSet($revisionClassMetadata, $revision);
+                        // required during onFlush() event handling
+                        $revisionClassMetadata = $em->getClassMetadata(get_class($revision));
+                        $uow->computeChangeSet($revisionClassMetadata, $revision);
+                    }
                 }
             }
         }
+    }
+
+    private function stringValue($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return is_scalar($value) ? (string) $value : json_encode($value);
     }
 
     public function postLoad(LifecycleEventArgs $args)
