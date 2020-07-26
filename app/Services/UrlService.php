@@ -61,9 +61,7 @@ class UrlService
             ['domain' => $domain, 'prefix' => $prefix, 'url' => $url]
         );
 
-        /** @var Url|null $cachedModel */
-        $cachedModel = Cache::get(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url));
-
+        $cachedModel = $this->getCachedUrl($domain, $url, $prefix);
         if ($cachedModel) {
             Log::info(
                 'Successfully retrieved cached version of URL.',
@@ -82,5 +80,23 @@ class UrlService
         }
 
         return $cachedModel;
+    }
+
+    public function getCachedUrl(string $domain, string $url = null, string $prefix = null): ?Url
+    {
+        return Cache::get(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url));
+    }
+
+    public function cacheUrl(Url $url): void
+    {
+        Cache::set(
+            sprintf(
+                Url::URL_CACHE_KEY,
+                $url->getDomain()->getUrl(),
+                $url->isPrefixed() ? $url->getOrganization()->getPrefix() : null,
+                $url->getUrl()
+            ),
+            $url
+        );
     }
 }

@@ -7,6 +7,7 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 
 abstract class Repository extends EntityRepository
 {
@@ -30,11 +31,10 @@ abstract class Repository extends EntityRepository
 
         $doctrinePaginator = new DoctrinePaginator($query);
 
-        $results = iterator_to_array($doctrinePaginator);
         $path = Paginator::resolveCurrentPath();
 
         return new LengthAwarePaginator(
-            $results,
+            new Collection($doctrinePaginator),
             $doctrinePaginator->count(),
             $perPage,
             $page,
