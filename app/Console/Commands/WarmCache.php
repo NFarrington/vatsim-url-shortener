@@ -29,7 +29,7 @@ class WarmCache extends Command
             $urls = $this->urlRepository->findAll('id', 'asc', 200, $page);
             $this->info("Caching URL batch {$urls->firstItem()} to {$urls->lastItem()}.");
             foreach ($urls as $url) {
-                $this->urlService->cacheUrl($url);
+                $this->urlService->addUrlToCache($url);
             }
             $morePages = $urls->hasMorePages();
             $page++;

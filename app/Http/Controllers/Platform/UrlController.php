@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\DomainRepository;
 use App\Repositories\OrganizationRepository;
 use App\Repositories\UrlRepository;
+use App\Services\UrlService;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
@@ -23,18 +24,21 @@ class UrlController extends Controller
     protected UrlRepository $urlRepository;
     protected DomainRepository $domainRepository;
     protected OrganizationRepository $organizationRepository;
+    protected UrlService $urlService;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         UrlRepository $urlRepository,
         DomainRepository $domainRepository,
-        OrganizationRepository $organizationRepository
+        OrganizationRepository $organizationRepository,
+        UrlService $urlService
     ) {
         $this->middleware('platform');
         $this->entityManager = $entityManager;
         $this->urlRepository = $urlRepository;
         $this->domainRepository = $domainRepository;
         $this->organizationRepository = $organizationRepository;
+        $this->urlService = $urlService;
     }
 
     public function index(Request $request)
@@ -285,6 +289,7 @@ class UrlController extends Controller
 
         $this->entityManager->remove($url);
         $this->entityManager->flush();
+        $this->urlService->removeUrlFromCache($url);
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL deleted.');

@@ -87,7 +87,7 @@ class UrlService
         return Cache::get(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url));
     }
 
-    public function cacheUrl(Url $url): void
+    public function addUrlToCache(Url $url): void
     {
         Cache::set(
             sprintf(
@@ -97,6 +97,18 @@ class UrlService
                 $url->getUrl()
             ),
             $url
+        );
+    }
+
+    public function removeUrlFromCache(Url $url)
+    {
+        Cache::forget(
+            sprintf(
+                Url::URL_CACHE_KEY,
+                $url->getDomain()->getUrl(),
+                $url->isPrefixed() ? $url->getOrganization()->getPrefix() : null,
+                $url->getUrl()
+            )
         );
     }
 }

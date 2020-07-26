@@ -23,6 +23,6 @@ class CacheShortUrl
             return;
         }
 
-        $this->urlService->cacheUrl($url);
+        $this->urlService->addUrlToCache($url);
     }
 }
