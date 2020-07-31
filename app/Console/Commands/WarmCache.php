@@ -13,16 +13,11 @@ class WarmCache extends Command
     protected UrlService $urlService;
     protected UrlRepository $urlRepository;
 
-    public function __construct(UrlService $urlService, UrlRepository $urlRepository)
-    {
-        parent::__construct();
-
-        $this->urlService = $urlService;
-        $this->urlRepository = $urlRepository;
-    }
-
     public function handle()
     {
+        $this->urlService = app(UrlService::class);
+        $this->urlRepository = app(UrlRepository::class);
+
         $page = 1;
         $morePages = true;
         while ($morePages) {
