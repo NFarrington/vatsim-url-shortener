@@ -7,12 +7,13 @@ namespace App\Entities;
 use App\Entities\Traits\RecordsCreatedAt;
 use App\Entities\Traits\RecordsUpdatedAt;
 use App\Entities\Traits\RoutesNotifications;
-use App\Exceptions\UnexpectedCallException;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Carbon;
 
 /**
  * @ORM\Entity
@@ -98,6 +99,21 @@ class User extends Entity implements Authenticatable
     protected ?string $rememberToken = null;
 
     /**
+     * @ORM\Column(type="text", length=65535, nullable=true)
+     */
+    protected ?string $vatsimConnectAccessToken = null;
+
+    /**
+     * @ORM\Column(type="text", length=65535, nullable=true)
+     */
+    protected ?string $vatsimConnectRefreshToken = null;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    protected ?DateTime $vatsimConnectTokenExpiry = null;
+
+    /**
      * @ORM\Column(type="json", nullable=true)
      * @var mixed
      */
@@ -140,7 +156,7 @@ class User extends Entity implements Authenticatable
 
     public function getAuthPassword()
     {
-        throw new UnexpectedCallException('Password requested for passwordless user.');
+        return '';
     }
 
     public function getRememberToken(): string
@@ -236,6 +252,40 @@ class User extends Entity implements Authenticatable
     public function isAdmin()
     {
         return $this->admin;
+    }
+
+    public function getVatsimConnectAccessToken(): ?string
+    {
+        return $this->vatsimConnectAccessToken;
+    }
+
+    public function setVatsimConnectAccessToken(?string $vatsimConnectAccessToken): void
+    {
+        $this->vatsimConnectAccessToken = $vatsimConnectAccessToken;
+    }
+
+    public function getVatsimConnectRefreshToken(): ?string
+    {
+        return $this->vatsimConnectRefreshToken;
+    }
+
+    public function setVatsimConnectRefreshToken(?string $vatsimConnectRefreshToken): void
+    {
+        $this->vatsimConnectRefreshToken = $vatsimConnectRefreshToken;
+    }
+
+    public function getVatsimConnectTokenExpiry(): ?Carbon
+    {
+        $expiry = $this->vatsimConnectTokenExpiry;
+
+        return $expiry === null
+            ? null
+            : Carbon::instance($this->vatsimConnectTokenExpiry);
+    }
+
+    public function setVatsimConnectTokenExpiry(?DateTime $vatsimConnectTokenExpiry): void
+    {
+        $this->vatsimConnectTokenExpiry = $vatsimConnectTokenExpiry;
     }
 
     /**

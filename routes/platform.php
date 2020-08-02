@@ -10,6 +10,7 @@ Route::get('privacy-policy', 'Platform\InfoController@privacy')->name('platform.
 Route::get('platform/login', 'Platform\LoginController@showLoginForm')->name('platform.login');
 Route::post('platform/login/vatsim', 'Platform\VatsimLoginController@login')->name('platform.login.vatsim');
 Route::get('platform/login/vatsim/callback', 'Platform\VatsimLoginController@callback')->name('platform.login.vatsim.callback');
+Route::get('platform/login/vatsim-connect', 'Platform\VatsimConnectLoginController@login')->name('platform.login.vatsim-connect');
 Route::get('platform/login/two-factor', 'Platform\TwoFactorAuthController@showForm')->name('platform.login.two-factor');
 Route::post('platform/login/two-factor', 'Platform\TwoFactorAuthController@login');
 
