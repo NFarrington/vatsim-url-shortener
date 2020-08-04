@@ -12,6 +12,7 @@ use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\Request;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericProvider;
+use Log;
 
 class VatsimConnectLoginController extends Controller
 {
@@ -70,14 +71,16 @@ class VatsimConnectLoginController extends Controller
     public function login(Request $request)
     {
         if (!$request->has('code') || !$request->has('state')) {
-            $request->session()->put(self::VATSIM_CONNECT_SESSION_STATE_KEY, $this->provider->getState());
-
             $authorizationUrl = $this->provider->getAuthorizationUrl();
+
+            $request->session()->put(self::VATSIM_CONNECT_SESSION_STATE_KEY, $this->provider->getState());
 
             return redirect()->to($authorizationUrl);
         }
 
         if ($request->input('state') !== $request->session()->pull(self::VATSIM_CONNECT_SESSION_STATE_KEY)) {
+            Log::info('Login failure: invalid state.');
+
             return redirect()
                 ->route('platform.login')
                 ->with('error', 'VATSIM Connect login failed. Please try again.');
@@ -96,6 +99,8 @@ class VatsimConnectLoginController extends Controller
                 ]
             );
         } catch (IdentityProviderException $e) {
+            Log::info("Login failure: IdentityProviderException. {$e->getMessage()}");
+
             return redirect()
                 ->route('platform.login')
                 ->with('error', 'VATSIM Connect login failed. Please try again.');
@@ -108,6 +113,8 @@ class VatsimConnectLoginController extends Controller
         );
 
         if (!isset($resourceOwner->data) || !isset($resourceOwner->data->cid)) {
+            Log::info('Login failure: missing details.', ['resourceOwner' => $resourceOwner]);
+
             return redirect()
                 ->route('platform.login')
                 ->with('error', 'Required details missing. Please try again.');
@@ -137,6 +144,8 @@ class VatsimConnectLoginController extends Controller
         $this->em->flush();
 
         if (in_array($user->getId(), config('auth.banned_users'))) {
+            Log::info('Login failure: banned user.', ['resourceOwner' => $resourceOwner]);
+
             return redirect()->route('platform.login')
                 ->with('error', 'VATSIM Connect login failed. You are not authorized to use this service.');
         }
