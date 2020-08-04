@@ -70,6 +70,13 @@ class VatsimConnectLoginController extends Controller
 
     public function login(Request $request)
     {
+        if ($request->has('error')) {
+            $request->session()->forget(self::VATSIM_CONNECT_SESSION_STATE_KEY);
+
+            return redirect()->route('platform.login')
+                ->with('error', "VATSIM Connect login failed: {$request->get('error')}. Please try again.");
+        }
+
         if (!$request->has('code') || !$request->has('state')) {
             $authorizationUrl = $this->provider->getAuthorizationUrl();
 
@@ -83,7 +90,7 @@ class VatsimConnectLoginController extends Controller
 
             return redirect()
                 ->route('platform.login')
-                ->with('error', 'VATSIM Connect login failed. Please try again.');
+                ->with('error', 'VATSIM Connect login failed: invalid state. Please try again.');
         }
 
         return $this->verifyLogin($request);
@@ -103,7 +110,7 @@ class VatsimConnectLoginController extends Controller
 
             return redirect()
                 ->route('platform.login')
-                ->with('error', 'VATSIM Connect login failed. Please try again.');
+                ->with('error', 'VATSIM Connect login failed: IdentityProviderException. Please try again.');
         }
 
         $resourceOwner = json_decode(
@@ -117,7 +124,7 @@ class VatsimConnectLoginController extends Controller
 
             return redirect()
                 ->route('platform.login')
-                ->with('error', 'Required details missing. Please try again.');
+                ->with('error', 'VATSIM Connect login failed: required details missing. Please try again.');
         }
 
         $user = $this->userRepository->find($resourceOwner->data->cid);
