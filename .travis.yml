@@ -1,12 +1,12 @@
 language: php
 
+env:
+  global:
+    - IMAGE_NAME=nfarrington/vatsim-url-shortener
+
 php:
   - '7.4'
   - nightly
-
-matrix:
-  allow_failures:
-    - php: nightly
 
 addons:
   mariadb: '10.3'
@@ -17,6 +17,8 @@ install:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter && chmod +x ./cc-test-reporter
 
 before_script:
+  - IMAGE_VERSION=$(echo $TRAVIS_BRANCH | sed 's/^v//')
+  - IMAGE_TAG=${IMAGE_NAME}:${IMAGE_VERSION}
   - cp .env.travis .env
   - touch database/database.tests.sqlite
   - mysql -e 'CREATE DATABASE laravel;'
@@ -35,7 +37,36 @@ after_failure:
   - cat storage/logs/laravel.log
 
 after_script:
-  - if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT; fi
+  - ./cc-test-reporter after-build --coverage-input-type clover --exit-code $TRAVIS_TEST_RESULT
+
+jobs:
+  allow_failures:
+    - php: nightly
+  include:
+    - stage: Push Docker Images
+      php: '7.4'
+      script:
+        - docker build
+          --build-arg "APP_COMMIT=$TRAVIS_COMMIT"
+          --build-arg "APP_VERSION=$IMAGE_VERSION"
+          --target nginx
+          --tag ${IMAGE_TAG}-nginx .
+        - docker build
+          --build-arg "APP_COMMIT=$TRAVIS_COMMIT"
+          --build-arg "APP_VERSION=$IMAGE_VERSION"
+          --target php-fpm
+          --tag ${IMAGE_TAG}-php-fpm .
+      before_deploy:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      deploy:
+        - provider: script
+          script: docker push ${IMAGE_TAG}-nginx
+          on:
+            all_branches: true
+        - provider: script
+          script: docker push ${IMAGE_TAG}-php-fpm
+          on:
+            all_branches: true
 
 cache:
   directories:
