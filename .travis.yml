@@ -3,6 +3,8 @@ language: php
 env:
   global:
     - IMAGE_NAME=nfarrington/vatsim-url-shortener
+    - IMAGE_VERSION=$(echo $TRAVIS_BRANCH | sed 's/^v//')
+    - IMAGE_TAG=${IMAGE_NAME}:${IMAGE_VERSION}
 
 php:
   - '7.4'
@@ -17,8 +19,6 @@ install:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter && chmod +x ./cc-test-reporter
 
 before_script:
-  - IMAGE_VERSION=$(echo $TRAVIS_BRANCH | sed 's/^v//')
-  - IMAGE_TAG=${IMAGE_NAME}:${IMAGE_VERSION}
   - cp .env.travis .env
   - touch database/database.tests.sqlite
   - mysql -e 'CREATE DATABASE laravel;'
@@ -45,6 +45,8 @@ jobs:
   include:
     - stage: Push Docker Images
       php: '7.4'
+      install: skip
+      before_script: skip
       script:
         - docker build
           --build-arg "APP_COMMIT=$TRAVIS_COMMIT"
@@ -56,6 +58,8 @@ jobs:
           --build-arg "APP_VERSION=$IMAGE_VERSION"
           --target php-fpm
           --tag ${IMAGE_TAG}-php-fpm .
+      after_failure: skip
+      after_script: skip
       before_deploy:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       deploy:
