@@ -1,8 +1,7 @@
 <?php
 
-use App\Logging\LogTypeCustomizer;
+use App\Logging\EcsFormatter;
 use App\Logging\StacktraceCustomizer;
-use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -62,8 +61,8 @@ return [
                 'stream' => 'php://stderr',
                 'level' => Logger::DEBUG,
             ],
-            'formatter' => JsonFormatter::class,
-            'tap' => [LogTypeCustomizer::class, StacktraceCustomizer::class],
+            'formatter' => EcsFormatter::class,
+            'tap' => [StacktraceCustomizer::class],
         ],
 
         'daily' => [
