@@ -97,4 +97,15 @@ class UrlTest extends TestCase
             'request_uri' => $ignoredUrl->getUrl(),
         ]);
     }
+
+    /** @test */
+    function short_url_for_ip_address_resolves_to_app_url()
+    {
+        $domain = create(Domain::class, ['url' => config('app.url').'/']);
+        $url = create(Url::class, ['domain' => $domain]);
+        EntityManager::clear();
+
+        $this->get('http://127.0.0.1/'.$url->getUrl())
+            ->assertRedirect($url->getRedirectUrl());
+    }
 }
