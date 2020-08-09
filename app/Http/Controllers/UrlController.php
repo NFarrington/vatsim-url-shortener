@@ -33,11 +33,7 @@ class UrlController extends Controller
 
         $ipAddressRegex = '(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
         if (preg_match(sprintf('/^%s$/', $ipAddressRegex), $request->getHost()) === 1) {
-            $defaultHost = config('app.url');
-            $defaultHost = str_replace('http://', '', $defaultHost);
-            $defaultHost = str_replace('https://', '', $defaultHost);
-            $domain = preg_replace("/$ipAddressRegex/", $defaultHost, $request->root());
-            $url = $this->urlService->getRedirectForUrl($domain.'/', $shortUrl, $prefix);
+            $url = $this->urlService->getRedirectForUrl(config('app.url').'/', $shortUrl, $prefix);
         } else {
             $url = $this->urlService->getRedirectForUrl($request->root().'/', $shortUrl, $prefix);
         }
