@@ -57,6 +57,7 @@ RUN apk add --update --no-cache --virtual build-dependencies \
     && docker-php-ext-enable mcrypt \
     && docker-php-ext-install pdo_mysql \
     && docker-php-ext-install gd \
+    && docker-php-ext-install opcache \
     && docker-php-ext-install pcntl \
     && apk del build-dependencies
 
