@@ -37,6 +37,7 @@ Route::delete('platform/settings/two-factor', 'Platform\SettingsController@delet
 
 Route::get('platform/admin', 'Platform\Admin\AdminController@admin')->name('platform.admin');
 Route::resource('platform/admin/domains', 'Platform\Admin\DomainController', ['as' => 'platform.admin']);
+Route::get('platform/admin/generate-error/{statusCode?}', 'Platform\Admin\ErrorController@generateError')->name('platform.admin.generate-error');
 Route::resource('platform/admin/news', 'Platform\Admin\NewsController', ['as' => 'platform.admin']);
 
 Route::get('platform/support', 'Platform\InfoController@support')->name('platform.support');
