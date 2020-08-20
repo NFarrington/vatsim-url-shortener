@@ -214,6 +214,9 @@ class UrlController extends Controller
             $url->setOrganization(
                 $this->entityManager->getReference(Organization::class, $attributes['organization_id'])
             );
+            if ($attributes['prefix'] === true) {
+                $url->setPrefix(true);
+            }
         } else {
             $url->setUser($request->user());
         }

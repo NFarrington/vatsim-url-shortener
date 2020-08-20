@@ -132,6 +132,7 @@ class UrlTest extends TestCase
         $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
             'domain_id' => $url->getDomain()->getId(),
             'url' => $url->getUrl(),
+            'prefix' => true,
             'redirect_url' => $url->getRedirectUrl(),
             'organization_id' => $organization->getId(),
         ]);
