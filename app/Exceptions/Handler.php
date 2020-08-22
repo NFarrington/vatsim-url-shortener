@@ -2,8 +2,10 @@
 
 namespace App\Exceptions;
 
+use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -49,5 +51,14 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         return parent::render($request, $exception);
+    }
+
+    protected function prepareException(Exception $e)
+    {
+        if ($e instanceof EntityNotFoundException) {
+            return new NotFoundHttpException($e->getMessage(), $e);
+        }
+
+        return parent::prepareException($e);
     }
 }
