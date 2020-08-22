@@ -37,7 +37,9 @@ services:
     command: php artisan queue:work --sleep=3 --tries=3 --queue=default
     stop_signal: SIGTERM
     volumes:
-      - app-storage:/var/www/storage
+      - ./app:/var/www/html/app:ro
+      - ./resources:/var/www/html/resources:ro
+      - ./storage:/var/www/html/storage
     env_file: .env.docker
     healthcheck:
       test: php artisan queue:health || exit 1
@@ -56,6 +58,3 @@ services:
       MYSQL_USER: dev_vatsim_shorturl
       MYSQL_PASSWORD: secret
     restart: always
-
-volumes:
-  app-storage:
