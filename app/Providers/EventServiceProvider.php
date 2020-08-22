@@ -12,6 +12,7 @@ use App\Listeners\CacheShortUrlFromQueue;
 use App\Listeners\DeleteEmailVerificationListener;
 use App\Listeners\NotifyApplicationSubmittedListener;
 use App\Listeners\RecordJobProcessingListener;
+use App\Listeners\ResolveEntityManager;
 use App\Listeners\VerifyEmailListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Queue\Events\JobProcessing;
@@ -34,6 +35,11 @@ class EventServiceProvider extends ServiceProvider
 
         JobProcessing::class => [
             RecordJobProcessingListener::class,
+
+            // ensure the entity manager has been resolved before processing
+            // any queued jobs as this will also initialize the autoloader
+            // for Doctrine proxies - unserialize() could fail otherwise
+            ResolveEntityManager::class,
         ],
 
         PrefixApplicationCreatedEvent::class => [
