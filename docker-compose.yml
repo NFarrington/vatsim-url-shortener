@@ -1,5 +1,5 @@
-# docker-compose.yml for building and development
-
+---
+# *** FOR DEVELOPMENT USE ONLY *** #
 version: "3.7"
 services:
 
