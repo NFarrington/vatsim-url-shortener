@@ -183,7 +183,7 @@ class UrlController extends Controller
                     return $organization->getPrefix() === $attributes['prefix'];
                 }
             );
-            $organization = !empty($organizationsWithPrefix) ? $organizationsWithPrefix[0] : null;
+            $organization = array_shift($organizationsWithPrefix);
 
             if (!$organization) {
                 throw ValidationException::withMessages(
