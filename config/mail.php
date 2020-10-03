@@ -86,7 +86,7 @@ return [
 
     'username' => env('MAIL_USERNAME'),
 
-    'password' => env('MAIL_PASSWORD'),
+    'password' => docker_secret(env('MAIL_PASSWORD_SECRET')) ?: env('MAIL_PASSWORD'),
 
     /*
     |--------------------------------------------------------------------------
