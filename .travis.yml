@@ -43,7 +43,7 @@ jobs:
   allow_failures:
     - php: nightly
   include:
-    - stage: Push Docker Images
+    - stage: Push Docker Images (amd64)
       php: '7.4'
       install: skip
       before_script: skip
@@ -69,6 +69,35 @@ jobs:
             all_branches: true
         - provider: script
           script: docker push ${IMAGE_TAG}-php-fpm
+          on:
+            all_branches: true
+    - stage: Push Docker Images (arm64)
+      php: '7.4'
+      arch: arm64
+      install: skip
+      before_script: skip
+      script:
+        - docker build
+          --build-arg "APP_COMMIT=$TRAVIS_COMMIT"
+          --build-arg "APP_VERSION=$IMAGE_VERSION"
+          --target nginx
+          --tag ${IMAGE_TAG}-nginx-arm64 .
+        - docker build
+          --build-arg "APP_COMMIT=$TRAVIS_COMMIT"
+          --build-arg "APP_VERSION=$IMAGE_VERSION"
+          --target php-fpm
+          --tag ${IMAGE_TAG}-php-fpm-arm64 .
+      after_failure: skip
+      after_script: skip
+      before_deploy:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      deploy:
+        - provider: script
+          script: docker push ${IMAGE_TAG}-nginx-arm64
+          on:
+            all_branches: true
+        - provider: script
+          script: docker push ${IMAGE_TAG}-php-fpm-arm64
           on:
             all_branches: true
 

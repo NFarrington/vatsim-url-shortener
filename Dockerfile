@@ -18,7 +18,7 @@ RUN npm run production
 
 ########################################
 
-FROM nginxinc/nginx-unprivileged:1.17-alpine AS nginx
+FROM nginxinc/nginx-unprivileged:1.18-alpine AS nginx
 
 USER root
 
