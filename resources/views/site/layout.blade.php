@@ -49,13 +49,9 @@
                 <a class="nav-link{{ Request::routeIs('site.home') ? ' active' : '' }}" href="{{ route('site.home') }}">Home</a>
                 <a class="nav-link{{ Request::routeIs('site.about') ? ' active' : '' }}" href="{{ route('site.about') }}">About</a>
                 <a class="nav-link{{ Request::routeIs('site.contact') ? ' active' : '' }}" href="{{ route('site.contact') }}">Contact</a>
-                <a href="{{ route('platform.login.vatsim') }}" class="nav-link"
-                   onclick="event.preventDefault(); document.getElementById('vatsim-login-form').submit();">
+                <a href="{{ route('platform.login.vatsim-connect') }}" class="nav-link">
                     Login
                 </a>
-                <form id="vatsim-login-form" action="{{ route('platform.login.vatsim') }}" method="POST" style="display: none;">
-                    {{ csrf_field() }}
-                </form>
             </nav>
         </div>
     </header>

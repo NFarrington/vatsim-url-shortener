@@ -8,7 +8,12 @@
                 To continue, please log in below, or <a href="{{ route('site.home') }}">return to the main site</a>.
             </p>
             <p>
-                <a href="{{ route('platform.login.vatsim') }}" class="btn btn-lg btn-primary"
+                <a href="{{ route('platform.login.vatsim-connect') }}" class="btn btn-lg btn-primary">
+                    Login via VATSIM Connect (Beta)
+                </a>
+            </p>
+            <p>
+                <a href="{{ route('platform.login.vatsim') }}" class="btn btn-lg btn-secondary"
                    onclick="event.preventDefault(); document.getElementById('vatsim-login-form').submit();">
                     Login via VATSIM (Legacy)
                 </a>
@@ -17,11 +22,6 @@
                   style="display: none;">
                 {{ csrf_field() }}
             </form>
-            <p>
-                <a href="{{ route('platform.login.vatsim-connect') }}" class="btn btn-lg btn-secondary">
-                    Login via VATSIM Connect (Beta)
-                </a>
-            </p>
         </div>
     </div>
 @endsection

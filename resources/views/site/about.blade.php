@@ -12,13 +12,9 @@
         regions, divisions, ARTCCs, vACCs, controllers, and pilots to make use of what it has to offer.</p>
     <p>To get started, please log in below.</p>
     <p>
-        <a href="{{ route('platform.login.vatsim') }}" class="btn btn-lg btn-secondary"
-           onclick="event.preventDefault(); document.getElementById('vatsim-login-form').submit();">
+        <a href="{{ route('platform.login.vatsim-connect') }}" class="btn btn-lg btn-secondary">
             Login via VATSIM
         </a>
     </p>
-    <form id="vatsim-login-form" action="{{ route('platform.login.vatsim') }}" method="POST" style="display: none;">
-        {{ csrf_field() }}
-    </form>
 
 @endsection
