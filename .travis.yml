@@ -3,7 +3,7 @@ language: php
 env:
   global:
     - IMAGE_NAME=nfarrington/vatsim-url-shortener
-    - IMAGE_VERSION=$(echo $TRAVIS_BRANCH | sed 's/^v//')
+    - IMAGE_VERSION=`echo $TRAVIS_BRANCH | sed -r 's/^v([[:digit:]])/\1/'`
     - IMAGE_TAG=${IMAGE_NAME}:${IMAGE_VERSION}
 
 php:
