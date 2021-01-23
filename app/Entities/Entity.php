@@ -24,7 +24,12 @@ abstract class Entity implements UrlRoutable
         return 'id';
     }
 
-    public function resolveRouteBinding($value)
+    public function resolveRouteBinding($value, $field = null)
+    {
+        throw new UnexpectedCallException();
+    }
+
+    public function resolveChildRouteBinding($childType, $value, $field)
     {
         throw new UnexpectedCallException();
     }

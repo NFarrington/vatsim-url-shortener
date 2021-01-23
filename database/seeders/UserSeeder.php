@@ -1,9 +1,11 @@
 <?php
 
-use App\Models\Domain;
+namespace Database\Seeders;
+
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class DomainSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -12,6 +14,6 @@ class DomainSeeder extends Seeder
      */
     public function run()
     {
-        create(Domain::class, [], 5);
+        create(User::class, [], 20);
     }
 }

@@ -176,7 +176,6 @@ return [
          */
         Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         LaravelDoctrine\Extensions\GedmoExtensionsServiceProvider::class,
-        Vatsim\OAuthLaravel\OAuthServiceProvider::class,
 
         /*
          * Application Service Providers...

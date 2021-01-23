@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Macros\CarbonMacros;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Database\Migrations\Migrator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\ServiceProvider;
 
@@ -35,5 +36,7 @@ class AppServiceProvider extends ServiceProvider
         Carbon::macro('diffForHumansAt', function () {
             return CarbonMacros::diffForHumansAt($this);
         });
+
+        Paginator::useBootstrap();
     }
 }
