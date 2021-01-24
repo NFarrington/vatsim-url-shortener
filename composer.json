@@ -87,7 +87,7 @@
             "@php artisan key:generate --ansi"
         ],
         "deploy-dev": [
-            "npm install",
+            "npm ci",
             "@update-version",
             "@php artisan down",
             "@composer install",
