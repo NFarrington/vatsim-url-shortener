@@ -9,7 +9,7 @@
             </p>
             <p>
                 <a href="{{ route('platform.login.vatsim-connect') }}" class="btn btn-lg btn-primary">
-                    Login via VATSIM Connect (Beta)
+                    Login via VATSIM Connect
                 </a>
             </p>
         </div>
