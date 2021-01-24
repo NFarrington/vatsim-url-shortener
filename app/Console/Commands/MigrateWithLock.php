@@ -3,18 +3,26 @@
 namespace App\Console\Commands;
 
 use DB;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\Console\Migrations\MigrateCommand;
+use Illuminate\Database\Migrations\Migrator;
 use RuntimeException;
 
 class MigrateWithLock extends MigrateCommand
 {
-    protected $signature = 'migrate-with-lock {--database= : The database connection to use}
-                {--force : Force the operation to run when in production}
-                {--path=* : The path(s) to the migrations files to be executed}
-                {--realpath : Indicate any provided migration file paths are pre-resolved absolute paths}
-                {--pretend : Dump the SQL queries that would be run}
-                {--seed : Indicates if the seed task should be re-run}
-                {--step : Force the migrations to be run so they can be rolled back individually}';
+    /**
+     * Create a new migration command instance.
+     *
+     * @param \Illuminate\Database\Migrations\Migrator $migrator
+     * @param \Illuminate\Contracts\Events\Dispatcher $dispatcher
+     * @return void
+     */
+    public function __construct(Migrator $migrator, Dispatcher $dispatcher)
+    {
+        $this->signature = preg_replace('/^migrate/', 'migrate-with-lock', $this->signature);
+
+        parent::__construct($migrator, $dispatcher);
+    }
 
     public function handle()
     {
