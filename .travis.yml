@@ -31,7 +31,7 @@ before_script:
 
 script:
   - vendor/bin/phpunit --configuration phpunit.xml
-  - vendor/bin/phpunit --configuration phpunit.mysql.xml --coverage-clover build/logs/clover.xml
+  - XDEBUG_MODE=coverage vendor/bin/phpunit --configuration phpunit.mysql.xml --coverage-clover build/logs/clover.xml
 
 after_failure:
   - cat storage/logs/laravel.log
