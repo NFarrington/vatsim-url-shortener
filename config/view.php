@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Foundation\Application;
+
 return [
 
     /*
@@ -30,7 +32,7 @@ return [
 
     'compiled' => env(
         'VIEW_COMPILED_PATH',
-        realpath(storage_path('framework/views_laravel-6'))
+        realpath(storage_path('framework/views'))
     ),
 
 ];
