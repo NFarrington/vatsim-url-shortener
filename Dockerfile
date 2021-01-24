@@ -1,4 +1,4 @@
-FROM node:12-alpine AS resources
+FROM node:14-alpine AS resources
 
 WORKDIR /home/node/app
 RUN chown node:node /home/node/app
@@ -18,7 +18,7 @@ RUN npm run production
 
 ########################################
 
-FROM nginxinc/nginx-unprivileged:1.18-alpine AS nginx
+FROM nginxinc/nginx-unprivileged:1.19-alpine AS nginx
 
 USER root
 
