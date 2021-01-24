@@ -81,7 +81,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'admin' => \App\Http\Middleware\IsAdmin::class,
-        'auth.basic.once' => \App\Http\Middleware\AuthenticateOnceWithBasicAuth::class,
         'log-requests' => \App\Http\Middleware\LogRequests::class,
         'two-factor' => \App\Http\Middleware\TwoFactorAuth::class,
         'validate-email' => \App\Http\Middleware\CheckEmailVerified::class,
