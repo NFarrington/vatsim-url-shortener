@@ -2,7 +2,7 @@ const Bugsnag = require('@bugsnag/js');
 
 require('./bootstrap');
 
-window.Vue = require('vue');
+window.Vue = require('vue').default;
 
 Bugsnag.getPlugin('vue').installVueErrorHandler(Vue);
 
