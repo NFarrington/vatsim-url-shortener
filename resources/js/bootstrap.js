@@ -1,8 +1,11 @@
-const bugsnag = require('@bugsnag/js');
-window.bugsnagClient = bugsnag({
+const Bugsnag = require('@bugsnag/js');
+const BugsnagPluginVue = require('@bugsnag/plugin-vue');
+
+window.bugsnagClient = Bugsnag.start({
     apiKey: 'e23990720def37b4768db24be446ac74',
     appVersion: window.appEnv.version,
     releaseStage: window.appEnv.environment,
+    plugins: [new BugsnagPluginVue()],
 });
 
 window._ = require('lodash');

@@ -1,9 +1,10 @@
+const Bugsnag = require('@bugsnag/js');
+
 require('./bootstrap');
 
 window.Vue = require('vue');
 
-const bugsnagVue = require('@bugsnag/plugin-vue');
-window.bugsnagClient.use(bugsnagVue, window.Vue);
+Bugsnag.getPlugin('vue').installVueErrorHandler(Vue);
 
 Vue.component('flash', require('./components/Flash.vue').default);
 Vue.component('delete-resource', require('./components/ResourceDeleteForm.vue').default);
