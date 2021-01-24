@@ -28,6 +28,7 @@
         "laravel-doctrine/orm": "~1.7.2",
         "laravel/framework": "^8.12",
         "laravel/tinker": "^2.5",
+        "laravel/ui": "^3.2",
         "league/oauth2-client": "^2.5",
         "pragmarx/google2fa-qrcode": "^1.0"
     },
