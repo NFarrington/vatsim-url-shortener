@@ -2,47 +2,20 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\DatabaseKeepAlive;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Cache\Repository as Cache;
 use Illuminate\Contracts\Queue\Queue;
+use Illuminate\Support\Carbon;
 
 class QueueHealth extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'queue:health';
-
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Get the health of the queue.';
 
-    /**
-     * The cache service.
-     *
-     * @var \Illuminate\Contracts\Cache\Repository
-     */
-    protected $cache;
+    protected Cache $cache;
+    protected Queue $queue;
 
-    /**
-     * The queue service.
-     *
-     * @var \Illuminate\Contracts\Queue\Queue
-     */
-    protected $queue;
-
-    /**
-     * Create a new command instance.
-     *
-     * @param \Illuminate\Contracts\Cache\Repository $cache
-     * @param \Illuminate\Contracts\Queue\Queue $queue
-     * @return void
-     */
     public function __construct(Cache $cache, Queue $queue)
     {
         parent::__construct();
@@ -51,12 +24,19 @@ class QueueHealth extends Command
         $this->queue = $queue;
     }
 
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
-     */
     public function handle()
+    {
+        $queueHealth = $this->getQueueHealth();
+
+        $lastKeepAlive = $this->cache->get('queue.job.last-keep-alive');
+        if (!$lastKeepAlive || $lastKeepAlive->diffInMinutes() >= 5) {
+            DatabaseKeepAlive::dispatch();
+        }
+
+        return $queueHealth;
+    }
+
+    private function getQueueHealth()
     {
         $queueSize = $this->queue->size();
         if ($queueSize == 0) {
@@ -65,9 +45,9 @@ class QueueHealth extends Command
             return 0;
         }
 
-        /** @var \Illuminate\Support\Carbon $lastProcessed */
+        /** @var Carbon $lastProcessed */
         $lastProcessed = $this->cache->get('queue.job.last-processed');
-        if (!$lastProcessed || $lastProcessed->diffInSeconds() > 30) {
+        if (!$lastProcessed || $lastProcessed->diffInSeconds() >= 30) {
             $this->line("The queue has $queueSize items, and appears to be stale.");
 
             return 1;
