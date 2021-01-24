@@ -31,7 +31,7 @@ Route::get('platform/login/two-factor', [TwoFactorAuthController::class, 'showFo
 Route::post('platform/login/two-factor', [TwoFactorAuthController::class, 'login']);
 
 Route::get('platform/register', [RegistrationController::class, 'showRegistrationForm'])->name('platform.register');
-Route::post('platform/register', [RegistrationController::class, 'register'])->name('platform.register');
+Route::post('platform/register', [RegistrationController::class, 'register']);
 Route::get('platform/register/verify/{token}', [EmailVerificationController::class, 'verifyEmail'])->name('platform.register.verify');
 
 Route::post('platform/logout', [LoginController::class, 'logout'])->name('platform.logout');
