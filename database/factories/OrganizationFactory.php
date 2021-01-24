@@ -1,5 +1,7 @@
 <?php
 
+namespace Database\Factories;
+
 /** @var \LaravelDoctrine\ORM\Testing\Factory $factory */
 
 use App\Entities\Organization;

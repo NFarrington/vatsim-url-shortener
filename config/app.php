@@ -44,7 +44,7 @@ return [
     |
     */
 
-    'debug' => env('APP_DEBUG', false),
+    'debug' => (bool) env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -176,7 +176,6 @@ return [
          */
         Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
         LaravelDoctrine\Extensions\GedmoExtensionsServiceProvider::class,
-        Vatsim\OAuthLaravel\OAuthServiceProvider::class,
 
         /*
          * Application Service Providers...

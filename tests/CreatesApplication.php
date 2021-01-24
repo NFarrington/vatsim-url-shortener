@@ -19,8 +19,6 @@ trait CreatesApplication
 
         $app->make(Kernel::class)->bootstrap();
 
-        Hash::driver('bcrypt')->setRounds(4);
-
         // https://www.doctrine-project.org/projects/doctrine-annotations/en/1.10/index.html
         AnnotationRegistry::registerLoader('class_exists');
 

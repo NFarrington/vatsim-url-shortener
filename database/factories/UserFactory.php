@@ -1,9 +1,11 @@
 <?php
 
+namespace Database\Factories;
+
 /** @var \LaravelDoctrine\ORM\Testing\Factory $factory */
 use Faker\Generator as Faker;
 
-$factory->define(App\Entities\User::class, function (Faker $faker) {
+$factory->define(\App\Entities\User::class, function (Faker $faker) {
     return [
         'id' => mt_rand(800000, 2000000),
         'firstName' => $faker->firstName,
