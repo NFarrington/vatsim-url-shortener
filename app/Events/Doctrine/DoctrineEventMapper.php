@@ -35,10 +35,10 @@ class DoctrineEventMapper implements EventSubscriber
                 $trackableChangeSet = array_intersect_key($changeSet, array_flip($trackedProperties));
                 foreach ($trackableChangeSet as $property => $values) {
                     $oldValue = $this->stringValue(
-                        method_exists($values[0], 'getId') ? $values[0]->getId() : $values[0]
+                        is_object($values[0]) && method_exists($values[0], 'getId') ? $values[0]->getId() : $values[0]
                     );
                     $newValue = $this->stringValue(
-                        method_exists($values[1], 'getId') ? $values[1]->getId() : $values[1]
+                        is_object($values[1]) && method_exists($values[1], 'getId') ? $values[1]->getId() : $values[1]
                     );
                     if ($oldValue !== $newValue) {
                         $revision = new Revision();
