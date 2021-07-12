@@ -43,7 +43,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ########################################
 
-FROM php:7.4-fpm-alpine AS php-fpm
+FROM php:8.0-fpm-alpine AS php-fpm
 
 RUN apk add --update --no-cache --virtual build-dependencies \
         autoconf gcc g++ libtool make \

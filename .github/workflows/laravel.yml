@@ -13,11 +13,9 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
-        php: ["7.4"]
+        php: ["8.0"]
         experimental: [false]
         include:
-          - php: 8.0
-            experimental: true
           - php: 8.1
             experimental: true
     services:
