@@ -1,6 +1,11 @@
 name: Laravel
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 8 * * 6" # 8AM Saturdays
+  workflow_dispatch:
 
 jobs:
   laravel-tests:
