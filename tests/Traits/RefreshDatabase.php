@@ -113,6 +113,7 @@ trait RefreshDatabase
 
         $this->beforeApplicationDestroyed(function () use ($connection) {
             $connection->rollBack();
+            $connection->close();
         });
 
         //$dir = base_path().'/app/Entities';
