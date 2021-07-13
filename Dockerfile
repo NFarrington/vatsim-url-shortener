@@ -72,7 +72,7 @@ WORKDIR /var/www/html
 
 USER www-data
 
-ARG COMPOSER_VERSION=1.10.6
+ARG COMPOSER_VERSION=2.1.3
 RUN EXPECTED_SIGNATURE="$(curl -s https://composer.github.io/installer.sig)"; \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"; \
     ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"; \
