@@ -43,7 +43,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ########################################
 
-FROM php:7.4-fpm-alpine AS php-fpm
+FROM php:8.0-fpm-alpine AS php-fpm
 
 RUN apk add --update --no-cache --virtual build-dependencies \
         autoconf gcc g++ libtool make \
@@ -53,7 +53,7 @@ RUN apk add --update --no-cache --virtual build-dependencies \
         libpng-dev \
         unzip \
         fcgi \
-    && pecl install mcrypt-1.0.3 \
+    && pecl install mcrypt-1.0.4 \
     && docker-php-ext-enable mcrypt \
     && docker-php-ext-install pdo_mysql \
     && docker-php-ext-install gd \
@@ -72,7 +72,7 @@ WORKDIR /var/www/html
 
 USER www-data
 
-ARG COMPOSER_VERSION=1.10.6
+ARG COMPOSER_VERSION=2.1.3
 RUN EXPECTED_SIGNATURE="$(curl -s https://composer.github.io/installer.sig)"; \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"; \
     ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"; \
