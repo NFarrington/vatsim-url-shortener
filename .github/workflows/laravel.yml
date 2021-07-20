@@ -115,7 +115,7 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_TAG }}-nginx
           build-args: |
-            APP_COMMIT=${{ env.GITHUB_SHA }}
+            APP_COMMIT=${{ github.sha }}
             APP_VERSION=${{ env.IMAGE_VERSION }}
           target: nginx
           cache-from: type=local,src=/tmp/.buildx-cache
@@ -130,7 +130,7 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_TAG }}-php-fpm
           build-args: |
-            APP_COMMIT=${{ env.GITHUB_SHA }}
+            APP_COMMIT=${{ github.sha }}
             APP_VERSION=${{ env.IMAGE_VERSION }}
           target: php-fpm
           cache-from: type=local,src=/tmp/.buildx-cache
