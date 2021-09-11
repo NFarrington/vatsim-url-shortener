@@ -4,6 +4,7 @@ use App\Http\Controllers\Platform\Admin\AdminController;
 use App\Http\Controllers\Platform\Admin\DomainController;
 use App\Http\Controllers\Platform\Admin\ErrorController;
 use App\Http\Controllers\Platform\Admin\NewsController;
+use App\Http\Controllers\Platform\Admin\PrefixApplicationController;
 use App\Http\Controllers\Platform\DashboardController;
 use App\Http\Controllers\Platform\EmailVerificationController;
 use App\Http\Controllers\Platform\InfoController;
@@ -55,5 +56,8 @@ Route::get('platform/admin', [AdminController::class, 'admin'])->name('platform.
 Route::resource('platform/admin/domains', DomainController::class, ['as' => 'platform.admin']);
 Route::get('platform/admin/generate-error/{statusCode?}', [ErrorController::class, 'generateError'])->name('platform.admin.generate-error');
 Route::resource('platform/admin/news', NewsController::class, ['as' => 'platform.admin']);
+Route::post('platform/admin/prefix-applications/{prefixApplication}/approve', [PrefixApplicationController::class, 'approve'])->name('platform.admin.prefix-applications.approve');
+Route::post('platform/admin/prefix-applications/{prefixApplication}/reject', [PrefixApplicationController::class, 'reject'])->name('platform.admin.prefix-applications.reject');
+Route::resource('platform/admin/prefix-applications', PrefixApplicationController::class, ['as' => 'platform.admin', 'parameters' => ['prefix-applications' => 'prefixApplication']]);
 
 Route::get('platform/support', [InfoController::class, 'support'])->name('platform.support');

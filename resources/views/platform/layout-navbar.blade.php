@@ -27,6 +27,8 @@
                                href="{{ route('platform.admin.domains.index') }}">Domains</a>
                             <a class="dropdown-item{{ Request::routeIs('platform.admin.news.*') ? ' active' : '' }}"
                                href="{{ route('platform.admin.news.index') }}">News</a>
+                            <a class="dropdown-item{{ Request::routeIs('platform.admin.prefix-applications.*') ? ' active' : '' }}"
+                               href="{{ route('platform.admin.prefix-applications.index') }}">Prefix Applications</a>
                         </div>
                     </li>
                 @endcan

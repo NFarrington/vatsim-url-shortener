@@ -4,12 +4,16 @@ namespace App\Providers;
 
 use App\Events\EmailChangedEvent;
 use App\Events\EmailVerifiedEvent;
+use App\Events\PrefixApplicationApprovedEvent;
 use App\Events\PrefixApplicationCreatedEvent;
+use App\Events\PrefixApplicationRejectedEvent;
 use App\Events\UrlRetrieved;
 use App\Events\UrlSaved;
 use App\Listeners\CacheShortUrl;
 use App\Listeners\CacheShortUrlFromQueue;
 use App\Listeners\DeleteEmailVerificationListener;
+use App\Listeners\NotifyApplicationApprovedListener;
+use App\Listeners\NotifyApplicationRejectedListener;
 use App\Listeners\NotifyApplicationSubmittedListener;
 use App\Listeners\RecordJobProcessingListener;
 use App\Listeners\ResolveEntityManager;
@@ -42,8 +46,16 @@ class EventServiceProvider extends ServiceProvider
             ResolveEntityManager::class,
         ],
 
+        PrefixApplicationApprovedEvent::class => [
+            NotifyApplicationApprovedListener::class,
+        ],
+
         PrefixApplicationCreatedEvent::class => [
             NotifyApplicationSubmittedListener::class,
+        ],
+
+        PrefixApplicationRejectedEvent::class => [
+            NotifyApplicationRejectedListener::class,
         ],
 
         UrlRetrieved::class => [

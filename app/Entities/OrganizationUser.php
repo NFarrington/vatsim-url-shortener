@@ -81,4 +81,14 @@ class OrganizationUser extends Entity
     {
         $this->roleId = $roleId;
     }
+
+    public function getRoleName(): string
+    {
+        return match ($this->roleId) {
+            self::ROLE_OWNER => 'Owner',
+            self::ROLE_MANAGER => 'Manager',
+            self::ROLE_MEMBER => 'Member',
+            default => 'Unknown',
+        };
+    }
 }

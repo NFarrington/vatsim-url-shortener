@@ -107,6 +107,22 @@ class Organization extends Entity
 
     /**
      * @param int|null $roleId
+     * @return OrganizationUser[]
+     */
+    public function getOrganizationUsers(int $roleId = null): array
+    {
+        if ($roleId === null) {
+            return $this->organizationUsers
+                ->toArray();
+        }
+
+        return $this->organizationUsers
+            ->filter(fn (OrganizationUser $organizationUser) => $organizationUser->getRoleId() === $roleId)
+            ->toArray();
+    }
+
+    /**
+     * @param int|null $roleId
      * @return User[]
      */
     public function getUsers(int $roleId = null): array
