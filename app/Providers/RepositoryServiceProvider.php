@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Entities\Domain;
 use App\Entities\News;
 use App\Entities\Organization;
+use App\Entities\OrganizationPrefixApplication;
 use App\Entities\OrganizationUser;
 use App\Entities\Url;
 use App\Entities\User;
@@ -12,6 +13,7 @@ use App\Repositories\DomainRepository;
 use App\Repositories\NewsRepository;
 use App\Repositories\OrganizationRepository;
 use App\Repositories\OrganizationUserRepository;
+use App\Repositories\PrefixApplicationRepository;
 use App\Repositories\UrlRepository;
 use App\Repositories\UserRepository;
 use App\Services\UrlService;
@@ -26,6 +28,7 @@ class RepositoryServiceProvider extends ServiceProvider
         News::class => NewsRepository::class,
         Organization::class => OrganizationRepository::class,
         OrganizationUser::class => OrganizationUserRepository::class,
+        OrganizationPrefixApplication::class => PrefixApplicationRepository::class,
         Url::class => UrlRepository::class,
         User::class => UserRepository::class,
     ];
