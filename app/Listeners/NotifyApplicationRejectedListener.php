@@ -13,6 +13,7 @@ class NotifyApplicationRejectedListener
         Notification::send(
             $event->prefixApplication->getUser(),
             new PrefixApplicationRejectedNotification(
+                $event->prefixApplication->getUser()->getFirstName(),
                 $event->prefixApplication->getOrganization()->getName(),
                 $event->reason,
             )

@@ -10,11 +10,13 @@ class PrefixApplicationRejectedNotification extends Notification implements Shou
 {
     use Queueable;
 
+    protected string $firstName;
     protected string $organizationName;
     protected string $reason;
 
-    public function __construct(string $organizationName, string $reason)
+    public function __construct(string $firstName, string $organizationName, string $reason)
     {
+        $this->firstName = $firstName;
         $this->organizationName = $organizationName;
         $this->reason = $reason;
     }
@@ -35,7 +37,7 @@ class PrefixApplicationRejectedNotification extends Notification implements Shou
         return (new MailMessage())
             ->subject('VATS.IM Prefix Application - Status Update')
             ->markdown('mail.prefix-application.rejected', [
-                'name' => $notifiable->getfirstName(),
+                'name' => $this->firstName,
                 'organizationName' => $this->organizationName,
                 'reason' => $this->reason,
             ]);

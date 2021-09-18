@@ -13,6 +13,7 @@ class NotifyApplicationApprovedListener
         Notification::send(
             $event->prefixApplication->getUser(),
             new PrefixApplicationApprovedNotification(
+                $event->prefixApplication->getUser()->getFirstName(),
                 $event->prefixApplication->getOrganization()->getName(),
                 $event->prefix,
             )
