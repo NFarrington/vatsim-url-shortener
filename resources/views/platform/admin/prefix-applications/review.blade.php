@@ -54,7 +54,7 @@
                 <div class="col-sm-10">
                     <textarea type="text" class="form-control{{ $errors->has('reason') ? ' is-invalid' : '' }}"
                               id="inputReason" name="reason" required
-                              maxlength="100" rows="3">{{ old('reason') }}</textarea>
+                              rows="3">{{ old('reason') }}</textarea>
                     @if ($errors->has('reason'))
                     <div class="invalid-feedback">
                         {{ $errors->first('reason') }}
