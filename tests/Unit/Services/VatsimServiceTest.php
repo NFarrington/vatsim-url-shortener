@@ -19,7 +19,7 @@ class VatsimServiceTest extends TestCase
 {
     use ArraySubsetAsserts, RefreshDatabase;
 
-    const USER_CID = 1104930, USER_FIRST_NAME = 'Robert', USER_LAST_NAME = 'Baratheon';
+    const USER_CID = 1104930;
 
     /** @test */
     function retrieves_user_data_from_cert()
@@ -30,64 +30,49 @@ class VatsimServiceTest extends TestCase
 
         $this->assertArraySubset([
             'id' => self::USER_CID,
-            'name_first' => self::USER_FIRST_NAME,
-            'name_last' => self::USER_LAST_NAME,
         ], $user);
     }
 
     /** @test */
     function throws_exception_if_id_not_in_response()
     {
-        $this->given_cert_responds_with_a_deleted_user();
+        $this->given_cert_responds_with_a_missing_user();
 
         $this->assertThrowsWithMessage(
             InvalidResponseException::class,
-            sprintf("User ID  does not match expected %s", self::USER_CID),
+            sprintf("missing keys from https://api.vatsim.net/api/ratings/%s/: id", self::USER_CID),
             fn() => app(VatsimService::class)->getUser(self::USER_CID)
         );
     }
 
     /** @test */
-    function throws_exception_if_missing_data()
+    function throws_exception_if_id_is_different_from_expected()
     {
-        $this->given_cert_responds_with_a_user_with_no_last_name();
+        $this->given_cert_responds_with_a_valid_user(1234);
 
         $this->assertThrowsWithMessage(
             InvalidResponseException::class,
-            sprintf("Missing keys from https://cert.vatsim.net/vatsimnet/idstatusint.php?cid=%s: name_last", self::USER_CID),
+            sprintf("user id 1234 does not match expected %s", self::USER_CID),
             fn() => app(VatsimService::class)->getUser(self::USER_CID)
         );
     }
 
-    private function given_cert_responds_with_a_valid_user()
+    private function given_cert_responds_with_a_valid_user($id = self::USER_CID)
     {
         $rawXmlResponse = /** @lang text */
             <<<EOT
-            <?xml version="1.0" encoding="utf-8"?>
-            <root><user cid="%s"><name_last>%s</name_last><name_first>%s</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
+            {"id":"%s","rating":4,"pilotrating":0,"susp_date":null,"reg_date":"2009-04-08T21:51:39","region":"EMEA","division":"GBR","subdivision":" ","lastratingchange":"2014-09-27T11:49:39"}
             EOT;
-        $rawXmlResponse = sprintf($rawXmlResponse, self::USER_CID, self::USER_LAST_NAME, self::USER_FIRST_NAME);
+        $rawXmlResponse = sprintf($rawXmlResponse, $id);
         $this->mock_cert_response($rawXmlResponse);
     }
 
-    private function given_cert_responds_with_a_deleted_user()
+    private function given_cert_responds_with_a_missing_user()
     {
         $rawXmlResponse = /** @lang text */
             <<<EOT
-            <?xml version="1.0" encoding="utf-8"?>
-            <root><user cid=""><name_last></name_last><name_first></name_first><email>[hidden]</email><rating>Suspended</rating><regdate></regdate><pilotrating>P0</pilotrating><country></country><region></region><division></division><atctime></atctime><pilottime></pilottime></user></root>
+            {"detail":"Not found."}
             EOT;
-        $this->mock_cert_response($rawXmlResponse);
-    }
-
-    private function given_cert_responds_with_a_user_with_no_last_name()
-    {
-        $rawXmlResponse = /** @lang text */
-            <<<EOT
-            <?xml version="1.0" encoding="utf-8"?>
-            <root><user cid="%s"><name_first>%s</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
-            EOT;
-        $rawXmlResponse = sprintf($rawXmlResponse, self::USER_CID, self::USER_FIRST_NAME);
         $this->mock_cert_response($rawXmlResponse);
     }
 

@@ -57,10 +57,10 @@ class OrganizationUsersTest extends TestCase
         EntityManager::clear();
 
         $user = make(User::class);
-        $response = <<<EOT
-<?xml version="1.0" encoding="utf-8"?>
-<root><user cid="{$user->getId()}"><name_last>{$user->getLastName()}</name_last><name_first>{$user->getFirstName()}</name_first><email>[hidden]@example.com</email><rating>Observer</rating><regdate>2000-01-01 00:00:00</regdate><pilotrating>P1</pilotrating><country>GB</country><region>Europe</region><division>United Kingdom</division><atctime>1.111</atctime><pilottime>1.111</pilottime></user></root>
-EOT;
+        $response = /** @lang text */
+            <<<EOT
+            {"id":"{$user->getId()}","rating":4,"pilotrating":0,"susp_date":null,"reg_date":"2009-04-08T21:51:39","region":"EMEA","division":"GBR","subdivision":" ","lastratingchange":"2014-09-27T11:49:39"}
+            EOT;
         $mock = new MockHandler([
             new Response(200, [], $response),
         ]);
