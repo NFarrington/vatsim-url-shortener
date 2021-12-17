@@ -30,7 +30,7 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="stylesheet" href="{{ mix('css/cover.css') }}">
+    <link rel="stylesheet" href="/assets/{{ config('app.version.name') }}/css/cover.css">
 
     @stack('meta')
 </head>
@@ -69,7 +69,7 @@
 </div>
 
 @include('common.environment-js')
-<script src="{{ mix('js/app.js') }}"></script>
+<script src="/assets/{{ config('app.version.name') }}/js/app.js"></script>
 
 </body>
 </html>
