@@ -16,7 +16,7 @@
     <meta name="description" content="VATS.IM is a URL shortening service for the VATSIM network.">
     <meta property="og:title" content="VATS.IM URL Shortener">
     <meta property="og:description" content="A URL shortener for VATSIM">
-    <meta property="og:image" content="/img/cover.jpg">
+    <meta property="og:image" content="/assets/img/cover.jpg">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
