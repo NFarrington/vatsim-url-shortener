@@ -12,7 +12,6 @@ const mix = require('laravel-mix');
  */
 
 mix.setPublicPath('public')
-    .js('resources/js/app.js', 'public/js').vue()
-    .sass('resources/sass/app.scss', 'public/css')
-    .sass('resources/sass/cover.scss', 'public/css')
-    .version();
+    .js('resources/js/app.js', 'public/assets/build/js').vue()
+    .sass('resources/sass/app.scss', 'public/assets/build/css')
+    .sass('resources/sass/cover.scss', 'public/assets/build/css');

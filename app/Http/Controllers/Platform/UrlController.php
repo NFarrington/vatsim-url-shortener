@@ -111,7 +111,7 @@ class UrlController extends Controller
                     'min:3',
                     'max:30',
                     'regex:/^[0-9a-zA-Z_-]+$/',
-                    'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy',
+                    'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy,assets',
                 ],
                 'redirect_url' => 'required|url|max:1000',
                 'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
