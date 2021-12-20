@@ -10,23 +10,29 @@ use App\Repositories\DomainRepository;
 use App\Repositories\OrganizationRepository;
 use App\Repositories\UrlRepository;
 use App\Services\UrlService;
+use Aws\SimpleDb\SimpleDbClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
 
 class UrlController extends Controller
 {
+    protected SimpleDbClient $simpleDbClient;
     protected EntityManagerInterface $entityManager;
     protected UrlRepository $urlRepository;
     protected DomainRepository $domainRepository;
     protected OrganizationRepository $organizationRepository;
     protected UrlService $urlService;
 
+    const simpleDbDomainName = 'VatsimUrlShortenerUrls';
+
     public function __construct(
+        SimpleDbClient $simpleDbClient,
         EntityManagerInterface $entityManager,
         UrlRepository $urlRepository,
         DomainRepository $domainRepository,
@@ -34,6 +40,7 @@ class UrlController extends Controller
         UrlService $urlService
     ) {
         $this->middleware('platform');
+        $this->simpleDbClient = $simpleDbClient;
         $this->entityManager = $entityManager;
         $this->urlRepository = $urlRepository;
         $this->domainRepository = $domainRepository;
@@ -223,6 +230,7 @@ class UrlController extends Controller
         $this->authorize('create', $url);
         $this->entityManager->persist($url);
         $this->entityManager->flush();
+        $this->createOrUpdateUrlInSimpleDb($url);
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL created.');
@@ -281,6 +289,7 @@ class UrlController extends Controller
         }
 
         $this->entityManager->flush();
+        $this->createOrUpdateUrlInSimpleDb($url);
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL updated.');
@@ -292,9 +301,25 @@ class UrlController extends Controller
 
         $this->entityManager->remove($url);
         $this->entityManager->flush();
+        $this->simpleDbClient->deleteAttributes([
+            'DomainName' => self::simpleDbDomainName,
+            'ItemName'   => $url->getFullUrl(),
+        ]);
         $this->urlService->removeUrlFromCache($url);
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL deleted.');
+    }
+
+    protected function createOrUpdateUrlInSimpleDb(Url $url)
+    {
+        $this->simpleDbClient->putAttributes([
+            'DomainName' => self::simpleDbDomainName,
+            'ItemName'   => $url->getFullUrl(),
+            'Attributes' => [
+                ['Name' => 'RedirectUrl', 'Value' => $url->getRedirectUrl(), 'Replace' => true],
+                ['Name' => 'UpdatedAt', 'Value' => Carbon::now()->toIso8601ZuluString(), 'Replace' => true]
+            ],
+        ]);
     }
 }
