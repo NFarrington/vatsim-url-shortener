@@ -10,6 +10,7 @@ use App\Repositories\DomainRepository;
 use App\Repositories\OrganizationRepository;
 use App\Repositories\UrlRepository;
 use App\Services\UrlService;
+use Aws\Middleware;
 use Aws\SimpleDb\SimpleDbClient;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -19,6 +20,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Fluent;
 use Illuminate\Validation\ValidationException;
+use Psr\Http\Message\RequestInterface;
 
 class UrlController extends Controller
 {
@@ -311,15 +313,24 @@ class UrlController extends Controller
             ->with('success', 'URL deleted.');
     }
 
-    protected function createOrUpdateUrlInSimpleDb(Url $url)
+    public function createOrUpdateUrlInSimpleDb(Url $url)
     {
-        $this->simpleDbClient->putAttributes([
+        $putAttributesCommand = $this->simpleDbClient->getCommand('putAttributes', [
             'DomainName' => self::simpleDbDomainName,
             'ItemName'   => $url->getFullUrl(),
             'Attributes' => [
                 ['Name' => 'RedirectUrl', 'Value' => $url->getRedirectUrl(), 'Replace' => true],
-                ['Name' => 'UpdatedAt', 'Value' => Carbon::now()->toIso8601ZuluString(), 'Replace' => true]
+                ['Name' => 'UpdatedAt', 'Value' => Carbon::now()->toIso8601ZuluString(), 'Replace' => true],
             ],
         ]);
+
+        $putAttributesCommand->getHandlerList()->appendBuild(
+            Middleware::mapRequest(function (RequestInterface $request) {
+                return $request->withHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+            }),
+            'add-header'
+        );
+
+        $this->simpleDbClient->execute($putAttributesCommand);
     }
 }

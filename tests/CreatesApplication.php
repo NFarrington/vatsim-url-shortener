@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Aws\Command;
 use Aws\SimpleDb\SimpleDbClient;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Illuminate\Contracts\Console\Kernel;
@@ -28,7 +29,12 @@ trait CreatesApplication
         $app->instance(
             SimpleDbClient::class,
             Mockery::mock(SimpleDbClient::class, function (MockInterface $mock) {
-                $mock->allows('putAttributes');
+                $mock->allows('getCommand')->andReturns(
+                    Mockery::mock(Command::class, function (MockInterface $mock) {
+                        $mock->allows('getHandlerList->appendBuild');
+                    })
+                );
+                $mock->allows('execute');
                 $mock->allows('deleteAttributes');
             })
         );
