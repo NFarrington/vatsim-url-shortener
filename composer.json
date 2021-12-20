@@ -15,6 +15,7 @@
         "ext-pdo": "*",
         "ext-simplexml": "*",
         "aws/aws-sdk-php": "^3.130",
+        "aws/aws-sdk-php-v3-bridge": "^0.3.0",
         "bacon/bacon-qr-code": "^1.0",
         "bugsnag/bugsnag-laravel": "^2.0",
         "doctrine/dbal": "^2.7",
