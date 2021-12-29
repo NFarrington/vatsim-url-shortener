@@ -19,6 +19,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Fluent;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\RequestInterface;
 
@@ -317,7 +318,7 @@ class UrlController extends Controller
     {
         $putAttributesCommand = $this->simpleDbClient->getCommand('putAttributes', [
             'DomainName' => self::simpleDbDomainName,
-            'ItemName'   => $url->getFullUrl(),
+            'ItemName'   => Str::lower($url->getFullUrl()),
             'Attributes' => [
                 ['Name' => 'RedirectUrl', 'Value' => $url->getRedirectUrl(), 'Replace' => true],
                 ['Name' => 'UpdatedAt', 'Value' => Carbon::now()->toIso8601ZuluString(), 'Replace' => true],

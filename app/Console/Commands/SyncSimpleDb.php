@@ -7,6 +7,7 @@ use Aws\Middleware;
 use Aws\SimpleDb\SimpleDbClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Psr\Http\Message\RequestInterface;
 
 class SyncSimpleDb extends Command
@@ -33,7 +34,7 @@ class SyncSimpleDb extends Command
             $items = [];
             foreach ($urls as $url) {
                 $items[] = [
-                    'Name' => $url->getFullUrl(),
+                    'Name' => Str::lower($url->getFullUrl()),
                     'Attributes' => [
                         ['Name' => 'RedirectUrl', 'Value' => $url->getRedirectUrl(), 'Replace' => true],
                         ['Name' => 'UpdatedAt', 'Value' => $now, 'Replace' => true],
