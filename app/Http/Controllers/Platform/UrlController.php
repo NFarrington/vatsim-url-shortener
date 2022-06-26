@@ -306,7 +306,7 @@ class UrlController extends Controller
         $this->entityManager->flush();
         $this->simpleDbClient->deleteAttributes([
             'DomainName' => self::simpleDbDomainName,
-            'ItemName'   => $url->getFullUrl(),
+            'ItemName'   => Str::lower($url->getFullUrl()),
         ]);
         $this->urlService->removeUrlFromCache($url);
 
