@@ -89,6 +89,11 @@ class User extends Entity implements Authenticatable
     protected bool $admin = false;
 
     /**
+     * @ORM\Column(type="boolean", options={"default": 0})
+     */
+    protected bool $banned = false;
+
+    /**
      * @ORM\Column(type="string", nullable=true)
      */
     protected ?string $totpSecret = null;
@@ -254,6 +259,11 @@ class User extends Entity implements Authenticatable
         return $this->admin;
     }
 
+    public function isBanned()
+    {
+        return $this->banned;
+    }
+
     public function getVatsimConnectAccessToken(): ?string
     {
         return $this->vatsimConnectAccessToken;
@@ -317,6 +327,11 @@ class User extends Entity implements Authenticatable
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;
+    }
+
+    public function setBanned(bool $banned): void
+    {
+        $this->banned = $banned;
     }
 
     public function routeNotificationForMail(Notification $notification)

@@ -58,6 +58,7 @@ class Kernel extends HttpKernel
         'platform' => [
             'auth:web',
             'two-factor',
+            'validate-ban-status',
             'validate-email',
         ],
     ];
@@ -83,6 +84,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\IsAdmin::class,
         'log-requests' => \App\Http\Middleware\LogRequests::class,
         'two-factor' => \App\Http\Middleware\TwoFactorAuth::class,
+        'validate-ban-status' => \App\Http\Middleware\CheckBanStatus::class,
         'validate-email' => \App\Http\Middleware\CheckEmailVerified::class,
     ];
 
