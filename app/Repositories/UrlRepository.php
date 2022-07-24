@@ -58,8 +58,12 @@ class UrlRepository extends Repository
         $dql = <<<DQL
             SELECT u, d FROM App\Entities\Url u 
             JOIN u.domain d
-            WHERE u.user IS NULL
+            WHERE (
+                u.user IS NULL
                 AND u.organization IS NULL
+            ) OR (
+                u.global = 1
+            )
             $orderByQuery
         DQL;
 

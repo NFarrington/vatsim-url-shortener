@@ -53,8 +53,21 @@ class UrlTest extends TestCase
             ->assertSee($url->getUrl());
     }
 
+
     /** @test */
     function index_page_loads_global_urls()
+    {
+        $url = create(Url::class, [
+            'global' => 1,
+        ]);
+        $this->get(route('platform.urls.index'))
+            ->assertStatus(200)
+            ->assertSee('Public URLs')
+            ->assertSee($url->getUrl());
+    }
+
+    /** @test */
+    function index_page_loads_urls_with_no_assigned_owner_as_global()
     {
         $url = create(Url::class, [
             'user' => null,
