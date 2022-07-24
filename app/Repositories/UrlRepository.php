@@ -62,7 +62,7 @@ class UrlRepository extends Repository
                 u.user IS NULL
                 AND u.organization IS NULL
             ) OR (
-                u.global = 1
+                u.public = 1
             )
             $orderByQuery
         DQL;
