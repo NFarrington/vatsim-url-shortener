@@ -26,16 +26,24 @@ class UrlTest extends TestCase
     }
 
     /** @test */
-    function index_page_loads_successfully()
+    function index_page_loads()
     {
         $this->get(route('platform.urls.index'))
             ->assertStatus(200);
+    }
 
+    /** @test */
+    function index_page_loads_personal_urls()
+    {
         $url = create(Url::class, ['user' => $this->user]);
         $this->get(route('platform.urls.index'))
             ->assertStatus(200)
             ->assertSee($url->getUrl());
+    }
 
+    /** @test */
+    function index_page_loads_organization_urls()
+    {
         $organization = create(Organization::class);
         create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
         EntityManager::refresh($organization);
@@ -43,6 +51,40 @@ class UrlTest extends TestCase
         $this->get(route('platform.urls.index'))
             ->assertStatus(200)
             ->assertSee($url->getUrl());
+    }
+
+
+    /** @test */
+    function index_page_loads_public_urls()
+    {
+        $url = create(Url::class, [
+            'public' => 1,
+        ]);
+        $this->get(route('platform.urls.index'))
+            ->assertStatus(200)
+            ->assertSee('Public URLs')
+            ->assertSee($url->getUrl());
+    }
+
+    /** @test */
+    function index_page_loads_urls_with_no_assigned_owner_as_public()
+    {
+        $url = create(Url::class, [
+            'user' => null,
+            'organization' => null,
+        ]);
+        $this->get(route('platform.urls.index'))
+            ->assertStatus(200)
+            ->assertSee('Public URLs')
+            ->assertSee($url->getUrl());
+    }
+
+    /** @test */
+    function index_page_doesnt_have_public_urls_when_none_exist()
+    {
+        $this->get(route('platform.urls.index'))
+            ->assertStatus(200)
+            ->assertDontSee('Public URLs');
     }
 
     /** @test */

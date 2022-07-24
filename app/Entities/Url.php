@@ -72,6 +72,11 @@ class Url extends Entity
     /**
      * @ORM\Column(type="boolean", options={"default": 0})
      */
+    protected bool $public = false;
+
+    /**
+     * @ORM\Column(type="boolean", options={"default": 0})
+     */
     protected bool $analyticsDisabled = false;
 
     /**

@@ -10,7 +10,7 @@
             <div class="card-header">
                 <span class="lead">Public URLs</span>
                 <small class="text-muted">
-                    A collection of URLs which may be of use to all users.
+                    A collection of URLs which may be of use to all users. Some URLs may be controlled by VATSIM or other third parties.
                 </small>
             </div>
 
