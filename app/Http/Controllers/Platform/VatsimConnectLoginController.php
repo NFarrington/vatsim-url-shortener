@@ -150,6 +150,15 @@ class VatsimConnectLoginController extends Controller
         $this->em->persist($user);
         $this->em->flush();
 
+        $atcRating = $resourceOwner->data->vatsim->rating->id ?? null;
+        $pilotRating = $resourceOwner->data->vatsim->pilotrating->id ?? null;
+        if (is_null($atcRating) && is_null($pilotRating)) {
+            Log::info('Login failure: no rating.', ['resourceOwner' => $resourceOwner]);
+
+            return redirect()->route('platform.login')
+                ->with('error', 'VATSIM Connect login failed. You must have an ATC or pilot rating to log in.');
+        }
+
         if (in_array($user->getId(), config('auth.banned_users'))) {
             Log::info('Login failure: banned user.', ['resourceOwner' => $resourceOwner]);
 
