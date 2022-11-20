@@ -101,7 +101,8 @@
             "@php artisan up"
         ],
         "docker-build": [
-            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest"
+            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest",
+            "@php artisan html:generate"
         ],
         "docker-entrypoint": [
             "@php artisan config:cache",

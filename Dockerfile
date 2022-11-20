@@ -95,6 +95,7 @@ COPY --from=resources /home/node/app/public /var/www/html/public
 
 USER root
 RUN chown -R www-data:www-data \
+        /var/www/html/public \
         /var/www/html/storage \
         /var/www/html/bootstrap/cache
 USER www-data
