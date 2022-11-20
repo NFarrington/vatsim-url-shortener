@@ -100,13 +100,13 @@ RUN chown -R www-data:www-data \
         /var/www/html/bootstrap/cache
 USER www-data
 
-RUN php composer.phar docker-build
-
 ARG APP_COMMIT
 ENV APP_COMMIT $APP_COMMIT
 
 ARG APP_VERSION
 ENV APP_VERSION $APP_VERSION
+
+RUN php composer.phar docker-build
 
 HEALTHCHECK --start-period=15s --interval=30s --timeout=5s \
     CMD \
