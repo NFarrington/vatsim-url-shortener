@@ -26,7 +26,7 @@
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="theme-color" content="#ffffff">
 
-    <title>{{ config('app.name') }} - {{ breadcrumbs() }}</title>
+    <title>@yield('title', config('app.name') . ' - ' . breadcrumbs())</title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
