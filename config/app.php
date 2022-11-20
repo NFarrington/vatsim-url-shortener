@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'VATS.IM URL Shortener'),
 
     'version' => [
         'name' => trim(env('APP_VERSION'), 'v'),
