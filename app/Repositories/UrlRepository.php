@@ -19,7 +19,7 @@ class UrlRepository extends Repository
             $extraSelect = ', CONCAT(d.url, CASE WHEN u.prefix = 1 then o.prefix else \'\' end, u.url) as HIDDEN fullUrl';
             $orderByQuery = "ORDER BY fullUrl $order";
         } elseif ($orderBy === 'redirectUrl') {
-            $extraSelect = ', REPLACE(REPLACE(redirect_url, \'https://\', \'\'), \'http://\', \'\') as HIDDEN sortableRedirectUrl';
+            $extraSelect = ', REPLACE(REPLACE(u.redirectUrl, \'https://\', \'\'), \'http://\', \'\') as HIDDEN sortableRedirectUrl';
             $orderByQuery = "ORDER BY sortableRedirectUrl $order";
         } else {
             $extraSelect = '';
