@@ -53,6 +53,23 @@ class UrlTest extends TestCase
             ->assertSee($url->getUrl());
     }
 
+    /** @test */
+    function index_page_loads_and_sorts_urls_by_full_url()
+    {
+        $url = create(Url::class, ['user' => $this->user]);
+        $this->get(route('platform.urls.index', ['sort' => 'fullUrl', 'direction' => 'asc']))
+            ->assertStatus(200)
+            ->assertSee($url->getUrl());
+    }
+
+    /** @test */
+    function index_page_loads_and_sorts_urls_by_redirect_url()
+    {
+        $url = create(Url::class, ['user' => $this->user]);
+        $this->get(route('platform.urls.index', ['sort' => 'redirectUrl', 'direction' => 'asc']))
+            ->assertStatus(200)
+            ->assertSee($url->getUrl());
+    }
 
     /** @test */
     function index_page_loads_public_urls()
