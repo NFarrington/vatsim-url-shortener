@@ -175,6 +175,7 @@ return [
          * Package Service Providers...
          */
         Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
+        LaravelDoctrine\Extensions\BeberleiExtensionsServiceProvider::class,
         LaravelDoctrine\Extensions\GedmoExtensionsServiceProvider::class,
 
         /*
