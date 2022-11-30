@@ -6,7 +6,7 @@
 
 @section('content')
 <div class="card">
-    <div class="card-header"><span class="lead">Service Unavailable</span></div>
+    <div class="card-header"><span class="lead">Server Error</span></div>
     <div class="card-body">
         <p class="card-text">Sorry! An error occurred while loading your request.</p>
         <p class="card-text">If the issue continues, please contact <a href="mailto:support@vats.im">support@vats.im</a>.</p>
