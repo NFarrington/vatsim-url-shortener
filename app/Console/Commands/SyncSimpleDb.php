@@ -63,6 +63,7 @@ class SyncSimpleDb extends Command
         // remove URLs that haven't been updated
         $iterator = $this->simpleDbClient->getIterator('Select', [
             'SelectExpression' => "select * from VatsimUrlShortenerUrls where UpdatedAt < '{$updateCutoff}'",
+            'ConsistentRead' => true,
         ]);
         foreach ($iterator as $item) {
             $this->info("Deleting URL '{$item['Name']}'.");
