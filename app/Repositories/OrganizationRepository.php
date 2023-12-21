@@ -14,7 +14,7 @@ class OrganizationRepository extends Repository
         int $page = null
     ) {
         $query = $this->createQueryBuilder('o')
-            ->select('o, ou')
+            ->select('o')
             ->join('o.organizationUsers', 'ou', 'WITH', "ou.user = {$user->getId()}")
             ->orderBy("o.$orderBy", $order)
             ->getQuery();
