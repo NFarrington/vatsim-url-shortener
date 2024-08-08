@@ -270,6 +270,9 @@ class UrlController extends Controller
                 'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
             ]
         );
+        if ($attributes['organization_id'] !== null) {
+            $attributes['organization_id'] = (int) $attributes['organization_id'];
+        }
 
         $oldOrganizationId = $url->getOrganization() ? $url->getOrganization()->getId() : null;
         if ($attributes['organization_id'] !== $oldOrganizationId) {
@@ -306,7 +309,7 @@ class UrlController extends Controller
         $this->entityManager->flush();
         $this->simpleDbClient->deleteAttributes([
             'DomainName' => self::simpleDbDomainName,
-            'ItemName'   => Str::lower($url->getFullUrl()),
+            'ItemName' => Str::lower($url->getFullUrl()),
         ]);
         $this->urlService->removeUrlFromCache($url);
 
@@ -318,7 +321,7 @@ class UrlController extends Controller
     {
         $putAttributesCommand = $this->simpleDbClient->getCommand('putAttributes', [
             'DomainName' => self::simpleDbDomainName,
-            'ItemName'   => Str::lower($url->getFullUrl()),
+            'ItemName' => Str::lower($url->getFullUrl()),
             'Attributes' => [
                 ['Name' => 'RedirectUrl', 'Value' => $url->getRedirectUrl(), 'Replace' => true],
                 ['Name' => 'UpdatedAt', 'Value' => Carbon::now()->toIso8601ZuluString(), 'Replace' => true],

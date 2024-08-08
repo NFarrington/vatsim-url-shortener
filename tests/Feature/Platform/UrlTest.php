@@ -310,6 +310,28 @@ class UrlTest extends TestCase
     }
 
     /** @test */
+    function user_can_edit_url_with_a_prefix_owned_by_organization()
+    {
+        $template = make(Url::class);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
+        $url = entity(Url::class)->states('org', 'prefix')->create(['organization' => $organization]);
+
+        $this->get(route('platform.urls.edit', $url));
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
+        ]);
+    }
+
+    /** @test */
     function user_can_move_url_into_an_organization()
     {
         $url = create(Url::class, ['user' => $this->user]);

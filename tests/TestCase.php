@@ -66,4 +66,11 @@ abstract class TestCase extends BaseTestCase
             }
         }
     }
+
+    public function call($method, $uri, $parameters = [], $cookies = [], $files = [], $server = [], $content = null)
+    {
+        $parameters = array_map(function ($a) { return (string) $a; }, $parameters);
+
+        return parent::call($method, $uri, $parameters, $cookies, $files, $server, $content);
+    }
 }
