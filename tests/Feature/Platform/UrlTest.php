@@ -7,11 +7,16 @@ use App\Entities\DomainOrganization;
 use App\Entities\Organization;
 use App\Entities\OrganizationUser;
 use App\Entities\Url;
+use Aws\DynamoDb\DynamoDbClient;
 use Illuminate\Auth\Access\AuthorizationException;
 use Tests\Traits\RefreshDatabase;
 use Illuminate\Http\Response;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use LaravelDoctrine\ORM\Facades\EntityManager;
+use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class UrlTest extends TestCase
@@ -552,5 +557,129 @@ class UrlTest extends TestCase
         $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
             'domain_id' => $url->getDomain()->getId(),
         ]);
+    }
+
+    /** @test */
+    function creating_a_url_writes_it_to_dynamodb()
+    {
+        $dynamoDb = $this->mockDynamoDb();
+        $url = make(Url::class, ['url' => 'MixedCaseUrl']);
+
+        $dynamoDb->expects('putItem')->with([
+            'TableName' => 'TestUrlsTable',
+            'Item' => [
+                'Url' => ['S' => Str::lower($url->getDomain()->getUrl()).'mixedcaseurl'],
+                'RedirectUrl' => ['S' => $url->getRedirectUrl()],
+                'UpdatedAt' => ['S' => Carbon::now()->toIso8601ZuluString()],
+            ],
+        ]);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => null,
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+    }
+
+    /** @test */
+    function creating_a_url_with_a_prefix_writes_it_to_dynamodb()
+    {
+        $dynamoDb = $this->mockDynamoDb();
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
+        $url = make(Url::class);
+
+        $dynamoDb->expects('putItem')->with([
+            'TableName' => 'TestUrlsTable',
+            'Item' => [
+                'Url' => ['S' => Str::lower($url->getDomain()->getUrl().$organization->getPrefix().'/'.$url->getUrl())],
+                'RedirectUrl' => ['S' => $url->getRedirectUrl()],
+                'UpdatedAt' => ['S' => Carbon::now()->toIso8601ZuluString()],
+            ],
+        ]);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->getDomain()->getId(),
+            'prefix' => $organization->getPrefix(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+    }
+
+    /** @test */
+    function updating_a_url_writes_it_to_dynamodb()
+    {
+        $dynamoDb = $this->mockDynamoDb();
+        $url = create(Url::class, ['user' => $this->user, 'url' => 'MixedCaseUrl']);
+        $template = make(Url::class);
+
+        $dynamoDb->expects('putItem')->with([
+            'TableName' => 'TestUrlsTable',
+            'Item' => [
+                'Url' => ['S' => Str::lower($url->getDomain()->getUrl()).'mixedcaseurl'],
+                'RedirectUrl' => ['S' => $template->getRedirectUrl()],
+                'UpdatedAt' => ['S' => Carbon::now()->toIso8601ZuluString()],
+            ],
+        ]);
+
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => null,
+        ])->assertRedirect()
+            ->assertSessionHas('success');
+    }
+
+    /** @test */
+    function deleting_a_url_deletes_it_from_dynamodb()
+    {
+        $dynamoDb = $this->mockDynamoDb();
+        $url = create(Url::class, ['user' => $this->user, 'url' => 'MixedCaseUrl']);
+
+        $dynamoDb->expects('deleteItem')->with([
+            'TableName' => 'TestUrlsTable',
+            'Key' => [
+                'Url' => ['S' => Str::lower($url->getDomain()->getUrl()).'mixedcaseurl'],
+            ],
+        ]);
+
+        $this->delete(route('platform.urls.destroy', $url))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+    }
+
+    /** @test */
+    function failed_requests_do_not_write_to_dynamodb()
+    {
+        $this->withExceptionHandling();
+        $this->mockDynamoDb();
+        $url = make(Url::class);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => 'not a url',
+            'organization_id' => null,
+        ])->assertSessionHasErrors();
+    }
+
+    /**
+     * Replace the DynamoDB client with a strict mock, so any call not
+     * explicitly expected by the test will fail it.
+     */
+    protected function mockDynamoDb(): MockInterface
+    {
+        Carbon::setTestNow(Carbon::now());
+        config(['services.dynamodb.urls_table' => 'TestUrlsTable']);
+
+        $mock = Mockery::mock(DynamoDbClient::class);
+        $this->app->instance(DynamoDbClient::class, $mock);
+
+        return $mock;
     }
 }

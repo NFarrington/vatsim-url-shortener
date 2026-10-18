@@ -10,6 +10,7 @@ LICENSE
 node_modules
 vendor
 
+docker/test
 hooks
 tests
 

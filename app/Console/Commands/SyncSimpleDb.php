@@ -72,5 +72,8 @@ class SyncSimpleDb extends Command
                 'ItemName' => $item['Name'],
             ]);
         }
+
+        // keep DynamoDB in the same state while both are in use
+        $this->call('dynamodb:sync');
     }
 }
