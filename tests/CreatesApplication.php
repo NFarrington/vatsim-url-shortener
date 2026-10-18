@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Aws\Command;
+use Aws\DynamoDb\DynamoDbClient;
 use Aws\SimpleDb\SimpleDbClient;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Illuminate\Contracts\Console\Kernel;
@@ -36,6 +37,13 @@ trait CreatesApplication
                 );
                 $mock->allows('execute');
                 $mock->allows('deleteAttributes');
+            })
+        );
+        $app->instance(
+            DynamoDbClient::class,
+            Mockery::mock(DynamoDbClient::class, function (MockInterface $mock) {
+                $mock->allows('putItem');
+                $mock->allows('deleteItem');
             })
         );
 

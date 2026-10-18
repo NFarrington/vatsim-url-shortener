@@ -10,6 +10,7 @@ use App\Repositories\DomainRepository;
 use App\Repositories\OrganizationRepository;
 use App\Repositories\UrlRepository;
 use App\Services\UrlService;
+use Aws\DynamoDb\DynamoDbClient;
 use Aws\Middleware;
 use Aws\SimpleDb\SimpleDbClient;
 use Doctrine\ORM\EntityManagerInterface;
@@ -26,6 +27,7 @@ use Psr\Http\Message\RequestInterface;
 class UrlController extends Controller
 {
     protected SimpleDbClient $simpleDbClient;
+    protected DynamoDbClient $dynamoDbClient;
     protected EntityManagerInterface $entityManager;
     protected UrlRepository $urlRepository;
     protected DomainRepository $domainRepository;
@@ -36,6 +38,7 @@ class UrlController extends Controller
 
     public function __construct(
         SimpleDbClient $simpleDbClient,
+        DynamoDbClient $dynamoDbClient,
         EntityManagerInterface $entityManager,
         UrlRepository $urlRepository,
         DomainRepository $domainRepository,
@@ -44,6 +47,7 @@ class UrlController extends Controller
     ) {
         $this->middleware('platform');
         $this->simpleDbClient = $simpleDbClient;
+        $this->dynamoDbClient = $dynamoDbClient;
         $this->entityManager = $entityManager;
         $this->urlRepository = $urlRepository;
         $this->domainRepository = $domainRepository;
@@ -234,6 +238,7 @@ class UrlController extends Controller
         $this->entityManager->persist($url);
         $this->entityManager->flush();
         $this->createOrUpdateUrlInSimpleDb($url);
+        $this->createOrUpdateUrlInDynamoDb($url);
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL created.');
@@ -296,6 +301,7 @@ class UrlController extends Controller
 
         $this->entityManager->flush();
         $this->createOrUpdateUrlInSimpleDb($url);
+        $this->createOrUpdateUrlInDynamoDb($url);
 
         return redirect()->route('platform.urls.index')
             ->with('success', 'URL updated.');
@@ -310,6 +316,12 @@ class UrlController extends Controller
         $this->simpleDbClient->deleteAttributes([
             'DomainName' => self::simpleDbDomainName,
             'ItemName' => Str::lower($url->getFullUrl()),
+        ]);
+        $this->dynamoDbClient->deleteItem([
+            'TableName' => config('services.dynamodb.urls_table'),
+            'Key' => [
+                'Url' => ['S' => Str::lower($url->getFullUrl())],
+            ],
         ]);
         $this->urlService->removeUrlFromCache($url);
 
@@ -336,5 +348,17 @@ class UrlController extends Controller
         );
 
         $this->simpleDbClient->execute($putAttributesCommand);
+    }
+
+    public function createOrUpdateUrlInDynamoDb(Url $url)
+    {
+        $this->dynamoDbClient->putItem([
+            'TableName' => config('services.dynamodb.urls_table'),
+            'Item' => [
+                'Url' => ['S' => Str::lower($url->getFullUrl())],
+                'RedirectUrl' => ['S' => $url->getRedirectUrl()],
+                'UpdatedAt' => ['S' => Carbon::now()->toIso8601ZuluString()],
+            ],
+        ]);
     }
 }
