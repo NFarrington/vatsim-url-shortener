@@ -70,7 +70,7 @@ class SyncDynamoDb extends Command
     protected function batchWrite(array $requests)
     {
         $attempt = 0;
-        while (! empty($requests)) {
+        while (!empty($requests)) {
             if ($attempt > 0) {
                 usleep(min(2 ** $attempt * 50000, 2000000));
             }
