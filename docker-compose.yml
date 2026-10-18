@@ -49,7 +49,7 @@ services:
     restart: always
 
   mariadb:
-    image: mariadb:10.3
+    image: mariadb:10.6
     ports:
       - "127.0.0.1:33060:3306"
     environment:

@@ -14,10 +14,11 @@ jobs:
     strategy:
       matrix:
         php: ["8.5"]
+        mariadb: ["10.6", "10.11", "11.4"]
         experimental: [false]
     services:
       mariadb:
-        image: mariadb:10.3
+        image: mariadb:${{ matrix.mariadb }}
         env:
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: yes
           MARIADB_DATABASE: laravel
@@ -25,7 +26,7 @@ jobs:
           MARIADB_PASSWORD: ci
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
