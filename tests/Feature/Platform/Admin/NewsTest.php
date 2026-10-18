@@ -11,7 +11,7 @@ class NewsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function news_articles_can_be_listed()
     {
         $this->signInAdmin();
@@ -23,7 +23,7 @@ class NewsTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function creation_page_loads_successfully()
     {
         $this->signInAdmin();
@@ -32,7 +32,7 @@ class NewsTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function news_can_be_created()
     {
         $this->signInAdmin();
@@ -52,7 +52,7 @@ class NewsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function show_page_redirects_to_edit_page()
     {
         $this->signInAdmin();
@@ -62,7 +62,7 @@ class NewsTest extends TestCase
             ->assertRedirect(route('platform.admin.news.edit', $news));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function edit_page_loads_successfully()
     {
         $this->signInAdmin();
@@ -72,7 +72,7 @@ class NewsTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function news_can_be_edited()
     {
         $this->signInAdmin();
@@ -93,7 +93,7 @@ class NewsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function news_can_be_deleted()
     {
         $this->signInAdmin();

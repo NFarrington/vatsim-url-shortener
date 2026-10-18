@@ -10,9 +10,7 @@ use Illuminate\Support\Carbon;
 
 trait SoftDeletes
 {
-    /**
-     * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'deleted_at', type: 'datetime', nullable: true)]
     protected ?DateTime $deletedAt;
 
     public function getDeletedAt(): Carbon

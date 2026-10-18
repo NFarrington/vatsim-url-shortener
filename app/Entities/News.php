@@ -8,34 +8,24 @@ use App\Entities\Traits\RecordsCreatedAt;
 use App\Entities\Traits\RecordsUpdatedAt;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="news")
- */
+#[ORM\Table(name: 'news')]
+#[ORM\Entity]
 class News extends Entity
 {
     use RecordsCreatedAt, RecordsUpdatedAt;
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
     protected int $id;
 
-    /**
-     * @ORM\Column(type="string", length=250)
-     */
+    #[ORM\Column(type: 'string', length: 250)]
     protected string $title;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     protected string $content;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $published = false;
 
     public function getId(): int

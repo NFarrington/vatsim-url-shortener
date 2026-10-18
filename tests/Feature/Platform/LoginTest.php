@@ -10,14 +10,14 @@ class LoginTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function login_page_loads_successfully()
     {
         $this->get(route('platform.login'))
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function authenticated_user_is_redirected_from_login_page()
     {
         $this->signIn();
@@ -25,7 +25,7 @@ class LoginTest extends TestCase
             ->assertRedirect();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_logout()
     {
         $this->signIn();

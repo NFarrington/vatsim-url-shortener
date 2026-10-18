@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Entities\Url;
 use App\Exceptions\CacheFallbackException;
 use App\Repositories\UrlRepository;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +22,7 @@ class UrlService
         $this->urlRepository = $urlRepository;
     }
 
-    public function getRedirectForUrl(string $domain, string $url = null, string $prefix = null): Url
+    public function getRedirectForUrl(string $domain, ?string $url = null, ?string $prefix = null): Url
     {
         if ($this->urlRepository === null) {
             return $this->findModelInCacheOrFail($domain, $url, $prefix);
@@ -54,7 +54,7 @@ class UrlService
         }
     }
 
-    private function fallbackToCache(string $domain, string $url = null, string $prefix = null): ?Url
+    private function fallbackToCache(string $domain, ?string $url = null, ?string $prefix = null): ?Url
     {
         Log::warning(
             'Failed to retrieve URL from database, attempting to retrieve from cache.',
@@ -82,7 +82,7 @@ class UrlService
         return $cachedModel;
     }
 
-    public function getCachedUrl(string $domain, string $url = null, string $prefix = null): ?Url
+    public function getCachedUrl(string $domain, ?string $url = null, ?string $prefix = null): ?Url
     {
         return Cache::get(sprintf(Url::URL_CACHE_KEY, $domain, $prefix, $url));
     }

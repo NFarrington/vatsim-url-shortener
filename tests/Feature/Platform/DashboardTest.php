@@ -11,7 +11,7 @@ class DashboardTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function dashboard_page_loads_successfully()
     {
         $this->signIn();
@@ -23,7 +23,7 @@ class DashboardTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function dashboard_displays_news_posts()
     {
         $this->signIn();
@@ -33,7 +33,7 @@ class DashboardTest extends TestCase
             ->assertSeeText($news->getContent());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function platform_page_redirects_to_dashboard_page()
     {
         $this->signIn();
@@ -41,7 +41,7 @@ class DashboardTest extends TestCase
             ->assertRedirect(route('platform.dashboard'));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function unauthenticated_user_is_redirected_to_login_page()
     {
         $this->withExceptionHandling();

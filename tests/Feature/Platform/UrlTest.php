@@ -30,14 +30,14 @@ class UrlTest extends TestCase
         $this->signIn();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads()
     {
         $this->get(route('platform.urls.index'))
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_personal_urls()
     {
         $url = create(Url::class, ['user' => $this->user]);
@@ -46,7 +46,7 @@ class UrlTest extends TestCase
             ->assertSee($url->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_organization_urls()
     {
         $organization = create(Organization::class);
@@ -58,7 +58,7 @@ class UrlTest extends TestCase
             ->assertSee($url->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_and_sorts_urls_by_full_url()
     {
         $url = create(Url::class, ['user' => $this->user]);
@@ -67,7 +67,7 @@ class UrlTest extends TestCase
             ->assertSee($url->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_and_sorts_urls_by_redirect_url()
     {
         $url = create(Url::class, ['user' => $this->user]);
@@ -76,7 +76,7 @@ class UrlTest extends TestCase
             ->assertSee($url->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_public_urls()
     {
         $url = create(Url::class, [
@@ -88,7 +88,7 @@ class UrlTest extends TestCase
             ->assertSee($url->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_urls_with_no_assigned_owner_as_public()
     {
         $url = create(Url::class, [
@@ -101,7 +101,7 @@ class UrlTest extends TestCase
             ->assertSee($url->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_doesnt_have_public_urls_when_none_exist()
     {
         $this->get(route('platform.urls.index'))
@@ -109,14 +109,14 @@ class UrlTest extends TestCase
             ->assertDontSee('Public URLs');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function create_page_loads_successfully()
     {
         $this->get(route('platform.urls.create'))
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function create_page_shows_private_domains()
     {
         $domain = entity(Domain::class)->states('private')->create();
@@ -131,7 +131,7 @@ class UrlTest extends TestCase
             ->assertSee($domain->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_create_new_url()
     {
         $url = make(Url::class);
@@ -151,7 +151,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_create_new_url_in_an_organization()
     {
         $organization = create(Organization::class);
@@ -175,7 +175,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_create_new_url_with_a_prefix()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -202,7 +202,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_create_new_url_with_an_invalid_prefix()
     {
         $this->withExceptionHandling();
@@ -229,7 +229,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_create_new_url_with_a_mismatched_prefix_and_organization()
     {
         $this->withExceptionHandling();
@@ -256,7 +256,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function show_page_redirects_to_edit_page()
     {
         $url = create(Url::class, ['user' => $this->user]);
@@ -265,7 +265,7 @@ class UrlTest extends TestCase
             ->assertRedirect(route('platform.urls.edit', $url));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function edit_page_loads_successfully()
     {
         $url = create(Url::class, ['user' => $this->user]);
@@ -274,7 +274,7 @@ class UrlTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_edit_url_owned_by_user()
     {
         $url = create(Url::class, ['user' => $this->user]);
@@ -292,7 +292,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_edit_url_owned_by_organization()
     {
         $template = make(Url::class);
@@ -314,7 +314,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_edit_url_with_a_prefix_owned_by_organization()
     {
         $template = make(Url::class);
@@ -336,7 +336,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_move_url_into_an_organization()
     {
         $url = create(Url::class, ['user' => $this->user]);
@@ -356,7 +356,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_move_url_to_a_different_organization()
     {
         $template = make(Url::class);
@@ -381,7 +381,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_move_url_with_prefix()
     {
         $this->withExceptionHandling();
@@ -406,7 +406,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_delete_url_owned_by_user()
     {
         $url = create(Url::class, ['user' => $this->user]);
@@ -417,7 +417,7 @@ class UrlTest extends TestCase
         $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), ['id' => $url->getId(), 'deleted_at' => null]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_delete_url_owned_by_organization()
     {
         $organization = create(Organization::class);
@@ -434,7 +434,7 @@ class UrlTest extends TestCase
             ['id' => $url->getId(), 'deleted_at' => null]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_create_existing_url()
     {
         $this->withExceptionHandling();
@@ -451,7 +451,7 @@ class UrlTest extends TestCase
             ->assertSessionHasErrors('url');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_create_url_in_another_organization()
     {
         $this->withExceptionHandling();
@@ -473,7 +473,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_delete_other_users_urls()
     {
         $this->withExceptionHandling();
@@ -485,7 +485,7 @@ class UrlTest extends TestCase
         $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), ['id' => $url->getId(), 'deleted_at' => null]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_create_url_for_private_domain()
     {
         $domain = entity(Domain::class)->states('private')->create();
@@ -511,7 +511,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_create_url_for_private_domain_they_do_not_own()
     {
         $this->withExceptionHandling();
@@ -534,7 +534,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_create_url_with_mismatched_domain_and_organization()
     {
         $this->withExceptionHandling();
@@ -559,7 +559,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function creating_a_url_writes_it_to_dynamodb()
     {
         $dynamoDb = $this->mockDynamoDb();
@@ -583,7 +583,7 @@ class UrlTest extends TestCase
             ->assertSessionHas('success');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function creating_a_url_with_a_prefix_writes_it_to_dynamodb()
     {
         $dynamoDb = $this->mockDynamoDb();
@@ -612,7 +612,7 @@ class UrlTest extends TestCase
             ->assertSessionHas('success');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function updating_a_url_writes_it_to_dynamodb()
     {
         $dynamoDb = $this->mockDynamoDb();
@@ -635,7 +635,7 @@ class UrlTest extends TestCase
             ->assertSessionHas('success');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function deleting_a_url_deletes_it_from_dynamodb()
     {
         $dynamoDb = $this->mockDynamoDb();
@@ -653,7 +653,7 @@ class UrlTest extends TestCase
             ->assertSessionHas('success');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function failed_requests_do_not_write_to_dynamodb()
     {
         $this->withExceptionHandling();

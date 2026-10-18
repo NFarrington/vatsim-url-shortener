@@ -25,7 +25,7 @@ class NewsController extends Controller
 
     public function index()
     {
-        $news = $this->newsRepository->findAll('id', 'asc', 20, Paginator::resolveCurrentPage());
+        $news = $this->newsRepository->findAllOrdered('id', 'asc', 20, Paginator::resolveCurrentPage());
 
         return view('platform.admin.news.index')->with([
             'news' => $news,

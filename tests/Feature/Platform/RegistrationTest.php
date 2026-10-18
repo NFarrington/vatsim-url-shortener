@@ -17,7 +17,7 @@ class RegistrationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function registration_page_loads_successfully()
     {
         $this->signIn(create(User::class, ['email' => null]));
@@ -26,7 +26,7 @@ class RegistrationTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function registration_page_is_inaccessible_to_verified_users()
     {
         $this->signIn();
@@ -35,7 +35,7 @@ class RegistrationTest extends TestCase
             ->assertRedirect();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_can_provisionally_register_an_email_address()
     {
         Notification::fake();
@@ -52,7 +52,7 @@ class RegistrationTest extends TestCase
         Notification::assertSentTo($this->user, VerifyEmailNotification::class);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_cannot_register_an_existing_email()
     {
         $this->withExceptionHandling();
@@ -67,7 +67,7 @@ class RegistrationTest extends TestCase
             ->assertSessionHasErrors('email');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_can_verify_an_email_address()
     {
         $user = create(User::class, ['emailVerified' => 0]);
@@ -88,7 +88,7 @@ class RegistrationTest extends TestCase
             ['id' => $user->getId(), 'email_verified' => 1]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_is_forced_to_configure_an_email_address()
     {
         $this->signIn(create(User::class, ['email' => null]));
@@ -98,7 +98,7 @@ class RegistrationTest extends TestCase
             ->assertSessionMissing('error');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_is_forced_to_verify_an_email_address()
     {
         $this->signIn(create(User::class, ['emailVerified' => 0]));
@@ -108,7 +108,7 @@ class RegistrationTest extends TestCase
             ->assertSessionHas('error');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_cannot_verify_email_address_without_a_valid_token()
     {
         $user = create(User::class, ['emailVerified' => 0]);
@@ -127,7 +127,7 @@ class RegistrationTest extends TestCase
             ['id' => $user->getId(), 'email_verified' => 0]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function user_cannot_attempt_verification_when_already_verified()
     {
         $user = create(User::class, ['emailVerified' => 1]);

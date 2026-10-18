@@ -6,7 +6,7 @@ use Tests\TestCase;
 
 class HelpersTest extends TestCase
 {
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function docker_secret_retrieves_a_secret_from_a_file()
     {
         $secretFile = tmpfile();

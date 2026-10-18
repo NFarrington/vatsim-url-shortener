@@ -5,7 +5,6 @@ namespace Tests;
 use Aws\Command;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\SimpleDb\SimpleDbClient;
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Hash;
 use Mockery;
@@ -23,9 +22,6 @@ trait CreatesApplication
         $app = require __DIR__.'/../bootstrap/app.php';
 
         $app->make(Kernel::class)->bootstrap();
-
-        // https://www.doctrine-project.org/projects/doctrine-annotations/en/1.10/index.html
-        AnnotationRegistry::registerLoader('class_exists');
 
         $app->instance(
             SimpleDbClient::class,

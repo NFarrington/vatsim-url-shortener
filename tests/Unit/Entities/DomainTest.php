@@ -6,14 +6,12 @@ use App\Entities\Domain;
 use Tests\Traits\RefreshDatabase;
 use Tests\TestCase;
 
-/**
- * @covers \App\Entities\Domain
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Entities\Domain::class)]
 class DomainTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function set_url_attribute_adds_missing_slashes()
     {
         $domain = make(Domain::class);
@@ -23,7 +21,7 @@ class DomainTest extends TestCase
         $this->assertEquals('https://example.com/', $domain->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function set_url_attribute_does_not_add_unnecessary_slashes()
     {
         $domain = make(Domain::class);

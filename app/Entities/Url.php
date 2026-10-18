@@ -12,11 +12,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="urls")
- * @Gedmo\SoftDeleteable(fieldName="deletedAt")
- */
+#[ORM\Table(name: 'urls')]
+#[ORM\Entity]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt')]
 class Url extends Entity
 {
     use RecordsCreatedAt, RecordsUpdatedAt, SoftDeletes;
@@ -31,57 +29,37 @@ class Url extends Entity
         'redirectUrl',
     ];
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
     protected int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Organization", inversedBy="urls")
-     */
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'urls')]
     protected ?Organization $organization = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="urls")
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'urls')]
     protected ?User $user = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Domain", inversedBy="urls", fetch="EAGER")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Domain::class, inversedBy: 'urls', fetch: 'EAGER')]
     protected Domain $domain;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $prefix = false;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $url;
 
-    /**
-     * @ORM\Column(type="string", length=1000)
-     */
+    #[ORM\Column(type: 'string', length: 1000)]
     protected string $redirectUrl;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $public = false;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $analyticsDisabled = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity="UrlAnalytics", mappedBy="url")
-     */
+    #[ORM\OneToMany(targetEntity: UrlAnalytics::class, mappedBy: 'url')]
     protected Collection $analytics;
 
     public function __construct()

@@ -7,7 +7,7 @@ use Tests\TestCase;
 
 class RouteServiceProviderTest extends TestCase
 {
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function forces_the_url_scheme()
     {
         $this->app['url']->forceScheme('http');

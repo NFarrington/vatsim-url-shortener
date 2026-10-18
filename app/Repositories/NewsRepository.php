@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 class NewsRepository extends Repository
 {
-    public function findPublished(string $orderBy = 'id', string $order = 'ASC', int $perPage = null, int $page = null)
+    public function findPublished(string $orderBy = 'id', string $order = 'ASC', ?int $perPage = null, ?int $page = null)
     {
         $query = $this->createQueryBuilder('n')
             ->where('n.published = true')

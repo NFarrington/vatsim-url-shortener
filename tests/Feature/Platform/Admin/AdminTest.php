@@ -10,7 +10,7 @@ class AdminTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function test_admin_page_redirects()
     {
         $this->signInAdmin();
@@ -19,7 +19,7 @@ class AdminTest extends TestCase
             ->assertRedirect();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function test_admin_pages_are_inaccessible_to_non_admins()
     {
         $this->withExceptionHandling();

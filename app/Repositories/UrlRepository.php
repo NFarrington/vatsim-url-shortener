@@ -12,8 +12,8 @@ class UrlRepository extends Repository
         User $user,
         string $orderBy = 'id',
         string $order = 'ASC',
-        int $perPage = null,
-        int $page = null
+        ?int $perPage = null,
+        ?int $page = null
     ) {
         if ($orderBy === 'fullUrl') {
             $extraSelect = ', CONCAT(d.url, CASE WHEN u.prefix = 1 then o.prefix else \'\' end, u.url) as HIDDEN fullUrl';
@@ -47,7 +47,7 @@ class UrlRepository extends Repository
         return $query->execute();
     }
 
-    public function findPublic(string $orderBy = 'id', string $order = 'ASC', int $perPage = null, int $page = null)
+    public function findPublic(string $orderBy = 'id', string $order = 'ASC', ?int $perPage = null, ?int $page = null)
     {
         if ($orderBy === 'fullUrl') {
             $orderByQuery = "ORDER BY d.url $order, u.url $order";

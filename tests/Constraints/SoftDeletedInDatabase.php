@@ -73,7 +73,7 @@ class SoftDeletedInDatabase extends Constraint
         }
         $query->andWhere("`$this->deletedAtColumn` IS NOT NULL");
 
-        return (int) $query->execute()->fetch()['count'] > 0;
+        return (int) $query->executeQuery()->fetchAssociative()['count'] > 0;
     }
 
     /**
@@ -100,7 +100,7 @@ class SoftDeletedInDatabase extends Constraint
     {
         $query = $this->database->createQueryBuilder()->select('*')->from($table);
 
-        $results = $query->setMaxResults($this->show)->execute()->fetchAll();
+        $results = $query->setMaxResults($this->show)->executeQuery()->fetchAllAssociative();
 
         if (empty($results)) {
             return 'The table is empty';
@@ -108,7 +108,7 @@ class SoftDeletedInDatabase extends Constraint
 
         $description = 'Found: '.json_encode($results, JSON_PRETTY_PRINT);
 
-        $count = (int) $query->select('COUNT(*) as count')->execute()->fetch()['count'];
+        $count = (int) $query->select('COUNT(*) as count')->executeQuery()->fetchAssociative()['count'];
         if ($count > $this->show) {
             $description .= sprintf(' and %s others', $count - $this->show);
         }

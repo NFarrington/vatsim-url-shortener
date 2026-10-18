@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class StartOptionalSessionTest extends TestCase
 {
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function doesnt_throw_an_exception_when_the_session_cannot_be_started()
     {
         $request = new Request();

@@ -25,7 +25,7 @@ class DomainController extends Controller
 
     public function index()
     {
-        $domains = $this->domainRepository->findAll('id', 'asc', 20, Paginator::resolveCurrentPage());
+        $domains = $this->domainRepository->findAllOrdered('id', 'asc', 20, Paginator::resolveCurrentPage());
 
         return view('platform.admin.domains.index')->with([
             'domains' => $domains,

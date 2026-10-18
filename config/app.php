@@ -16,8 +16,8 @@ return [
     'name' => env('APP_NAME', 'VATS.IM URL Shortener'),
 
     'version' => [
-        'name' => trim(env('APP_VERSION'), 'v'),
-        'commit' => substr(env('APP_COMMIT'), 0, 7),
+        'name' => trim(env('APP_VERSION', ''), 'v'),
+        'commit' => substr(env('APP_COMMIT', ''), 0, 7),
     ],
 
     /*
@@ -168,7 +168,9 @@ return [
         //Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         Illuminate\Session\SessionServiceProvider::class,
         Illuminate\Translation\TranslationServiceProvider::class,
-        Illuminate\Validation\ValidationServiceProvider::class,
+        // Replaced by LaravelDoctrine\ORM\Validation\PresenceVerifierProvider, registered by the
+        // Doctrine service provider, so that exists/unique rules query entities via Doctrine.
+        //Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
         /*

@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 
 abstract class Repository extends EntityRepository
 {
-    public function findAll(string $orderBy = 'id', string $order = 'ASC', int $perPage = null, int $page = null)
+    public function findAllOrdered(string $orderBy = 'id', string $order = 'ASC', ?int $perPage = null, ?int $page = null)
     {
         $query = $this->createQueryBuilder('e')
             ->orderBy("e.$orderBy", $order)

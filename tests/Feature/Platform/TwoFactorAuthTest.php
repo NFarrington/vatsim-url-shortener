@@ -15,7 +15,7 @@ class TwoFactorAuthTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function two_factor_auth_verification_page_loads_successfully()
     {
         $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
@@ -24,7 +24,7 @@ class TwoFactorAuthTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_is_redirected_to_verification_page_if_unauthenticated()
     {
         $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));
@@ -33,7 +33,7 @@ class TwoFactorAuthTest extends TestCase
             ->assertRedirect(route('platform.login.two-factor'));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_is_not_redirected_to_verification_page_if_authenticated()
     {
         $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
@@ -43,10 +43,10 @@ class TwoFactorAuthTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_authenticate_successfully()
     {
-        $mock = $this->createMock(Google2FA::class);
+        $mock = $this->createStub(Google2FA::class);
         $mock->method('verifyKey')->willReturn(true);
         $this->app->instance(Google2FA::class, $mock);
 
@@ -58,12 +58,12 @@ class TwoFactorAuthTest extends TestCase
             ->assertSessionHas('success');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_authenticate_with_an_invalid_code()
     {
         $this->withExceptionHandling();
 
-        $mock = $this->createMock(Google2FA::class);
+        $mock = $this->createStub(Google2FA::class);
         $mock->method('verifyKey')->willReturn(false);
         $this->app->instance(Google2FA::class, $mock);
 
@@ -75,7 +75,7 @@ class TwoFactorAuthTest extends TestCase
             ->assertSessionHasErrors('code');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function test_user_cannot_authenticate_if_already_authenticated()
     {
         $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));

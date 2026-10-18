@@ -6,21 +6,21 @@ use Tests\TestCase;
 
 class SiteTest extends TestCase
 {
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_successfully()
     {
         $this->get(route('site.home'))
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function about_page_loads_successfully()
     {
         $this->get(route('site.about'))
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function contact_page_loads_successfully()
     {
         $this->get(route('site.contact'))

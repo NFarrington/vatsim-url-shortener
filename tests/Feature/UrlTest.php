@@ -15,7 +15,7 @@ class UrlTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function short_url_without_prefix_redirects_to_its_intended_target()
     {
         $domain = create(Domain::class, ['url' => config('app.url').'/']);
@@ -26,7 +26,7 @@ class UrlTest extends TestCase
             ->assertRedirect($url->getRedirectUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function short_url_with_prefix_redirects_to_its_intended_target()
     {
         $domain = create(Domain::class, ['url' => config('app.url').'/']);
@@ -40,7 +40,7 @@ class UrlTest extends TestCase
             ->assertRedirect($url->getRedirectUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function short_url_with_unknown_prefix_returns_404()
     {
         $this->withExceptionHandling();
@@ -53,7 +53,7 @@ class UrlTest extends TestCase
             ->assertNotFound();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function short_url_returns_404_when_it_doesnt_exist()
     {
         $this->withExceptionHandling();
@@ -61,7 +61,7 @@ class UrlTest extends TestCase
         $this->get(route('short-url', Str::random()))->assertNotFound();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function short_url_returns_404_when_its_domain_doesnt_match()
     {
         $this->withExceptionHandling();
@@ -70,7 +70,7 @@ class UrlTest extends TestCase
         $this->get(route('short-url', $url->getUrl()))->assertNotFound();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function short_url_clicks_are_logged()
     {
         $domain = create(Domain::class, ['url' => config('app.url').'/']);
@@ -83,7 +83,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function short_url_clicks_for_ignored_urls_are_not_logged()
     {
         $domain = create(Domain::class, ['url' => config('app.url').'/']);
@@ -98,7 +98,7 @@ class UrlTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function short_url_for_ip_address_resolves_to_app_url()
     {
         $domain = create(Domain::class, ['url' => config('app.url').'/']);

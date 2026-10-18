@@ -8,14 +8,12 @@ use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-/**
- * @covers \App\Notifications\VerifyEmailNotification
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Notifications\VerifyEmailNotification::class)]
 class VerifyEmailNotificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function routes_notification_via_database_and_mail()
     {
         $user = make(User::class);
@@ -26,7 +24,7 @@ class VerifyEmailNotificationTest extends TestCase
         $this->assertEquals(['mail'], $routes);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function converts_to_mail_notification()
     {
         $user = make(User::class);

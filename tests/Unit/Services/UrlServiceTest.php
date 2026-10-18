@@ -6,7 +6,7 @@ use App\Entities\Url;
 use App\Exceptions\CacheFallbackException;
 use App\Services\UrlService;
 use Carbon\Carbon;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception as DBALException;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use LaravelDoctrine\ORM\EntityManagerFactory;
 use Mockery;
@@ -15,14 +15,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tests\TestCase;
 use Tests\Traits\RefreshDatabase;
 
-/**
- * @covers \App\Services\UrlService
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Services\UrlService::class)]
 class UrlServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function falls_back_to_local_cache()
     {
         $this->withInaccessibleDatabase();
@@ -42,7 +40,7 @@ class UrlServiceTest extends TestCase
         $this->assertEquals($urlPath, $shortUrl->getUrl());
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function reports_pdo_exception_if_missing_from_cache()
     {
         $this->withInaccessibleDatabase();
@@ -62,23 +60,23 @@ class UrlServiceTest extends TestCase
         }
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function prefixed_requests_dont_match_non_prefixed_organization_urls()
     {
         $url = entity(Url::class)->states('org')->create(['prefix' => false]);
         $service = $this->app->make(UrlService::class);
 
         $this->assertThrows(
-            NotFoundHttpException::class,
             fn() => $service->getRedirectForUrl(
                 $url->getDomain()->getUrl(),
                 $url->getUrl(),
                 $url->getOrganization()->getPrefix()
-            )
+            ),
+            NotFoundHttpException::class
         );
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function resolves_blank_paths_to_index_url()
     {
         $url = entity(Url::class)->states('org')->create(['url' => '/']);
@@ -94,7 +92,7 @@ class UrlServiceTest extends TestCase
         $this->app['config']->set('database.connections.invalid', ['driver' => 'mysql', 'host' => '0.0.0.0']);
         $factory = $this->app[EntityManagerFactory::class];
         $entityManager = $factory->create(
-            ['connection' => 'invalid', 'proxies' => ['path' => storage_path('proxies')]]
+            array_merge(config('doctrine.managers.default'), ['connection' => 'invalid'])
         );
         $this->app->singleton('em', fn($app) => $entityManager);
     }

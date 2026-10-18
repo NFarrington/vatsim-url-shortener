@@ -9,9 +9,7 @@ use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 use Tests\Traits\RefreshDatabase;
 
-/**
- * @covers \App\Entities\Traits\Revisionable
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Entities\Traits\Revisionable::class)]
 class DataChangeTrackingTest extends TestCase
 {
     use RefreshDatabase;
@@ -28,7 +26,7 @@ class DataChangeTrackingTest extends TestCase
         };
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function tracks_revisions()
     {
         $oldEmail = 'old@example.com';
@@ -45,7 +43,7 @@ class DataChangeTrackingTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function does_not_track_non_revisionable_properties()
     {
         $oldValue = 'Alpha';

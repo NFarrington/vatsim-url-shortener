@@ -12,7 +12,7 @@ return [
     | paths setting to the appropriate path and replace App namespace
     | by your own namespace.
     |
-    | Available meta drivers: fluent|annotations|yaml|simplified_yaml|xml|simplified_xml|config|static_php|php
+    | Available meta drivers: attributes|fluent|yaml|simplified_yaml|xml|simplified_xml|config|static_php|php
     |
     | Available connections: mysql|oracle|pgsql|sqlite|sqlsrv
     | (Connections can be configured in the database config)
@@ -23,7 +23,7 @@ return [
     'managers'                   => [
         'default' => [
             'dev'           => env('APP_DEBUG', false),
-            'meta'          => env('DOCTRINE_METADATA', 'annotations'),
+            'meta'          => env('DOCTRINE_METADATA', 'attributes'),
             'connection'    => env('DB_CONNECTION', 'mysql'),
             'namespaces'    => [],
             'paths'         => [
@@ -31,7 +31,7 @@ return [
             ],
             'repository'    => Doctrine\ORM\EntityRepository::class,
             'proxies'       => [
-                'namespace'     => false,
+                'namespace'     => 'DoctrineProxies',
                 'path'          => storage_path('proxies'),
                 'auto_generate' => env('DOCTRINE_PROXY_AUTOGENERATE', false)
             ],
