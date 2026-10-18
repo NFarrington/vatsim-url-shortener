@@ -96,7 +96,7 @@
             "@php artisan up"
         ],
         "docker-build": [
-            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest",
+            "@composer install --no-dev --optimize-autoloader --classmap-authoritative",
             "@php artisan html:generate"
         ],
         "docker-entrypoint": [
@@ -106,11 +106,10 @@
             "@php artisan doctrine:clear:metadata:cache",
             "@php artisan doctrine:clear:query:cache",
             "@php artisan doctrine:clear:result:cache",
-            "@php artisan migrate-with-lock --step --force --no-interaction",
-            "@php artisan doctrine:generate:proxies --em=default"
+            "@php artisan migrate-with-lock --step --force --no-interaction"
         ],
         "docker-install": [
-            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest --no-autoloader --no-scripts"
+            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-autoloader --no-scripts"
         ],
         "ide-helper": [
             "@php artisan ide-helper:generate",

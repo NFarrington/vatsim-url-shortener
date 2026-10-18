@@ -43,26 +43,21 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ########################################
 
-FROM php:8.0-fpm-alpine AS php-fpm
+FROM php:8.5-fpm-alpine AS php-fpm
 
 RUN apk add --update --no-cache --virtual build-dependencies \
         autoconf gcc g++ libtool make \
     && apk add --update --no-cache \
-        libmcrypt-dev \
         mysql-client \
         libpng-dev \
         unzip \
         fcgi \
-    && pecl install mcrypt-1.0.4 \
-    && docker-php-ext-enable mcrypt \
     && docker-php-ext-install pdo_mysql \
     && docker-php-ext-install gd \
-    && docker-php-ext-install opcache \
     && docker-php-ext-install pcntl \
     && apk del build-dependencies
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-        && echo 'log_errors_max_len = 0' >> $PHP_INI_DIR/conf.d/app.ini \
         && echo 'cgi.fix_pathinfo = 0' >> $PHP_INI_DIR/conf.d/app.ini \
         && echo 'date.timezone = UTC' >> $PHP_INI_DIR/conf.d/app.ini \
         && echo 'expose_php = 0' >> $PHP_INI_DIR/conf.d/app.ini
@@ -72,7 +67,7 @@ WORKDIR /var/www/html
 
 USER www-data
 
-ARG COMPOSER_VERSION=2.1.3
+ARG COMPOSER_VERSION=2.10.3
 RUN EXPECTED_SIGNATURE="$(curl -s https://composer.github.io/installer.sig)"; \
     php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"; \
     ACTUAL_SIGNATURE="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"; \
