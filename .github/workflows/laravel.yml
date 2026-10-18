@@ -65,13 +65,8 @@ jobs:
         run: composer deploy-dev
       - name: Execute tests via PHPUnit (SQLite)
         run: vendor/bin/phpunit --configuration phpunit.xml
-      - name: Execute tests via PHPUnit (MariaDB) and publish coverage
-        uses: paambaati/codeclimate-action@v2.7.5
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
-          XDEBUG_MODE: coverage
-        with:
-          coverageCommand: vendor/bin/phpunit --configuration phpunit.mysql.xml --coverage-clover build/logs/clover.xml
+      - name: Execute tests via PHPUnit (MariaDB)
+        run: vendor/bin/phpunit --configuration phpunit.mysql.xml
       - name: Display logs after a failure
         if: ${{ failure() }}
         run: cat storage/logs/laravel.log
