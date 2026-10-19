@@ -407,6 +407,70 @@ class UrlTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_create_url_in_an_organization_they_are_not_a_member_of()
+    {
+        $this->withExceptionHandling();
+
+        $organization = create(Organization::class);
+        create(OrganizationUser::class, ['organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
+        $url = make(Url::class);
+
+        $this->get(route('platform.urls.create'));
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
+        ])->assertForbidden();
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'url' => $url->getUrl(),
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_edit_url_owned_by_an_organization_they_are_not_a_member_of()
+    {
+        $this->withExceptionHandling();
+
+        $template = make(Url::class);
+        $organization = create(Organization::class);
+        create(OrganizationUser::class, ['organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
+        $url = entity(Url::class)->states('org')->create(['organization' => $organization]);
+
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => $template->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
+        ])->assertForbidden();
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'id' => $url->getId(),
+            'redirect_url' => $url->getRedirectUrl(),
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_move_url_into_an_organization_they_are_not_a_member_of()
+    {
+        $this->withExceptionHandling();
+
+        $url = create(Url::class, ['user' => $this->user]);
+        $organization = create(Organization::class);
+        create(OrganizationUser::class, ['organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
+
+        $this->get(route('platform.urls.edit', $url));
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => $url->getRedirectUrl(),
+            'organization_id' => $organization->getId(),
+        ])->assertForbidden();
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'id' => $url->getId(),
+            'organization_id' => null,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_delete_url_owned_by_user()
     {
         $url = create(Url::class, ['user' => $this->user]);
