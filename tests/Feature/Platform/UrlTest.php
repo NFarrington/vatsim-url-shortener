@@ -275,6 +275,17 @@ class UrlTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function edit_page_loads_for_unmovable_url_with_no_organization()
+    {
+        $domain = entity(Domain::class)->states('private')->create();
+        $url = create(Url::class, ['user' => $this->user, 'domain' => $domain]);
+
+        $this->get(route('platform.urls.edit', $url))
+            ->assertStatus(200)
+            ->assertSee('<option value="">None</option>', false);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_edit_url_owned_by_user()
     {
         $url = create(Url::class, ['user' => $this->user]);
