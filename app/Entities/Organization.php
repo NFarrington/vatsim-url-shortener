@@ -32,7 +32,7 @@ class Organization extends Entity
     protected string $name;
 
     #[ORM\Column(type: 'string', nullable: true)]
-    protected ?string $prefix;
+    protected ?string $prefix = null;
 
     #[ORM\OneToMany(targetEntity: DomainOrganization::class, mappedBy: 'organization')]
     protected Collection $organizationDomains;
