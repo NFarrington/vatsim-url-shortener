@@ -70,6 +70,12 @@ class User extends Entity implements Authenticatable
     #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $totpSecret = null;
 
+    /**
+     * The time step of the last accepted two factor code, so that a code can't be used twice.
+     */
+    #[ORM\Column(type: 'integer', nullable: true)]
+    protected ?int $totpTimestamp = null;
+
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     protected ?string $rememberToken = null;
 
@@ -201,6 +207,16 @@ class User extends Entity implements Authenticatable
     public function setTotpSecret(?string $totpSecret): void
     {
         $this->totpSecret = $totpSecret;
+    }
+
+    public function getTotpTimestamp(): ?int
+    {
+        return $this->totpTimestamp;
+    }
+
+    public function setTotpTimestamp(?int $totpTimestamp): void
+    {
+        $this->totpTimestamp = $totpTimestamp;
     }
 
     public function getFullName(): string

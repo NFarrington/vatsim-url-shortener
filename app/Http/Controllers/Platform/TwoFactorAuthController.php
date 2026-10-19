@@ -5,13 +5,16 @@ namespace App\Http\Controllers\Platform;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Closure;
+use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use PragmaRX\Google2FAQRCode\Google2FA;
 
 class TwoFactorAuthController extends Controller
 {
-    public function __construct()
+    protected EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
         $this->middleware('platform');
         $this->middleware(function ($request, Closure $next) {
@@ -22,6 +25,7 @@ class TwoFactorAuthController extends Controller
 
             return $next($request);
         })->only(['showForm', 'login']);
+        $this->entityManager = $entityManager;
     }
 
     public function showForm(Request $request)
@@ -35,16 +39,23 @@ class TwoFactorAuthController extends Controller
             'code' => 'required|numeric',
         ]);
 
-        $valid = app(Google2FA::class)->verifyKey(
-            $request->user()->getTotpSecret(),
-            $attributes['code']
+        $user = $request->user();
+
+        // Only accept codes newer than the last one used, so a code can't be replayed.
+        $timestamp = app(Google2FA::class)->verifyKeyNewer(
+            $user->getTotpSecret(),
+            $attributes['code'],
+            $user->getTotpTimestamp() ?? 0
         );
 
-        if (!$valid) {
+        if ($timestamp === false) {
             throw ValidationException::withMessages([
                 'code' => ['Failed to verify code. Please try again.'],
             ]);
         }
+
+        $user->setTotpTimestamp($timestamp);
+        $this->entityManager->flush();
 
         $request->session()->put('auth.two-factor', new Carbon());
 

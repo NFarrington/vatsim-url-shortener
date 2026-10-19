@@ -8,6 +8,7 @@ use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use LaravelDoctrine\ORM\Facades\EntityManager;
 use PragmaRX\Google2FAQRCode\Google2FA;
 use Tests\TestCase;
 
@@ -47,15 +48,62 @@ class TwoFactorAuthTest extends TestCase
     function user_can_authenticate_successfully()
     {
         $mock = $this->createStub(Google2FA::class);
-        $mock->method('verifyKey')->willReturn(true);
+        $mock->method('verifyKeyNewer')->willReturn(58000000);
         $this->app->instance(Google2FA::class, $mock);
 
-        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn($user = create(User::class, ['totp_secret' => Str::random(16)]));
 
         $this->get(route('platform.login.two-factor'));
         $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
             ->assertRedirect(route('platform.dashboard'))
             ->assertSessionHas('success');
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $user->getId(), 'totp_timestamp' => 58000000]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_reuse_a_code()
+    {
+        $this->withExceptionHandling();
+
+        $google2fa = app(Google2FA::class);
+        $secret = $google2fa->generateSecretKey();
+        $code = $google2fa->getCurrentOtp($secret);
+
+        $this->signIn(create(User::class, ['totpSecret' => $secret]));
+
+        $this->get(route('platform.login.two-factor'));
+        $this->post(route('platform.login.two-factor'), ['code' => $code])
+            ->assertRedirect(route('platform.dashboard'))
+            ->assertSessionHas('success');
+
+        // Start a new session, as an attacker who captured the code would.
+        Session::flush();
+
+        $this->get(route('platform.login.two-factor'));
+        $this->post(route('platform.login.two-factor'), ['code' => $code])
+            ->assertRedirect(route('platform.login.two-factor'))
+            ->assertSessionHasErrors('code');
+        $this->assertFalse(Session::has('auth.two-factor'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function verification_attempts_are_rate_limited()
+    {
+        $this->withExceptionHandling();
+
+        $mock = $this->createStub(Google2FA::class);
+        $mock->method('verifyKeyNewer')->willReturn(false);
+        $this->app->instance(Google2FA::class, $mock);
+
+        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+
+        $this->get(route('platform.login.two-factor'));
+        for ($i = 0; $i < 5; $i++) {
+            $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
+                ->assertSessionHasErrors('code');
+        }
+        $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
+            ->assertStatus(429);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
@@ -64,7 +112,7 @@ class TwoFactorAuthTest extends TestCase
         $this->withExceptionHandling();
 
         $mock = $this->createStub(Google2FA::class);
-        $mock->method('verifyKey')->willReturn(false);
+        $mock->method('verifyKeyNewer')->willReturn(false);
         $this->app->instance(Google2FA::class, $mock);
 
         $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));

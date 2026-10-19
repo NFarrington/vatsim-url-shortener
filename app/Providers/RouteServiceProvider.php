@@ -119,5 +119,15 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
+
+        // Two factor codes are short, so limit guesses per user.
+        RateLimiter::for('two-factor', function (Request $request) {
+            $key = $request->user()?->getAuthIdentifier() ?? $request->ip();
+
+            return [
+                Limit::perMinute(5)->by("two-factor-minute:$key"),
+                Limit::perHour(20)->by("two-factor-hour:$key"),
+            ];
+        });
     }
 }

@@ -32,6 +32,11 @@ Keep entries short, put them in the matching section, and remove anything that's
 - Catch database failures with `Doctrine\DBAL\Exception` (an interface in DBAL 4); `DBALException` no longer exists.
 - **Nullable relations need `?->`.** Entities use getters, and `??` doesn't guard a method call on null: `$url->getOrganization()->getName() ?? 'None'` throws when there's no organization. Write `$url->getOrganization()?->getName() ?? 'None'`. Eloquent-era code such as `$url->organization->name ?? 'None'` was safe, so look out for this where views or code were converted in the Doctrine migration.
 
+## Front end
+
+- Vue 2 (full build, with the template compiler), bundled by Laravel Mix from `resources/js/app.js`.
+- **Never mount Vue on a wrapper around server-rendered content.** Vue compiles the HTML it mounts on as a template, so `{{ }}` in user-supplied text (an organization name, say) runs as JavaScript. Blade's escaping doesn't stop this. `resources/js/mount-components.js` mounts each registered component tag on its own instead, so register new components in the `components` map in `app.js`. Static attributes on a component tag are passed as plain strings and are safe, but don't put user-supplied text in a component's slot.
+
 ## Layout
 
 - `routes/url.php`: the catch-all short URL redirect, `{prefix?}/{short_url?}` → `App\Http\Controllers\UrlController@redirect`.
@@ -70,6 +75,14 @@ How the script works:
   docker volume rm vatsim-url-shortener-vendor vatsim-url-shortener-composer-cache
   ```
 
+JavaScript tests live in `tests/js` and use Node's built-in test runner with jsdom (`npm test`, Node 18+). CI runs them. To run them in Docker:
+
+```bash
+tar -cf - package.json package-lock.json resources/js tests/js | docker run --rm -i node:lts-alpine sh -c 'mkdir /app && cd /app && tar -xf - && npm ci --no-audit --no-fund -s && npm test'
+```
+
+Don't bind-mount `$TMPDIR` into Docker on macOS: it isn't shared with Docker Desktop, so the container silently sees an empty directory. Stream files in and out with `tar` instead.
+
 `phpunit.mysql.xml` runs the same suite against MySQL/MariaDB using the `DB_*` settings in `.env.ci` (`127.0.0.1:3306`, database `laravel`, user `ci`/`ci`). The script doesn't start a database. The test image includes `pdo_mysql`, though, so you can run this suite locally by hand:
 
 1. Start a MariaDB container on a Docker network, with the database and user from `.env.ci`.
@@ -93,6 +106,7 @@ This works whether or not the fix is committed. Don't use `git stash` for this. 
 
 - Tests live in `tests/Unit` and `tests/Feature`. Mark test methods with `#[\PHPUnit\Framework\Attributes\Test]`, since PHPUnit 12 no longer reads `@test` doc comments.
 - Create entities with the global helpers `create(Class::class, [...])`, `make(...)` and `entity(Class::class)->states('org', 'prefix')->create(...)`. The factories are in `database/factories`.
+- Factory attributes are entity property names (`'totpSecret' => ...`). Snake_case column names (`'totp_secret'`) are silently ignored.
 - Use `Tests\Traits\RefreshDatabase` (the project's own trait, not Laravel's) for database tests, and `$this->signIn()` / `$this->signInAdmin()` to authenticate.
 - `Tests\TestCase` calls `withoutExceptionHandling()` by default. Call `$this->withExceptionHandling()` when a test expects validation errors or HTTP error responses.
 - `tests/CreatesApplication.php` replaces the AWS clients with permissive Mockery mocks, so tests never call AWS. To assert on AWS calls, bind a strict mock in the test. See `mockDynamoDb()` in `tests/Feature/Platform/UrlTest.php`.
