@@ -38,8 +38,8 @@ class OrganizationPolicy
     public function actAsMember(User $user, Organization $organization)
     {
         $organizationUsers = $organization->getUsers();
-        foreach ($organizationUsers as $user) {
-            if ($user->getId() === $user->getId()) {
+        foreach ($organizationUsers as $organizationUser) {
+            if ($organizationUser->getId() === $user->getId()) {
                 return true;
             }
         }

@@ -1,10 +1,12 @@
 <?php
 
 use App\Http\Controllers\Platform\Admin\AdminController;
-use App\Http\Controllers\Platform\Admin\DomainController;
-use App\Http\Controllers\Platform\Admin\ErrorController;
-use App\Http\Controllers\Platform\Admin\NewsController;
-use App\Http\Controllers\Platform\Admin\PrefixApplicationController;
+use App\Http\Controllers\Platform\Admin\DomainController as AdminDomainController;
+use App\Http\Controllers\Platform\Admin\ErrorController as AdminErrorController;
+use App\Http\Controllers\Platform\Admin\NewsController as AdminNewsController;
+use App\Http\Controllers\Platform\Admin\OrganizationController as AdminOrganizationController;
+use App\Http\Controllers\Platform\Admin\OrganizationUsersController as AdminOrganizationUsersController;
+use App\Http\Controllers\Platform\Admin\PrefixApplicationController as AdminPrefixApplicationController;
 use App\Http\Controllers\Platform\DashboardController;
 use App\Http\Controllers\Platform\EmailVerificationController;
 use App\Http\Controllers\Platform\InfoController;
@@ -53,11 +55,13 @@ Route::post('platform/settings/two-factor', [SettingsController::class, 'registe
 Route::delete('platform/settings/two-factor', [SettingsController::class, 'delete2FA']);
 
 Route::get('platform/admin', [AdminController::class, 'admin'])->name('platform.admin');
-Route::resource('platform/admin/domains', DomainController::class, ['as' => 'platform.admin']);
-Route::get('platform/admin/generate-error/{statusCode?}', [ErrorController::class, 'generateError'])->name('platform.admin.generate-error');
-Route::resource('platform/admin/news', NewsController::class, ['as' => 'platform.admin']);
-Route::post('platform/admin/prefix-applications/{prefixApplication}/approve', [PrefixApplicationController::class, 'approve'])->name('platform.admin.prefix-applications.approve');
-Route::post('platform/admin/prefix-applications/{prefixApplication}/reject', [PrefixApplicationController::class, 'reject'])->name('platform.admin.prefix-applications.reject');
-Route::resource('platform/admin/prefix-applications', PrefixApplicationController::class, ['as' => 'platform.admin', 'parameters' => ['prefix-applications' => 'prefixApplication']]);
+Route::resource('platform/admin/domains', AdminDomainController::class, ['as' => 'platform.admin']);
+Route::get('platform/admin/generate-error/{statusCode?}', [AdminErrorController::class, 'generateError'])->name('platform.admin.generate-error');
+Route::resource('platform/admin/news', AdminNewsController::class, ['as' => 'platform.admin']);
+Route::resource('platform/admin/organizations', AdminOrganizationController::class, ['as' => 'platform.admin'])->only(['index', 'show']);
+Route::resource('platform/admin/organizations.users', AdminOrganizationUsersController::class, ['as' => 'platform.admin'])->only(['store', 'destroy']);
+Route::post('platform/admin/prefix-applications/{prefixApplication}/approve', [AdminPrefixApplicationController::class, 'approve'])->name('platform.admin.prefix-applications.approve');
+Route::post('platform/admin/prefix-applications/{prefixApplication}/reject', [AdminPrefixApplicationController::class, 'reject'])->name('platform.admin.prefix-applications.reject');
+Route::resource('platform/admin/prefix-applications', AdminPrefixApplicationController::class, ['as' => 'platform.admin', 'parameters' => ['prefix-applications' => 'prefixApplication']]);
 
 Route::get('platform/support', [InfoController::class, 'support'])->name('platform.support');

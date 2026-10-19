@@ -5,18 +5,18 @@ namespace App\Http\Controllers\Platform;
 use App\Entities\Organization;
 use App\Entities\OrganizationUser;
 use App\Entities\User;
-use App\Exceptions\Cert\InvalidResponseException;
+use App\Http\Controllers\Concerns\FindsOrCreatesUsers;
 use App\Repositories\OrganizationUserRepository;
 use App\Repositories\UserRepository;
 use App\Services\VatsimService;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class OrganizationUsersController extends Controller
 {
+    use FindsOrCreatesUsers;
+
     protected EntityManagerInterface $entityManager;
     protected UserRepository $userRepository;
     protected VatsimService $vatsimService;
@@ -55,20 +55,7 @@ class OrganizationUsersController extends Controller
             'id.not_in' => 'That user is already in this organization.',
         ]);
 
-        $user = $this->userRepository->find($attributes['id']);
-        if (!$user) {
-            try {
-                $user = $this->vatsimService->createUserFromCert($attributes['id']);
-            } catch (InvalidResponseException $e) {
-                throw ValidationException::withMessages([
-                    'id' => ['Error retrieving user from VATSIM. Please check the CID and try again.'],
-                ]);
-            } catch (Exception $e) {
-                throw ValidationException::withMessages([
-                    'id' => ['Error retrieving user from VATSIM. Please try again later.'],
-                ]);
-            }
-        }
+        $user = $this->findOrCreateUser($attributes['id'], $this->userRepository, $this->vatsimService);
 
         $organizationUser = new OrganizationUser();
         $organizationUser->setOrganization($organization);
