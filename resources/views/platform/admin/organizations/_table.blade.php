@@ -4,7 +4,7 @@
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Prefix</th>
+                <th>@sortablelink('prefix', 'Prefix', null, ['class' => 'text-nowrap'])</th>
                 <th>Members</th>
                 <th></th>
             </tr>
@@ -20,7 +20,13 @@
         </table>
     </div>
 
-    <div class="mx-auto">{{ $organizations->links() }}</div>
+    @if(!Request::has('sort'))
+        <div class="mx-auto">{{ $organizations->links() }}</div>
+    @else
+        <div class="mx-auto">
+            {{ $organizations->appends(['sort' => Request::get('sort'), 'direction' => Request::get('direction')])->links() }}
+        </div>
+    @endif
 @else
     <div class="card-body text-center">
         <span>Nothing to show.</span>

@@ -26,6 +26,32 @@ class OrganizationTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function organizations_can_be_sorted_by_prefix()
+    {
+        $this->signInAdmin();
+        create(Organization::class, ['prefix' => 'bbb']);
+        create(Organization::class, ['prefix' => 'ccc']);
+        create(Organization::class, ['prefix' => 'aaa']);
+
+        $this->get(route('platform.admin.organizations.index', ['sort' => 'prefix', 'direction' => 'asc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['aaa', 'bbb', 'ccc']);
+        $this->get(route('platform.admin.organizations.index', ['sort' => 'prefix', 'direction' => 'desc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['ccc', 'bbb', 'aaa']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function organizations_cannot_be_sorted_by_unsupported_fields()
+    {
+        $this->withExceptionHandling();
+        $this->signInAdmin();
+
+        $this->get(route('platform.admin.organizations.index', ['sort' => 'name']))
+            ->assertSessionHasErrors('sort');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function organization_list_shows_member_counts_without_loading_members()
     {
         $this->signInAdmin();

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Platform\Admin;
 use App\Entities\Organization;
 use App\Repositories\OrganizationRepository;
 use App\Repositories\OrganizationUserRepository;
+use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 
 class OrganizationController extends Controller
@@ -23,9 +24,17 @@ class OrganizationController extends Controller
         $this->organizationUserRepository = $organizationUserRepository;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $organizations = $this->organizationRepository->findAllOrdered('id', 'asc', 100, Paginator::resolveCurrentPage());
+        $attributes = $this->validate($request, [
+            'sort' => 'nullable|string|in:prefix',
+            'direction' => 'nullable|string|in:asc,desc',
+        ]);
+
+        $orderBy = $attributes['sort'] ?? 'id';
+        $order = $attributes['direction'] ?? 'asc';
+
+        $organizations = $this->organizationRepository->findAllOrdered($orderBy, $order, 100, Paginator::resolveCurrentPage());
 
         return view('platform.admin.organizations.index')->with([
             'organizations' => $organizations,

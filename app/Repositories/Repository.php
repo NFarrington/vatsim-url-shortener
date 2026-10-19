@@ -13,9 +13,15 @@ abstract class Repository extends EntityRepository
 {
     public function findAllOrdered(string $orderBy = 'id', string $order = 'ASC', ?int $perPage = null, ?int $page = null)
     {
-        $query = $this->createQueryBuilder('e')
-            ->orderBy("e.$orderBy", $order)
-            ->getQuery();
+        $queryBuilder = $this->createQueryBuilder('e')
+            ->orderBy("e.$orderBy", $order);
+
+        // Break ties on non-unique columns so rows don't shift between pages.
+        if ($orderBy !== 'id') {
+            $queryBuilder->addOrderBy('e.id', 'ASC');
+        }
+
+        $query = $queryBuilder->getQuery();
 
         if ($perPage !== null) {
             return $this->paginateQuery($query, $perPage, $page);
