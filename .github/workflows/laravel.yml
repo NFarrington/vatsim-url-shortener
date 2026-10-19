@@ -96,13 +96,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Cache Docker layers
-        uses: actions/cache@v6
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
       - name: Build and push nginx
         id: docker_build_nginx
         uses: docker/build-push-action@v7
@@ -114,8 +107,10 @@ jobs:
             APP_COMMIT=${{ github.sha }}
             APP_VERSION=${{ env.IMAGE_VERSION }}
           target: nginx
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-from: |
+            type=gha,scope=nginx
+            type=gha,scope=php-fpm
+          cache-to: type=gha,scope=nginx,mode=max
       - name: Nginx image digest
         run: echo ${{ steps.docker_build_nginx.outputs.digest }}
       - name: Build and push php-fpm
@@ -129,15 +124,9 @@ jobs:
             APP_COMMIT=${{ github.sha }}
             APP_VERSION=${{ env.IMAGE_VERSION }}
           target: php-fpm
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
+          cache-from: |
+            type=gha,scope=nginx
+            type=gha,scope=php-fpm
+          cache-to: type=gha,scope=php-fpm,mode=max
       - name: php-fpm image digest
         run: echo ${{ steps.docker_build_php_fpm.outputs.digest }}
-
-      # Temp fix (from https://github.com/docker/build-push-action/blob/1bc1040caef9e604eb543693ba89b5bf4fc80935/docs/advanced/cache.md)
-      # https://github.com/docker/build-push-action/issues/252
-      # https://github.com/moby/buildkit/issues/1896
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
