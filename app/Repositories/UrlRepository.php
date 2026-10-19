@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Entities\Organization;
 use App\Entities\Url;
 use App\Entities\User;
 use App\Exceptions\NonUniqueUrlException;
@@ -45,6 +46,32 @@ class UrlRepository extends Repository
         }
 
         return $query->execute();
+    }
+
+    public function findByOrganization(Organization $organization, ?int $perPage = null, ?int $page = null)
+    {
+        $query = $this->createQueryBuilder('u')
+            ->select('u', 'd')
+            ->join('u.domain', 'd')
+            ->where('u.organization = :organization')
+            ->orderBy('u.id', 'ASC')
+            ->setParameter('organization', $organization)
+            ->getQuery();
+
+        if ($perPage !== null) {
+            return $this->paginateQuery($query, $perPage, $page);
+        }
+
+        return $query->execute();
+    }
+
+    /**
+     * @param iterable<Organization> $organizations
+     * @return array<int, int> Number of URLs, keyed by organization ID.
+     */
+    public function countByOrganizations(iterable $organizations): array
+    {
+        return $this->countByAssociation('organization', $organizations);
     }
 
     public function findPublic(string $orderBy = 'id', string $order = 'ASC', ?int $perPage = null, ?int $page = null)

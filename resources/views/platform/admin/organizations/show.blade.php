@@ -62,4 +62,37 @@
             </div>
         @endif
     </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <span class="lead">URLs</span>
+        </div>
+
+        @if($urls->isNotEmpty())
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <tr>
+                        <th>ID</th>
+                        <th>URL</th>
+                        <th>Redirect URL</th>
+                        <th>Last Updated</th>
+                    </tr>
+                    @foreach($urls as $url)
+                        <tr>
+                            <td>{{ $url->getId() }}</td>
+                            <td class="break-all"><a href="{{ url($url->getFullUrl()) }}">{{ preg_replace('#^https?://#', '', $url->getFullUrl()) }}</a></td>
+                            <td class="break-all"><a href="{{ $url->getRedirectUrl() }}">{{ preg_replace('#^https?://#', '', $url->getRedirectUrl()) }}</a></td>
+                            <td>{{ hyphen_nobreak($url->getUpdatedAt()) }}</td>
+                        </tr>
+                    @endforeach
+                </table>
+            </div>
+
+            <div class="mx-auto">{{ $urls->links() }}</div>
+        @else
+            <div class="card-body text-center">
+                <span>Nothing to show.</span>
+            </div>
+        @endif
+    </div>
 @endsection

@@ -35,22 +35,6 @@ class OrganizationUserRepository extends Repository
      */
     public function countByOrganizations(iterable $organizations): array
     {
-        $organizationIds = collect($organizations)
-            ->map(fn (Organization $organization) => $organization->getId())
-            ->all();
-
-        if (empty($organizationIds)) {
-            return [];
-        }
-
-        $results = $this->createQueryBuilder('ou')
-            ->select('IDENTITY(ou.organization) AS organizationId', 'COUNT(ou.id) AS userCount')
-            ->where('ou.organization IN (:organizationIds)')
-            ->groupBy('ou.organization')
-            ->setParameter('organizationIds', $organizationIds)
-            ->getQuery()
-            ->getArrayResult();
-
-        return array_map('intval', array_column($results, 'userCount', 'organizationId'));
+        return $this->countByAssociation('organization', $organizations);
     }
 }
