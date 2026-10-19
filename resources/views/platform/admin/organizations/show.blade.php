@@ -45,6 +45,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th></th>
                     </tr>
                     @foreach($organizationUsers as $organizationUser)
                         <tr>
@@ -52,6 +53,13 @@
                             <td>{{ $organizationUser->getUser()->getFullName() }}</td>
                             <td>{{ $organizationUser->getUser()->getEmail() ?: '—' }}</td>
                             <td>{{ $organizationUser->getRoleName() }}</td>
+                            <td>
+                                <delete-resource link-only
+                                                 route="{{ route('platform.admin.organizations.users.destroy', [$organization, $organizationUser->getUser()]) }}"
+                                                 message="Are you sure you want to remove this user from the organization?">
+                                    Remove
+                                </delete-resource>
+                            </td>
                         </tr>
                     @endforeach
                 </table>
@@ -62,6 +70,11 @@
             </div>
         @endif
     </div>
+
+    @include('platform.organizations._add-user', [
+        'action' => route('platform.admin.organizations.users.store', $organization),
+        'cardClass' => 'mt-4',
+    ])
 
     <div class="card mt-4">
         <div class="card-header">
