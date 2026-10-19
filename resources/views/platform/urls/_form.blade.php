@@ -79,9 +79,9 @@
         @if(!$newUrl && !Gate::check('move', $url))
             <select id="inputOrganizationId" disabled
                     class="custom-select {{ $errors->has('organization_id') ? 'is-invalid' : '' }}">
-                <option value="">{{ $url->getOrganization()->getName() ?? 'None' }}</option>
+                <option value="">{{ $url->getOrganization()?->getName() ?? 'None' }}</option>
             </select>
-            <input type="hidden" name="organization_id" value="{{ $url->getOrganization()->getId() }}">
+            <input type="hidden" name="organization_id" value="{{ $url->getOrganization()?->getId() }}">
         @else
             <select id="inputOrganizationId" name="organization_id"
                     class="custom-select {{ $errors->has('organization_id') ? 'is-invalid' : '' }}">
