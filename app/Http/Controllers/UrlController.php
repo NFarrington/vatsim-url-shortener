@@ -24,7 +24,7 @@ class UrlController extends Controller
      * @param string|null $shortUrl
      * @return Response
      */
-    public function redirect(Request $request, string $prefix = null, string $shortUrl = null): Response
+    public function redirect(Request $request, ?string $prefix = null, ?string $shortUrl = null): Response
     {
         if ($prefix && !$shortUrl) {
             $shortUrl = $prefix;

@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 class EcsFormatterTest extends TestCase
 {
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function adds_event_dataset_to_logs()
     {
         $testHandler = new TestHandler();

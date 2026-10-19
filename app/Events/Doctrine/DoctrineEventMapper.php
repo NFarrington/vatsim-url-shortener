@@ -25,7 +25,7 @@ class DoctrineEventMapper implements EventSubscriber
 
     public function onFlush(OnFlushEventArgs $eventArgs)
     {
-        $em = $eventArgs->getEntityManager();
+        $em = $eventArgs->getObjectManager();
         $uow = $em->getUnitOfWork();
 
         foreach ($uow->getScheduledEntityUpdates() as $entity) {

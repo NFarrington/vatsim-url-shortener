@@ -16,7 +16,7 @@ class PrefixApplicationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function applications_can_be_listed()
     {
         $this->signInAdmin();
@@ -28,7 +28,7 @@ class PrefixApplicationTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function show_page_redirects_to_edit_page()
     {
         $this->signInAdmin();
@@ -38,7 +38,7 @@ class PrefixApplicationTest extends TestCase
             ->assertRedirect(route('platform.admin.prefix-applications.edit', $application));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function edit_page_loads_successfully()
     {
         $this->signInAdmin();
@@ -48,7 +48,7 @@ class PrefixApplicationTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function application_can_be_approved()
     {
         Notification::fake();
@@ -68,7 +68,7 @@ class PrefixApplicationTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function application_can_be_rejected()
     {
         Notification::fake();

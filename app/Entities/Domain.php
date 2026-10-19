@@ -8,39 +8,31 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="domains")
- */
+#[ORM\Table(name: 'domains')]
+#[ORM\Entity]
 class Domain extends Entity
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
     protected int $id;
 
     /**
-     * @ORM\OneToMany(targetEntity="Url", mappedBy="domain")
      * @var Collection|Url[]
      */
+    #[ORM\OneToMany(targetEntity: Url::class, mappedBy: 'domain')]
     protected Collection $urls;
 
     /**
-     * @ORM\OneToMany(targetEntity="DomainOrganization", mappedBy="domain")
      * @var Collection|DomainOrganization[]
      */
+    #[ORM\OneToMany(targetEntity: DomainOrganization::class, mappedBy: 'domain')]
     protected Collection $domainOrganizations;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $public = false;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $url;
 
     public function __construct()

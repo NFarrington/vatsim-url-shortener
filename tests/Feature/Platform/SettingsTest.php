@@ -16,7 +16,7 @@ class SettingsTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function settings_edit_page_loads_successfully()
     {
         $this->signIn();
@@ -25,7 +25,7 @@ class SettingsTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_change_their_email()
     {
         $this->signIn();
@@ -39,7 +39,7 @@ class SettingsTest extends TestCase
         $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['email' => $user->getEmail(), 'email_verified' => 0]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_use_an_existing_email()
     {
         $this->withExceptionHandling();
@@ -54,7 +54,7 @@ class SettingsTest extends TestCase
             ->assertSessionHasErrors('email');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function two_factor_auth_configuration_page_loads_successfully()
     {
         $this->signIn();
@@ -63,10 +63,10 @@ class SettingsTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_configure_two_factor_auth()
     {
-        $mock = $this->createMock(Google2FA::class);
+        $mock = $this->createStub(Google2FA::class);
         $mock->method('verifyKey')->willReturn(true);
         $this->app->instance(Google2FA::class, $mock);
 
@@ -78,7 +78,7 @@ class SettingsTest extends TestCase
             ->assertSessionHas('success');
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_remove_two_factor_auth()
     {
         $this->signIn($user = create(User::class, ['totpSecret' => Str::random(16)]));
@@ -92,12 +92,12 @@ class SettingsTest extends TestCase
         $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $user->getId(), 'totp_secret' => null]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_configure_two_factor_auth_with_an_invalid_code()
     {
         $this->withExceptionHandling();
 
-        $mock = $this->createMock(Google2FA::class);
+        $mock = $this->createStub(Google2FA::class);
         $mock->method('verifyKey')->willReturn(false);
         $this->app->instance(Google2FA::class, $mock);
 
@@ -108,7 +108,7 @@ class SettingsTest extends TestCase
             ->assertRedirect(route('platform.settings.two-factor'));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_configure_two_factor_auth_if_already_configured()
     {
         $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));

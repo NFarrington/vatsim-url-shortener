@@ -8,27 +8,19 @@ use App\Exceptions\UnexpectedCallException;
 use Doctrine\ORM\Mapping as ORM;
 use Illuminate\Contracts\Auth\Authenticatable;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="system_users")
- */
+#[ORM\Table(name: 'system_users')]
+#[ORM\Entity]
 class SystemUser extends Entity implements Authenticatable
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
     protected int $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $username;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $password;
 
     public function getId(): int
@@ -54,6 +46,11 @@ class SystemUser extends Entity implements Authenticatable
     public function getAuthPassword()
     {
         return $this->password;
+    }
+
+    public function getAuthPasswordName()
+    {
+        return 'password';
     }
 
     public function getRememberToken()

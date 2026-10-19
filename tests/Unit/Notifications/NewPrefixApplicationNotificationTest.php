@@ -8,14 +8,12 @@ use App\Notifications\NewPrefixApplicationNotification;
 use Tests\Traits\RefreshDatabase;
 use Tests\TestCase;
 
-/**
- * @covers \App\Notifications\NewPrefixApplicationNotification
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Notifications\NewPrefixApplicationNotification::class)]
 class NewPrefixApplicationNotificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function routes_notification_via_mail()
     {
         $user = make(User::class);
@@ -27,7 +25,7 @@ class NewPrefixApplicationNotificationTest extends TestCase
         $this->assertContains('mail', $routes);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function converts_to_mail_notification()
     {
         $user = make(User::class);

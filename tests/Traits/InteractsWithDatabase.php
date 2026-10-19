@@ -9,7 +9,7 @@ use Tests\Constraints\SoftDeletedInDatabase;
 
 trait InteractsWithDatabase
 {
-    protected function assertDatabaseHas($table, array $data, $connection = null)
+    protected function assertDatabaseHas($table, array $data = [], $connection = null)
     {
         $this->assertThat(
             $table, new HasInDatabase($this->getConnection($connection), $data)
@@ -18,7 +18,7 @@ trait InteractsWithDatabase
         return $this;
     }
 
-    protected function assertDatabaseMissing($table, array $data, $connection = null)
+    protected function assertDatabaseMissing($table, array $data = [], $connection = null)
     {
         $constraint = new ReverseConstraint(
             new HasInDatabase($this->getConnection($connection), $data)
@@ -68,7 +68,7 @@ trait InteractsWithDatabase
      * @param string|null $connection
      * @return \Doctrine\DBAL\Connection
      */
-    protected function getConnection($connection = null)
+    protected function getConnection($connection = null, $table = null)
     {
         $registry = app(IlluminateRegistry::class);
 

@@ -11,10 +11,8 @@ use Illuminate\Support\Carbon;
 
 trait RecordsUpdatedAt
 {
-    /**
-     * @ORM\Column(name="updated_at", type="datetime", nullable=false)
-     * @Gedmo\Timestampable(on="update")
-     */
+    #[ORM\Column(name: 'updated_at', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected DateTime $updatedAt;
 
     public function getUpdatedAt(): Carbon

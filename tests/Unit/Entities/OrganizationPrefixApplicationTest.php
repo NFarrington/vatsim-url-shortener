@@ -8,14 +8,12 @@ use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 use Tests\Traits\RefreshDatabase;
 
-/**
- * @covers \App\Entities\OrganizationPrefixApplication
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Entities\OrganizationPrefixApplication::class)]
 class OrganizationPrefixApplicationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function belongs_to_organization()
     {
         $expectedOrganization = create(Organization::class);

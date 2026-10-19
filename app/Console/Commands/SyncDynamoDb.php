@@ -29,7 +29,7 @@ class SyncDynamoDb extends Command
         $page = 1;
         $morePages = true;
         while ($morePages) {
-            $urls = $this->urlRepository->findAll('id', 'asc', 25, $page);
+            $urls = $this->urlRepository->findAllOrdered('id', 'asc', 25, $page);
             $this->info("Syncing URL batch {$urls->firstItem()} to {$urls->lastItem()}.");
             $requests = [];
             foreach ($urls as $url) {
@@ -70,7 +70,7 @@ class SyncDynamoDb extends Command
     protected function batchWrite(array $requests)
     {
         $attempt = 0;
-        while (! empty($requests)) {
+        while (!empty($requests)) {
             if ($attempt > 0) {
                 usleep(min(2 ** $attempt * 50000, 2000000));
             }

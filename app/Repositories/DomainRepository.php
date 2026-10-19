@@ -10,8 +10,8 @@ class DomainRepository extends Repository
         User $user,
         string $orderBy = 'id',
         string $order = 'ASC',
-        int $perPage = null,
-        int $page = null
+        ?int $perPage = null,
+        ?int $page = null
     ) {
         $dql = <<<DQL
             SELECT d FROM App\Entities\Domain d

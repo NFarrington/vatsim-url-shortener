@@ -5,9 +5,7 @@ namespace Tests\Unit\Macros;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
-/**
- * @covers \App\Macros\CarbonMacros
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Macros\CarbonMacros::class)]
 class CarbonMacrosTest extends TestCase
 {
     const YEAR = 2019, MONTH = 12, DAY = 23, HOUR = 15, MINUTE = 29, SECOND = 1;
@@ -27,7 +25,7 @@ class CarbonMacrosTest extends TestCase
         Carbon::setTestNow();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function diff_time_for_humans_outputs_correctly()
     {
         $date7DaysAgo = self::YEAR.'-'.self::MONTH.'-'.(self::DAY - 7);

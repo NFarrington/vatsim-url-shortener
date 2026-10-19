@@ -8,7 +8,7 @@ class CarbonMacros
 {
     public static function diffForHumansAt(Carbon $carbon)
     {
-        $diffDays = $carbon->diffInDays(now()->endOfDay());
+        $diffDays = (int) $carbon->diffInDays(now()->endOfDay(), true);
         switch ($diffDays) {
             case 0:
                 $date = 'Today';

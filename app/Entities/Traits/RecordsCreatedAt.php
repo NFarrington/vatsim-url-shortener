@@ -11,10 +11,8 @@ use Illuminate\Support\Carbon;
 
 trait RecordsCreatedAt
 {
-    /**
-     * @ORM\Column(name="created_at", type="datetime", nullable=false)
-     * @Gedmo\Timestampable(on="create")
-     */
+    #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected DateTime $createdAt;
 
     public function getCreatedAt(): Carbon

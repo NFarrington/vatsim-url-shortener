@@ -4,7 +4,6 @@ namespace Tests\Unit\Services;
 
 use App\Exceptions\Cert\InvalidResponseException;
 use App\Services\VatsimService;
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -12,48 +11,45 @@ use GuzzleHttp\Psr7\Response;
 use Tests\TestCase;
 use Tests\Traits\RefreshDatabase;
 
-/**
- * @covers \App\Services\VatsimService
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Services\VatsimService::class)]
 class VatsimServiceTest extends TestCase
 {
-    use ArraySubsetAsserts, RefreshDatabase;
+    use RefreshDatabase;
 
     const USER_CID = 1104930;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function retrieves_user_data_from_cert()
     {
         $this->given_cert_responds_with_a_valid_user();
 
         $user = app(VatsimService::class)->getUser(self::USER_CID);
 
-        $this->assertArraySubset([
-            'id' => self::USER_CID,
-        ], $user);
+        $this->assertArrayHasKey('id', $user);
+        $this->assertEquals(self::USER_CID, $user['id']);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function throws_exception_if_id_not_in_response()
     {
         $this->given_cert_responds_with_a_missing_user();
 
-        $this->assertThrowsWithMessage(
+        $this->assertThrows(
+            fn() => app(VatsimService::class)->getUser(self::USER_CID),
             InvalidResponseException::class,
-            sprintf("missing keys from https://api.vatsim.net/api/ratings/%s/: id", self::USER_CID),
-            fn() => app(VatsimService::class)->getUser(self::USER_CID)
+            sprintf("Missing keys from https://api.vatsim.net/api/ratings/%s/: id", self::USER_CID)
         );
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function throws_exception_if_id_is_different_from_expected()
     {
         $this->given_cert_responds_with_a_valid_user(1234);
 
-        $this->assertThrowsWithMessage(
+        $this->assertThrows(
+            fn() => app(VatsimService::class)->getUser(self::USER_CID),
             InvalidResponseException::class,
-            sprintf("user id 1234 does not match expected %s", self::USER_CID),
-            fn() => app(VatsimService::class)->getUser(self::USER_CID)
+            sprintf("User ID 1234 does not match expected %s", self::USER_CID)
         );
     }
 

@@ -61,7 +61,7 @@ class HasInDatabase extends Constraint
             }
         }
 
-        return (int) $query->execute()->fetch()['count'] > 0;
+        return (int) $query->executeQuery()->fetchAssociative()['count'] > 0;
     }
 
     /**
@@ -91,7 +91,7 @@ class HasInDatabase extends Constraint
 
         $similarResults = $query->where(
             '`'.array_key_first($this->data).'` = '.$query->createPositionalParameter($this->data[array_key_first($this->data)])
-        )->setMaxResults($this->show)->execute()->fetchAll();
+        )->setMaxResults($this->show)->executeQuery()->fetchAllAssociative();
 
         if (!empty($similarResults)) {
             $description = 'Found similar results: '.json_encode($similarResults, JSON_PRETTY_PRINT);
@@ -99,7 +99,7 @@ class HasInDatabase extends Constraint
             $query = $this->database->createQueryBuilder()
                 ->select('*')->from($table);
 
-            $results = $query->setMaxResults($this->show)->execute()->fetchAll();
+            $results = $query->setMaxResults($this->show)->executeQuery()->fetchAllAssociative();
 
             if (empty($results)) {
                 return 'The table is empty.';
@@ -108,7 +108,7 @@ class HasInDatabase extends Constraint
             $description = 'Found: '.json_encode($results, JSON_PRETTY_PRINT);
         }
 
-        $count = (int) $query->select('COUNT(*) as count')->execute()->fetch()['count'];
+        $count = (int) $query->select('COUNT(*) as count')->executeQuery()->fetchAssociative()['count'];
         if ($count > $this->show) {
             $description .= sprintf(' and %s others', $count - $this->show);
         }

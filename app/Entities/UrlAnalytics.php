@@ -8,76 +8,54 @@ use App\Entities\Traits\RecordsCreatedAt;
 use App\Entities\Traits\RecordsUpdatedAt;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="url_analytics")
- */
+#[ORM\Table(name: 'url_analytics')]
+#[ORM\Entity]
 class UrlAnalytics extends Entity
 {
     use RecordsCreatedAt, RecordsUpdatedAt;
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     protected string $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User")
-     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
     protected ?User $user = null;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Url", inversedBy="analytics")
-     */
+    #[ORM\ManyToOne(targetEntity: Url::class, inversedBy: 'analytics')]
     protected ?Url $url = null;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $requestTime = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     protected ?string $httpHost = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     protected ?string $httpReferer = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     protected ?string $httpUserAgent = null;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $remoteAddr = null;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $requestUri = null;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
      * @var mixed
      */
+    #[ORM\Column(type: 'json', nullable: true)]
     protected $getData = null;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
      * @var mixed
      */
+    #[ORM\Column(type: 'json', nullable: true)]
     protected $customHeaders = null;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: 'integer', nullable: true)]
     protected ?int $responseCode = null;
 
     public function getId(): string

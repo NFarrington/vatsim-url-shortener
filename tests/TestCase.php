@@ -3,7 +3,6 @@
 namespace Tests;
 
 use App\Entities\User;
-use Codeception\AssertThrows;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Tests\Traits\InteractsWithDatabase;
@@ -11,7 +10,7 @@ use Tests\Traits\RefreshDatabase;
 
 abstract class TestCase extends BaseTestCase
 {
-    use CreatesApplication, InteractsWithDatabase, AssertThrows;
+    use CreatesApplication, InteractsWithDatabase;
 
     /**
      * The user currently signed in.
@@ -46,7 +45,7 @@ abstract class TestCase extends BaseTestCase
         return $this;
     }
 
-    protected function signInAdmin(User $user = null)
+    protected function signInAdmin(?User $user = null)
     {
         $this->user = $user ?: create(User::class);
 
@@ -57,7 +56,7 @@ abstract class TestCase extends BaseTestCase
         return $this;
     }
 
-    protected function refreshAllEntities(EntityManagerInterface $em = null)
+    protected function refreshAllEntities(?EntityManagerInterface $em = null)
     {
         $em = $em ?: $this->em;
         foreach ($em->getUnitOfWork()->getIdentityMap() as $className => $entities) {

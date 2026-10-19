@@ -10,11 +10,9 @@ use App\Entities\Traits\SoftDeletes;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="organization_user")
- * @Gedmo\SoftDeleteable(fieldName="deletedAt")
- */
+#[ORM\Table(name: 'organization_user')]
+#[ORM\Entity]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt')]
 class OrganizationUser extends Entity
 {
     use RecordsCreatedAt, RecordsUpdatedAt, SoftDeletes;
@@ -23,28 +21,20 @@ class OrganizationUser extends Entity
     const ROLE_MANAGER = 2;
     const ROLE_MEMBER = 3;
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
     protected int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Organization", inversedBy="organizationUsers")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'organizationUsers')]
     protected Organization $organization;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="userOrganizations")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userOrganizations')]
     protected User $user;
 
-    /**
-     * @ORM\Column(type="smallint")
-     */
+    #[ORM\Column(type: 'smallint')]
     protected int $roleId;
 
     public function getId(): int

@@ -12,7 +12,7 @@ use Tests\TestCase;
 class StacktraceCustomizerTest extends TestCase
 {
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function enables_stacktraces()
     {
         $formatter = new JsonFormatter();
@@ -27,7 +27,7 @@ class StacktraceCustomizerTest extends TestCase
         $records = $testHandler->getRecords();
         $this->assertCount(1, $records);
         $record = json_decode($records[0]['formatted']);
-        $this->assertObjectHasAttribute('trace', $record->context->exception);
+        $this->assertObjectHasProperty('trace', $record->context->exception);
     }
 
 }

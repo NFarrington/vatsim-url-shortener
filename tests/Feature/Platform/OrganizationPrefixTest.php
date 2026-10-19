@@ -22,7 +22,7 @@ class OrganizationPrefixTest extends TestCase
         $this->signIn();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function create_page_loads_successfully()
     {
         $organization = create(Organization::class);
@@ -33,13 +33,10 @@ class OrganizationPrefixTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function application_can_be_created()
     {
-        $this->expectsNotification(
-            Notification::route('mail', 'support@vats.im'),
-            NewPrefixApplicationNotification::class
-        );
+        Notification::fake();
 
         $organization = create(Organization::class);
         create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
@@ -57,9 +54,13 @@ class OrganizationPrefixTest extends TestCase
             'identity_url' => $application->getIdentityUrl(),
             'prefix' => $application->getPrefix(),
         ]);
+        Notification::assertSentOnDemand(
+            NewPrefixApplicationNotification::class,
+            fn($notification, $channels, $notifiable) => $notifiable->routes['mail'] === 'support@vats.im'
+        );
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function organization_with_prefix_cannot_access_application_pages()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -81,7 +82,7 @@ class OrganizationPrefixTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function organization_with_prefix_application_cannot_access_application_pages()
     {
         $organization = create(Organization::class);

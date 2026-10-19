@@ -12,11 +12,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="organizations")
- * @Gedmo\SoftDeleteable(fieldName="deletedAt")
- */
+#[ORM\Table(name: 'organizations')]
+#[ORM\Entity]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt')]
 class Organization extends Entity
 {
     use RecordsCreatedAt, RecordsUpdatedAt, SoftDeletes;
@@ -25,41 +23,27 @@ class Organization extends Entity
         'name',
     ];
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
     protected int $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $name;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $prefix;
 
-    /**
-     * @ORM\OneToMany(targetEntity="DomainOrganization", mappedBy="organization")
-     */
+    #[ORM\OneToMany(targetEntity: DomainOrganization::class, mappedBy: 'organization')]
     protected Collection $organizationDomains;
 
-    /**
-     * @ORM\OneToMany(targetEntity="OrganizationUser", mappedBy="organization", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: OrganizationUser::class, mappedBy: 'organization', orphanRemoval: true)]
     protected Collection $organizationUsers;
 
-    /**
-     * @ORM\OneToMany(targetEntity="OrganizationPrefixApplication", mappedBy="organization")
-     */
+    #[ORM\OneToMany(targetEntity: OrganizationPrefixApplication::class, mappedBy: 'organization')]
     protected Collection $prefixApplications;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Url", mappedBy="organization")
-     */
+    #[ORM\OneToMany(targetEntity: Url::class, mappedBy: 'organization')]
     protected Collection $urls;
 
     public function __construct()
@@ -109,7 +93,7 @@ class Organization extends Entity
      * @param int|null $roleId
      * @return OrganizationUser[]
      */
-    public function getOrganizationUsers(int $roleId = null): array
+    public function getOrganizationUsers(?int $roleId = null): array
     {
         if ($roleId === null) {
             return $this->organizationUsers
@@ -125,7 +109,7 @@ class Organization extends Entity
      * @param int|null $roleId
      * @return User[]
      */
-    public function getUsers(int $roleId = null): array
+    public function getUsers(?int $roleId = null): array
     {
         if ($roleId === null) {
             return $this->organizationUsers

@@ -27,7 +27,7 @@ class OrganizationUsersTest extends TestCase
         $this->signIn();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_be_added_to_organization()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -49,7 +49,7 @@ class OrganizationUsersTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function unregistered_user_can_be_added_to_organization()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -82,7 +82,7 @@ class OrganizationUsersTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function error_retrieving_unregistered_user_causes_validation_exception()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -96,15 +96,15 @@ class OrganizationUsersTest extends TestCase
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->assertThrows(
-            ValidationException::class,
             fn() => $this->post(
                 route('platform.organizations.users.store', $organization),
                 ['id' => $user->getId(), 'role_id' => OrganizationUser::ROLE_MEMBER]
-            )
+            ),
+            ValidationException::class
         );
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function perm_error_retrieving_unregistered_user_causes_validation_exception()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -118,15 +118,15 @@ class OrganizationUsersTest extends TestCase
 
         $this->get(route('platform.organizations.edit', $organization));
         $this->assertThrows(
-            ValidationException::class,
             fn() => $this->post(
                 route('platform.organizations.users.store', $organization),
                 ['id' => $user->getId(), 'role_id' => OrganizationUser::ROLE_MEMBER]
-            )
+            ),
+            ValidationException::class
         );
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_can_be_removed_from_organization()
     {
         $user = create(User::class);
@@ -145,7 +145,7 @@ class OrganizationUsersTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_remove_themselves_from_an_organization()
     {
         $organization = entity(Organization::class)->states('prefix')->create();

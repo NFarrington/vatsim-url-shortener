@@ -10,8 +10,8 @@ class OrganizationRepository extends Repository
         User $user,
         string $orderBy = 'id',
         string $order = 'ASC',
-        int $perPage = null,
-        int $page = null
+        ?int $perPage = null,
+        ?int $page = null
     ) {
         $query = $this->createQueryBuilder('o')
             ->select('o')

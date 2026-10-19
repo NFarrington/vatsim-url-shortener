@@ -20,14 +20,14 @@ class OrganizationTest extends TestCase
         $this->signIn();
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_successfully()
     {
         $this->get(route('platform.organizations.index'))
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_successfully_for_users_with_an_organization()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -37,14 +37,14 @@ class OrganizationTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function create_page_loads_successfully()
     {
         $this->get(route('platform.organizations.create'))
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function organization_can_be_created()
     {
         $organization = make(Organization::class);
@@ -59,7 +59,7 @@ class OrganizationTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function show_organization_redirects_to_edit()
     {
         $organization = create(Organization::class);
@@ -67,7 +67,7 @@ class OrganizationTest extends TestCase
             ->assertRedirect(route('platform.organizations.edit', $organization));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function edit_page_loads_successfully()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -77,7 +77,7 @@ class OrganizationTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function organization_can_be_edited()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -96,7 +96,7 @@ class OrganizationTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function organization_can_be_deleted()
     {
         $organization = entity(Organization::class)->states('prefix')->create();
@@ -112,7 +112,7 @@ class OrganizationTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function organization_with_urls_cannot_be_deleted()
     {
         $organization = entity(Organization::class)->states('prefix')->create();

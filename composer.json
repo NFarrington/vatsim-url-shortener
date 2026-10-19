@@ -9,43 +9,38 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.0",
         "ext-gd": "*",
         "ext-json": "*",
         "ext-pdo": "*",
         "ext-simplexml": "*",
-        "aws/aws-sdk-php": "^3.130",
-        "aws/aws-sdk-php-v3-bridge": "^0.3.0",
-        "bacon/bacon-qr-code": "^1.0",
-        "beberlei/doctrineextensions": "^1.0",
-        "bugsnag/bugsnag-laravel": "^2.0",
-        "doctrine/dbal": "^2.7",
-        "fideloper/proxy": "^4.4",
-        "fruitcake/laravel-cors": "^2.0",
-        "gedmo/doctrine-extensions": "^3.0",
-        "graham-campbell/markdown": "^13.0",
-        "guzzlehttp/guzzle": "^7.0.1",
-        "kyslik/column-sortable": "^6.0",
-        "laravel-doctrine/extensions": "1.4.*",
-        "laravel-doctrine/orm": "~1.7.2",
-        "laravel/framework": "^8.12",
-        "laravel/tinker": "^2.5",
-        "laravel/ui": "^3.2",
-        "league/oauth2-client": "^2.5",
-        "pragmarx/google2fa-qrcode": "^1.0"
+        "php": "^8.5",
+        "aws/aws-sdk-php": "^3.300",
+        "aws/aws-sdk-php-v3-bridge": "^0.4.0",
+        "bacon/bacon-qr-code": "^3.1",
+        "beberlei/doctrineextensions": "^1.5",
+        "bugsnag/bugsnag-laravel": "^2.31",
+        "gedmo/doctrine-extensions": "^3.22",
+        "graham-campbell/markdown": "^16.1",
+        "guzzlehttp/guzzle": "^7.10",
+        "kyslik/column-sortable": "^8.0",
+        "laravel-doctrine/extensions": "^2.0",
+        "laravel-doctrine/orm": "^3.3",
+        "laravel/framework": "^13.0",
+        "laravel/tinker": "^3.0",
+        "laravel/ui": "^4.6",
+        "league/oauth2-client": "^2.9",
+        "pragmarx/google2fa-qrcode": "^4.0"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.1",
-        "barryvdh/laravel-ide-helper": "^2.4",
-        "codeception/assert-throws": "^1.0",
-        "dms/phpunit-arraysubset-asserts": "^0.2.0",
-        "facade/ignition": "^2.5",
-        "fzaninotto/faker": "^1.9.1",
-        "laravel/sail": "^1.0.1",
-        "laravel-doctrine/migrations": "~2.3.0",
-        "mockery/mockery": "^1.4.2",
-        "nunomaduro/collision": "^5.0",
-        "phpunit/phpunit": "^9.3.3"
+        "barryvdh/laravel-debugbar": "^4.4",
+        "barryvdh/laravel-ide-helper": "^3.7",
+        "fakerphp/faker": "^1.24",
+        "laravel-doctrine/migrations": "^3.4",
+        "laravel/sail": "^1.69",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.9",
+        "phpunit/phpunit": "^12.5",
+        "spatie/laravel-ignition": "^2.12"
     },
     "config": {
         "preferred-install": "dist",
@@ -71,8 +66,7 @@
             "Tests\\": "tests/"
         },
         "files": [
-            "tests/helpers.php",
-            "vendor/phpunit/phpunit/src/Framework/Assert/Functions.php"
+            "tests/helpers.php"
         ]
     },
     "minimum-stability": "dev",
@@ -102,7 +96,7 @@
             "@php artisan up"
         ],
         "docker-build": [
-            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest",
+            "@composer install --no-dev --optimize-autoloader --classmap-authoritative",
             "@php artisan html:generate"
         ],
         "docker-entrypoint": [
@@ -112,11 +106,10 @@
             "@php artisan doctrine:clear:metadata:cache",
             "@php artisan doctrine:clear:query:cache",
             "@php artisan doctrine:clear:result:cache",
-            "@php artisan migrate-with-lock --step --force --no-interaction",
-            "@php artisan doctrine:generate:proxies --em=default"
+            "@php artisan migrate-with-lock --step --force --no-interaction"
         ],
         "docker-install": [
-            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-suggest --no-autoloader --no-scripts"
+            "@composer install --no-dev --optimize-autoloader --classmap-authoritative --no-autoloader --no-scripts"
         ],
         "ide-helper": [
             "@php artisan ide-helper:generate",

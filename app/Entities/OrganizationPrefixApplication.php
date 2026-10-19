@@ -10,42 +10,30 @@ use App\Entities\Traits\SoftDeletes;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="organization_prefix_applications")
- * @Gedmo\SoftDeleteable(fieldName="deletedAt")
- */
+#[ORM\Table(name: 'organization_prefix_applications')]
+#[ORM\Entity]
+#[Gedmo\SoftDeleteable(fieldName: 'deletedAt')]
 class OrganizationPrefixApplication extends Entity
 {
     use RecordsCreatedAt, RecordsUpdatedAt, SoftDeletes;
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
     protected int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Organization", inversedBy="prefixApplications")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'prefixApplications')]
     protected Organization $organization;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="prefixApplications")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'prefixApplications')]
     protected User $user;
 
-    /**
-     * @ORM\Column(type="string", length=1000)
-     */
+    #[ORM\Column(type: 'string', length: 1000)]
     protected string $identityUrl;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $prefix;
 
     public function getId(): int

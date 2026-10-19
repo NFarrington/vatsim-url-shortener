@@ -15,10 +15,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Carbon;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="users")
- */
+#[ORM\Table(name: 'users')]
+#[ORM\Entity]
 class User extends Entity implements Authenticatable
 {
     use RecordsCreatedAt, RecordsUpdatedAt, RoutesNotifications;
@@ -32,102 +30,68 @@ class User extends Entity implements Authenticatable
         'vatsimStatusData',
     ];
 
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: 'integer', options: ['unsigned' => true])]
     protected int $id;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Revision", mappedBy="user")
-     */
+    #[ORM\OneToMany(targetEntity: Revision::class, mappedBy: 'user')]
     protected Collection $revisions;
 
-    /**
-     * @ORM\OneToMany(targetEntity="Url", mappedBy="user")
-     */
+    #[ORM\OneToMany(targetEntity: Url::class, mappedBy: 'user')]
     protected Collection $urls;
 
-    /**
-     * @ORM\OneToMany(targetEntity="EmailVerification", mappedBy="user")
-     */
+    #[ORM\OneToMany(targetEntity: EmailVerification::class, mappedBy: 'user')]
     protected Collection $emailVerifications;
 
-    /**
-     * @ORM\OneToMany(targetEntity="OrganizationPrefixApplication", mappedBy="user")
-     */
+    #[ORM\OneToMany(targetEntity: OrganizationPrefixApplication::class, mappedBy: 'user')]
     protected Collection $prefixApplications;
 
-    /**
-     * @ORM\OneToMany(targetEntity="OrganizationUser", mappedBy="user")
-     */
+    #[ORM\OneToMany(targetEntity: OrganizationUser::class, mappedBy: 'user')]
     protected Collection $userOrganizations;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $firstName;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $lastName;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $email;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $emailVerified = false;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $admin = false;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": 0})
-     */
+    #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $banned = false;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $totpSecret = null;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
     protected ?string $rememberToken = null;
 
-    /**
-     * @ORM\Column(type="text", length=65535, nullable=true)
-     */
+    #[ORM\Column(type: 'text', length: 65535, nullable: true)]
     protected ?string $vatsimConnectAccessToken = null;
 
-    /**
-     * @ORM\Column(type="text", length=65535, nullable=true)
-     */
+    #[ORM\Column(type: 'text', length: 65535, nullable: true)]
     protected ?string $vatsimConnectRefreshToken = null;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
     protected ?DateTime $vatsimConnectTokenExpiry = null;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
      * @var mixed
      */
+    #[ORM\Column(type: 'json', nullable: true)]
     protected $vatsimSsoData = null;
 
     /**
-     * @ORM\Column(type="json", nullable=true)
      * @var mixed
      */
+    #[ORM\Column(type: 'json', nullable: true)]
     protected $vatsimStatusData = null;
 
     public function __construct()
@@ -162,6 +126,11 @@ class User extends Entity implements Authenticatable
     public function getAuthPassword()
     {
         return '';
+    }
+
+    public function getAuthPasswordName()
+    {
+        return 'password';
     }
 
     public function getRememberToken(): string
@@ -302,7 +271,7 @@ class User extends Entity implements Authenticatable
      * @param int|null $roleId
      * @return Organization[]
      */
-    public function getOrganizations(int $roleId = null): array
+    public function getOrganizations(?int $roleId = null): array
     {
         if ($roleId === null) {
             return $this->userOrganizations

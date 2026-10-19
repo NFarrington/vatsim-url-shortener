@@ -8,49 +8,33 @@ use App\Entities\Traits\RecordsCreatedAt;
 use App\Entities\Traits\RecordsUpdatedAt;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="revisions")
- */
+#[ORM\Table(name: 'revisions')]
+#[ORM\Entity]
 class Revision extends Entity
 {
     use RecordsCreatedAt, RecordsUpdatedAt;
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     protected string $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $modelType;
 
-    /**
-     * @ORM\Column(type="bigint", options={"unsigned": true})
-     */
+    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     protected string $modelId;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="User", inversedBy="revisions")
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'revisions')]
     protected ?User $user;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    #[ORM\Column(type: 'string')]
     protected string $propertyName;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     protected ?string $oldValue;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     protected ?string $newValue;
 
     public function getId(): string

@@ -9,14 +9,12 @@ use App\Entities\User;
 use Tests\Traits\RefreshDatabase;
 use Tests\TestCase;
 
-/**
- * @covers \App\Entities\Url
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Entities\Url::class)]
 class UrlTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function provides_full_url()
     {
         $domain = make(Domain::class, ['url' => 'http://my-domain.test/']);
@@ -27,7 +25,7 @@ class UrlTest extends TestCase
         $this->assertEquals('http://my-domain.test/my-url', $fullUrl);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function provides_full_url_with_prefix()
     {
         $domain = make(Domain::class, ['url' => 'http://my-domain.test/']);

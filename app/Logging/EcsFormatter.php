@@ -3,39 +3,42 @@
 namespace App\Logging;
 
 use Monolog\Formatter\JsonFormatter;
+use Monolog\LogRecord;
 
 class EcsFormatter extends JsonFormatter
 {
-    public function format(array $record): string
+    protected function normalizeRecord(LogRecord $record): array
     {
-        if (empty($record['datetime'])) {
-            $record['datetime'] = gmdate('c');
-        }
-        $record['@timestamp'] = $record['datetime'];
-        unset($record['datetime']);
+        $normalized = parent::normalizeRecord($record);
 
-        if (!empty($record['level_name'])) {
-            if (!isset($record['log'])) {
-                $record['log'] = [];
+        if (empty($normalized['datetime'])) {
+            $normalized['datetime'] = gmdate('c');
+        }
+        $normalized['@timestamp'] = $normalized['datetime'];
+        unset($normalized['datetime']);
+
+        if (!empty($normalized['level_name'])) {
+            if (!isset($normalized['log'])) {
+                $normalized['log'] = [];
             }
-            $record['log']['level'] = $record['level_name'];
-            unset($record['level']);
-            unset($record['level_name']);
+            $normalized['log']['level'] = $normalized['level_name'];
+            unset($normalized['level']);
+            unset($normalized['level_name']);
         }
 
-        if (!empty($record['channel'])) {
-            if (!isset($record['log'])) {
-                $record['log'] = [];
+        if (!empty($normalized['channel'])) {
+            if (!isset($normalized['log'])) {
+                $normalized['log'] = [];
             }
-            $record['log']['logger'] = $record['channel'];
-            unset($record['channel']);
+            $normalized['log']['logger'] = $normalized['channel'];
+            unset($normalized['channel']);
         }
 
-        if (!isset($record['event'])) {
-            $record['event'] = [];
+        if (!isset($normalized['event'])) {
+            $normalized['event'] = [];
         }
-        $record['event']['dataset'] = 'laravel.application';
+        $normalized['event']['dataset'] = 'laravel.application';
 
-        return parent::format($record);
+        return $normalized;
     }
 }

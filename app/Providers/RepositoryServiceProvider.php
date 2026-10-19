@@ -17,7 +17,7 @@ use App\Repositories\PrefixApplicationRepository;
 use App\Repositories\UrlRepository;
 use App\Repositories\UserRepository;
 use App\Services\UrlService;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception as DBALException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 

@@ -5,12 +5,13 @@ namespace Tests\Unit\Middleware;
 use App\Entities\User;
 use App\Http\Middleware\CheckBanStatus;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Illuminate\Session\ArraySessionHandler;
+use Illuminate\Session\Store;
 use Tests\TestCase;
 
 class CheckBanStatusTest extends TestCase
 {
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function ignores_unbanned_users()
     {
         $user = make(User::class);
@@ -24,7 +25,7 @@ class CheckBanStatusTest extends TestCase
         $this->assertEquals('next', $result);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     public function redirects_banned_users()
     {
         $user = make(User::class);
@@ -33,7 +34,7 @@ class CheckBanStatusTest extends TestCase
         $request->setUserResolver(function () use ($user) {
             return $user;
         });
-        $request->setSession(new Session());
+        $request->setLaravelSession(new Store('test', new ArraySessionHandler(10)));
         $middleware = new CheckBanStatus();
         $result = $middleware->handle($request, fn() => 'next');
 

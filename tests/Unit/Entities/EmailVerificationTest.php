@@ -8,14 +8,12 @@ use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\Traits\RefreshDatabase;
 use Tests\TestCase;
 
-/**
- * @covers \App\Entities\EmailVerification
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Entities\EmailVerification::class)]
 class EmailVerificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function belongs_to_user()
     {
         $user = create(User::class);

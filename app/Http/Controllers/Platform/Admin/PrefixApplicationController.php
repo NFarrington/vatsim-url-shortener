@@ -27,7 +27,7 @@ class PrefixApplicationController extends Controller
 
     public function index()
     {
-        $prefixApplications = $this->prefixApplicationRepository->findAll('id', 'asc', 20, Paginator::resolveCurrentPage());
+        $prefixApplications = $this->prefixApplicationRepository->findAllOrdered('id', 'asc', 20, Paginator::resolveCurrentPage());
 
         return view('platform.admin.prefix-applications.index')->with([
             'prefixApplications' => $prefixApplications,

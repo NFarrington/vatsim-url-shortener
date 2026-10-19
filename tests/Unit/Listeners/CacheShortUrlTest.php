@@ -12,7 +12,7 @@ class CacheShortUrlTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function caches_prefixed_urls_with_a_prefix()
     {
         $url = null; /** @var Url $url */
@@ -26,7 +26,7 @@ class CacheShortUrlTest extends TestCase
         $this->assertFalse(cache()->has(sprintf(Url::URL_CACHE_KEY, $url->getDomain()->getUrl(), null, $url->getUrl())));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function caches_non_prefixed_urls_without_a_prefix()
     {
         $url = null; /** @var Url $url */

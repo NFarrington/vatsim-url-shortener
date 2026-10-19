@@ -8,31 +8,23 @@ use App\Entities\Traits\RecordsCreatedAt;
 use App\Entities\Traits\RecordsUpdatedAt;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity
- * @ORM\Table(name="domain_organization")
- */
+#[ORM\Table(name: 'domain_organization')]
+#[ORM\Entity]
 class DomainOrganization extends Entity
 {
     use RecordsCreatedAt, RecordsUpdatedAt;
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint", options={"unsigned": true})
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'bigint', options: ['unsigned' => true])]
     protected string $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Domain", inversedBy="domainOrganizations")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Domain::class, inversedBy: 'domainOrganizations')]
     protected Domain $domain;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="Organization", inversedBy="organizationDomains")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'organizationDomains')]
     protected Organization $organization;
 
     public function getId(): string

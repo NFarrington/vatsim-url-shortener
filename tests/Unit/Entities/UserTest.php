@@ -8,19 +8,16 @@ use App\Entities\OrganizationUser;
 use App\Entities\Url;
 use App\Entities\User;
 use App\Services\VatsimService;
-use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Tests\Traits\RefreshDatabase;
 use stdClass;
 use Tests\TestCase;
 
-/**
- * @covers \App\Entities\User
- */
+#[\PHPUnit\Framework\Attributes\CoversClass(\App\Entities\User::class)]
 class UserTest extends TestCase
 {
-    use ArraySubsetAsserts, RefreshDatabase;
+    use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function provides_full_name()
     {
         $user = create(User::class, ['firstName' => 'Monty', 'lastName' => 'Burns']);
@@ -30,7 +27,7 @@ class UserTest extends TestCase
         $this->assertEquals("Monty Burns", $fullName);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function provides_display_info()
     {
         $user = create(User::class, ['id' => 7, 'firstName' => 'Homer', 'lastName' => 'Simpson']);

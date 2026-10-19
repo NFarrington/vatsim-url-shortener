@@ -1,9 +1,9 @@
 # Image for running the test suite locally, matching the PHP version used in CI.
 # Use docker/test/run-tests.sh rather than building this directly.
-FROM php:8.0-cli-alpine
+FROM php:8.5-cli-alpine
 
 RUN apk add --no-cache libpng-dev libzip-dev unzip git \
-    && docker-php-ext-install gd zip
+    && docker-php-ext-install gd pdo_mysql zip
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 

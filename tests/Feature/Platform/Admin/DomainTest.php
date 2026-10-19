@@ -12,7 +12,7 @@ class DomainTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function domains_can_be_listed()
     {
         $this->signInAdmin();
@@ -24,7 +24,7 @@ class DomainTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function creation_page_loads_successfully()
     {
         $this->signInAdmin();
@@ -33,7 +33,7 @@ class DomainTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function domains_can_be_created()
     {
         $this->signInAdmin();
@@ -51,7 +51,7 @@ class DomainTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function show_page_redirects_to_edit_page()
     {
         $this->signInAdmin();
@@ -61,7 +61,7 @@ class DomainTest extends TestCase
             ->assertRedirect(route('platform.admin.domains.edit', $domain));
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function edit_page_loads_successfully()
     {
         $this->signInAdmin();
@@ -71,7 +71,7 @@ class DomainTest extends TestCase
             ->assertStatus(200);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function domains_can_be_edited()
     {
         $this->signInAdmin();
@@ -91,7 +91,7 @@ class DomainTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function domains_can_be_deleted()
     {
         $this->signInAdmin();
@@ -107,7 +107,7 @@ class DomainTest extends TestCase
         ]);
     }
 
-    /** @test */
+    #[\PHPUnit\Framework\Attributes\Test]
     function domains_cannot_be_deleted_with_urls_attached()
     {
         $this->signInAdmin();

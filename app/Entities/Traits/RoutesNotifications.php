@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 trait RoutesNotifications
 {
-    public function routeNotificationFor(string $driver, Notification $notification = null)
+    public function routeNotificationFor(string $driver, ?Notification $notification = null)
     {
         if (method_exists($this, $method = 'routeNotificationFor'.Str::studly($driver))) {
             return $this->{$method}($notification);
