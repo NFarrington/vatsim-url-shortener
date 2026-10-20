@@ -19,7 +19,7 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 - PHP 8.5, Laravel 13, PHPUnit 12
 - Doctrine ORM via `laravel-doctrine/orm`, not Eloquent. Entities live in `app/Entities` and use PHP attribute mapping (`#[ORM\Entity]`), with Gedmo extensions such as soft deletes.
-- MariaDB 10.6 in production. Tests run on SQLite, and in CI also on MariaDB.
+- MariaDB 11.4 in production. Tests run on SQLite, and in CI also on MariaDB.
 - AWS SDK for PHP: DynamoDB, and SimpleDB through `aws/aws-sdk-php-v3-bridge`.
 - The app keeps the pre-Laravel 11 structure: `App\Http\Kernel`, `App\Console\Kernel`, `App\Exceptions\Handler`, and service providers listed in `config/app.php`. Laravel 13 still supports this, so put middleware, providers and so on there rather than in `bootstrap/app.php`.
 
@@ -154,13 +154,13 @@ Infrastructure is managed in the separate Terraform repo `TheRailroad/terraform`
 ## CI and deployment
 
 - GitHub Actions (`.github/workflows/laravel.yml`) runs on push, on pull requests, weekly, and on manual dispatch.
-- The `laravel-tests` job is a matrix over MariaDB 10.6, 10.11 and 11.4. Each leg runs PHPUnit on SQLite, then on that MariaDB version, so SQLite runs once per leg.
+- The `laravel-tests` job runs PHPUnit on SQLite, then on MariaDB 11.4 (the production version). The MariaDB version is set in the job's `matrix.mariadb`.
 - If the tests pass, the `docker` job builds the `nginx` and `php-fpm` targets of the root `Dockerfile` for arm64, natively on `ubuntu-24.04-arm` runners (the tests run on them too). It pushes them to Docker Hub as `nfarrington/vatsim-url-shortener:<branch-or-version>-nginx` and `-php-fpm`. This runs for every branch push, not just `main`.
 - Production and local development are arm64, so amd64 images are off by default. Set `BUILD_AMD64: "true"` at the top of the workflow to build them too. They run under QEMU, which is many times slower than native, so the `resources` (assets) and `app` (Composer and artisan) stages use `--platform=$BUILDPLATFORM`: they build once, natively, and the per-platform `php-fpm` stage copies their output. Only the `php-fpm` stage, mainly its PHP extension compile, runs emulated. Anything that differs by architecture, such as PHP extensions, must go in the `php-fpm` stage. The `app` stage lacks `ext-gd` and sets `COMPOSER_IGNORE_PLATFORM_REQ=ext-gd`.
 - The layer cache is the GitHub Actions cache (`type=gha`) with `mode=max`, scoped per target. `mode=max` is needed to cache the intermediate stages; `mode=min` keeps only the target's own layers.
 - GitHub disables the scheduled workflow after 60 days of repo inactivity. If pushes stop triggering CI, re-enable it in the Actions tab (or with `gh workflow enable`).
 - The php-fpm container runs `composer docker-entrypoint` on start: it caches config and routes, clears the app and Doctrine caches, and runs `php artisan migrate-with-lock`. If start-up fails, the container exits and restarts in a loop.
-- To check the production image before deploying, build the `php-fpm` target and run it with production-like settings: `APP_ENV=production`, `DOCTRINE_CACHE=php_file`, and a MariaDB 10.6 database. Then send requests through php-fpm with `cgi-fcgi`, which the image includes for its health check.
+- To check the production image before deploying, build the `php-fpm` target and run it with production-like settings: `APP_ENV=production`, `DOCTRINE_CACHE=php_file`, and a MariaDB 11.4 database. Then send requests through php-fpm with `cgi-fcgi`, which the image includes for its health check.
 - Building the image directly from this Dropbox checkout fails, because files here are mode 0600 and the non-root `node` user in the assets stage can't read `package.json`. Build from a copy with normal permissions (`chmod -R go+rX`). CI checkouts aren't affected.
 - The local Colima Docker has no `buildx` plugin. To do multi-platform builds without installing it, run BuildKit in a container (`docker run -d --privileged --name bk moby/buildkit`), `docker cp` the context in, and use `docker exec bk buildctl build --frontend dockerfile.v0 --opt platform=linux/amd64,linux/arm64 ...`. Bind mounts from outside your home directory don't reach the Colima VM. To run an image, export it with `--output type=docker,name=...,dest=...` and pipe it into `docker load`.
 
