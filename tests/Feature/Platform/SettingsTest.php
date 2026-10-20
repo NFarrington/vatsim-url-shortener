@@ -67,7 +67,7 @@ class SettingsTest extends TestCase
     function user_can_configure_two_factor_auth()
     {
         $mock = $this->createStub(Google2FA::class);
-        $mock->method('verifyKey')->willReturn(true);
+        $mock->method('verifyKeyNewer')->willReturn(58000000);
         $this->app->instance(Google2FA::class, $mock);
 
         $this->signIn();
@@ -76,12 +76,13 @@ class SettingsTest extends TestCase
         $this->post(route('platform.settings.two-factor'), ['code' => mt_rand(0, 999999)])
             ->assertRedirect(route('platform.settings'))
             ->assertSessionHas('success');
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $this->user->getId(), 'totp_timestamp' => 58000000]);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
     function user_can_remove_two_factor_auth()
     {
-        $this->signIn($user = create(User::class, ['totpSecret' => Str::random(16)]));
+        $this->signIn($user = create(User::class, ['totpSecret' => Str::random(16), 'totpTimestamp' => 58000000]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.settings'));
@@ -89,7 +90,7 @@ class SettingsTest extends TestCase
             ->assertRedirect(route('platform.settings'))
             ->assertSessionHas('success')
             ->assertSessionMissing(['auth.two-factor', 'totp-secret']);
-        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $user->getId(), 'totp_secret' => null]);
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $user->getId(), 'totp_secret' => null, 'totp_timestamp' => null]);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
@@ -98,7 +99,7 @@ class SettingsTest extends TestCase
         $this->withExceptionHandling();
 
         $mock = $this->createStub(Google2FA::class);
-        $mock->method('verifyKey')->willReturn(false);
+        $mock->method('verifyKeyNewer')->willReturn(false);
         $this->app->instance(Google2FA::class, $mock);
 
         $this->signIn();
@@ -106,6 +107,26 @@ class SettingsTest extends TestCase
         $this->get(route('platform.settings.two-factor'));
         $this->post(route('platform.settings.two-factor'), ['code' => mt_rand(0, 999999)])
             ->assertRedirect(route('platform.settings.two-factor'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function two_factor_auth_configuration_attempts_are_rate_limited()
+    {
+        $this->withExceptionHandling();
+
+        $mock = $this->createStub(Google2FA::class);
+        $mock->method('verifyKeyNewer')->willReturn(false);
+        $this->app->instance(Google2FA::class, $mock);
+
+        $this->signIn();
+
+        $this->get(route('platform.settings.two-factor'));
+        for ($i = 0; $i < 5; $i++) {
+            $this->post(route('platform.settings.two-factor'), ['code' => mt_rand(0, 999999)])
+                ->assertSessionHasErrors('code');
+        }
+        $this->post(route('platform.settings.two-factor'), ['code' => mt_rand(0, 999999)])
+            ->assertStatus(429);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

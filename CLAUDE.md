@@ -29,8 +29,18 @@ Keep entries short, put them in the matching section, and remove anything that's
 - **No proxy classes.** On PHP 8.4+ Doctrine uses native lazy objects, so `get_class()` on a lazy-loaded entity returns the real entity class and `doctrine:generate:proxies` does nothing.
 - **`findAll()` is reserved.** ORM 3 declares `EntityRepository::findAll(): array`. The app's sorted, paginated listing is `Repository::findAllOrdered($orderBy, $order, $perPage, $page)`.
 - **Validation goes through Doctrine.** `exists:`/`unique:` rules name entity classes (e.g. `exists:App\Entities\Domain,id`) and are checked by laravel-doctrine's `PresenceVerifierProvider`. Don't re-add `Illuminate\Validation\ValidationServiceProvider` to `config/app.php`: its deferred registration overrides Doctrine's and makes those rules query SQL tables named after the classes.
+- **Build `unique:`/`exists:` rules with conditions from input using `Rule::unique(Entity::class, 'column')->where(...)`**, not string concatenation, so request input can't add commas to the rule. `->where('column', null)` becomes an `IS NULL` check.
+- **Don't rely on the database for case-insensitive comparisons.** MariaDB's `utf8mb4_unicode_ci` collation ignores case, but SQLite doesn't, so a `unique:` rule behaves differently in tests and in production. Compare with `LOWER()` in DQL.
+- **Short URLs must be unique by full URL, ignoring case.** `App\Rules\AvailableShortUrl` checks the domain URL, prefix and URL together, so a prefixed URL clashes with one from any organization that has the same prefix. It also rejects `Url::RESERVED_PATHS`.
+- **Organization prefixes must be unique, ignoring case,** because SimpleDB and DynamoDB key URLs by the lowercased full URL. There's no database index for this (it was dropped in 2019), so validate prefixes with `App\Rules\AvailablePrefix`. It also rejects `Url::RESERVED_PATHS`. Only admin approval applies it. Applicants aren't told a prefix is taken or reserved; instead, the admin list and review pages flag a duplicate with a link to the other organization.
+- Validate user-supplied links with `url:http,https`. Plain `url` accepts about 250 schemes, including `file:` and `data:`.
 - Catch database failures with `Doctrine\DBAL\Exception` (an interface in DBAL 4); `DBALException` no longer exists.
 - **Nullable relations need `?->`.** Entities use getters, and `??` doesn't guard a method call on null: `$url->getOrganization()->getName() ?? 'None'` throws when there's no organization. Write `$url->getOrganization()?->getName() ?? 'None'`. Eloquent-era code such as `$url->organization->name ?? 'None'` was safe, so look out for this where views or code were converted in the Doctrine migration.
+
+## Front end
+
+- Vue 2 (full build, with the template compiler), bundled by Laravel Mix from `resources/js/app.js`.
+- **Never mount Vue on a wrapper around server-rendered content.** Vue compiles the HTML it mounts on as a template, so `{{ }}` in user-supplied text (an organization name, say) runs as JavaScript. Blade's escaping doesn't stop this. `resources/js/mount-components.js` mounts each registered component tag on its own instead, so register new components in the `components` map in `app.js`. Static attributes on a component tag are passed as plain strings and are safe, but don't put user-supplied text in a component's slot.
 
 ## Layout
 
@@ -70,6 +80,14 @@ How the script works:
   docker volume rm vatsim-url-shortener-vendor vatsim-url-shortener-composer-cache
   ```
 
+JavaScript tests live in `tests/js` and use Node's built-in test runner with jsdom (`npm test`, Node 18+). CI runs them. To run them in Docker:
+
+```bash
+tar -cf - package.json package-lock.json resources/js tests/js | docker run --rm -i node:lts-alpine sh -c 'mkdir /app && cd /app && tar -xf - && npm ci --no-audit --no-fund -s && npm test'
+```
+
+Don't bind-mount `$TMPDIR` into Docker on macOS: it isn't shared with Docker Desktop, so the container silently sees an empty directory. Stream files in and out with `tar` instead.
+
 `phpunit.mysql.xml` runs the same suite against MySQL/MariaDB using the `DB_*` settings in `.env.ci` (`127.0.0.1:3306`, database `laravel`, user `ci`/`ci`). The script doesn't start a database. The test image includes `pdo_mysql`, though, so you can run this suite locally by hand:
 
 1. Start a MariaDB container on a Docker network, with the database and user from `.env.ci`.
@@ -93,6 +111,7 @@ This works whether or not the fix is committed. Don't use `git stash` for this. 
 
 - Tests live in `tests/Unit` and `tests/Feature`. Mark test methods with `#[\PHPUnit\Framework\Attributes\Test]`, since PHPUnit 12 no longer reads `@test` doc comments.
 - Create entities with the global helpers `create(Class::class, [...])`, `make(...)` and `entity(Class::class)->states('org', 'prefix')->create(...)`. The factories are in `database/factories`.
+- Factory attributes are entity property names (`'totpSecret' => ...`). Snake_case column names (`'totp_secret'`) are silently ignored.
 - Use `Tests\Traits\RefreshDatabase` (the project's own trait, not Laravel's) for database tests, and `$this->signIn()` / `$this->signInAdmin()` to authenticate.
 - `Tests\TestCase` calls `withoutExceptionHandling()` by default. Call `$this->withExceptionHandling()` when a test expects validation errors or HTTP error responses.
 - `tests/CreatesApplication.php` replaces the AWS clients with permissive Mockery mocks, so tests never call AWS. To assert on AWS calls, bind a strict mock in the test. See `mockDynamoDb()` in `tests/Feature/Platform/UrlTest.php`.

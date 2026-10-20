@@ -104,4 +104,53 @@ class OrganizationPrefixTest extends TestCase
             'prefix' => $applicationTemplate->getPrefix(),
         ]);
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['taken'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['TAKEN'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['platform'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['Assets'])]
+    function application_can_use_a_prefix_that_is_taken_or_reserved($prefix)
+    {
+        // Applicants aren't told which prefixes are taken or reserved. Admin approval checks this.
+        Notification::fake();
+
+        create(Organization::class, ['prefix' => 'taken']);
+        $organization = $this->createOwnedOrganization();
+
+        $this->post(route('platform.organizations.prefix.store', $organization), [
+            'identity_url' => 'https://example.com',
+            'prefix' => $prefix,
+        ])->assertSessionHasNoErrors()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(OrganizationPrefixApplication::class)->getTableName(), [
+            'organization_id' => $organization->getId(),
+            'prefix' => $prefix,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['ftp://example.com/identity'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['file://localhost/etc/passwd'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['view-source://example.com'])]
+    function application_identity_url_must_use_http_or_https($identityUrl)
+    {
+        $this->withExceptionHandling();
+
+        $organization = $this->createOwnedOrganization();
+
+        $this->post(route('platform.organizations.prefix.store', $organization), [
+            'identity_url' => $identityUrl,
+            'prefix' => 'pfx',
+        ])->assertSessionHasErrors('identity_url');
+    }
+
+    protected function createOwnedOrganization(): Organization
+    {
+        $organization = create(Organization::class);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
+
+        return $organization;
+    }
 }

@@ -82,12 +82,13 @@ class SettingsController extends Controller
             'code' => 'required|numeric',
         ]);
 
-        $valid = app(Google2FA::class)->verifyKey(
+        $timestamp = app(Google2FA::class)->verifyKeyNewer(
             $secret = $request->session()->get('totp-secret'),
-            $attributes['code']
+            $attributes['code'],
+            0
         );
 
-        if (!$valid) {
+        if ($timestamp === false) {
             throw ValidationException::withMessages([
                 'code' => ['Failed to verify code. Please try again.'],
             ]);
@@ -96,6 +97,7 @@ class SettingsController extends Controller
         $request->session()->remove('totp-secret');
 
         $request->user()->setTotpSecret($secret);
+        $request->user()->setTotpTimestamp($timestamp);
         $request->session()->put('auth.two-factor', new Carbon());
 
         $this->entityManager->flush();
@@ -107,6 +109,7 @@ class SettingsController extends Controller
     public function delete2FA(Request $request)
     {
         $request->user()->setTotpSecret(null);
+        $request->user()->setTotpTimestamp(null);
         $this->entityManager->flush();
         $request->session()->forget(['auth.two-factor', 'totp-secret']);
 

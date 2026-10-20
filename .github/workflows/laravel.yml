@@ -69,6 +69,8 @@ jobs:
         run: php artisan key:generate --no-interaction
       - name: Install Dependencies
         run: composer deploy-dev
+      - name: Execute JavaScript tests
+        run: npm test
       - name: Execute tests via PHPUnit (SQLite)
         run: vendor/bin/phpunit --configuration phpunit.xml
       - name: Execute tests via PHPUnit (MariaDB)

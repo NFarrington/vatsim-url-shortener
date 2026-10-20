@@ -21,6 +21,13 @@ class Url extends Entity
 
     const URL_CACHE_KEY = self::class.'.domain-%s.prefix-%s.url-%s.';
 
+    /**
+     * Paths that can't be used as short URLs or organization prefixes.
+     */
+    const RESERVED_PATHS = [
+        'about', 'contact', 'platform', 'support', 'abuse', 'info', 'terms-of-use', 'privacy-policy', 'assets',
+    ];
+
     protected array $trackedProperties = [
         'user',
         'organization',

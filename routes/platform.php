@@ -31,7 +31,7 @@ Route::get('privacy-policy', [InfoController::class, 'privacy'])->name('platform
 Route::get('platform/login', [LoginController::class, 'showLoginForm'])->name('platform.login');
 Route::get('platform/login/vatsim-connect', [VatsimConnectLoginController::class, 'login'])->name('platform.login.vatsim-connect');
 Route::get('platform/login/two-factor', [TwoFactorAuthController::class, 'showForm'])->name('platform.login.two-factor');
-Route::post('platform/login/two-factor', [TwoFactorAuthController::class, 'login']);
+Route::post('platform/login/two-factor', [TwoFactorAuthController::class, 'login'])->middleware('throttle:two-factor');
 
 Route::get('platform/register', [RegistrationController::class, 'showRegistrationForm'])->name('platform.register');
 Route::post('platform/register', [RegistrationController::class, 'register']);
@@ -51,7 +51,7 @@ Route::resource('platform/organizations.users', OrganizationUsersController::cla
 Route::get('platform/settings', [SettingsController::class, 'edit'])->name('platform.settings');
 Route::put('platform/settings', [SettingsController::class, 'update']);
 Route::get('platform/settings/two-factor', [SettingsController::class, 'show2FAForm'])->name('platform.settings.two-factor');
-Route::post('platform/settings/two-factor', [SettingsController::class, 'register2FA']);
+Route::post('platform/settings/two-factor', [SettingsController::class, 'register2FA'])->middleware('throttle:two-factor');
 Route::delete('platform/settings/two-factor', [SettingsController::class, 'delete2FA']);
 
 Route::get('platform/admin', [AdminController::class, 'admin'])->name('platform.admin');

@@ -53,7 +53,9 @@ class OrganizationPrefixController extends Controller
         }
 
         $attributes = $this->validate($request, [
-            'identity_url' => 'required|url|max:1000',
+            'identity_url' => 'required|url:http,https|max:1000',
+            // Admins check that the prefix is available when approving, so applicants
+            // aren't told which prefixes are taken or reserved.
             'prefix' => 'required|alpha_num|max:50',
         ]);
 
