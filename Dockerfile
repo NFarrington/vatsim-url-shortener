@@ -1,4 +1,6 @@
-FROM node:14-alpine AS resources
+# The compiled assets are the same on every platform, so in a multi-platform
+# build they're built once, natively, instead of under emulation for each one.
+FROM --platform=$BUILDPLATFORM node:14-alpine AS resources
 
 WORKDIR /home/node/app
 RUN chown node:node /home/node/app
@@ -43,25 +45,14 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ########################################
 
-FROM php:8.5-fpm-alpine AS php-fpm
+# Install Composer dependencies and build the app natively, since the result is
+# the same on every platform. The php-fpm stage copies it in.
+FROM --platform=$BUILDPLATFORM php:8.5-cli-alpine AS app
 
-RUN apk add --update --no-cache --virtual build-dependencies \
-        autoconf gcc g++ libtool make \
-    && apk add --update --no-cache \
-        mysql-client \
-        libpng-dev \
-        unzip \
-        fcgi \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-install gd \
-    && docker-php-ext-install pcntl \
-    && apk del build-dependencies
+RUN apk add --update --no-cache unzip
 
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-        && echo 'cgi.fix_pathinfo = 0' >> $PHP_INI_DIR/conf.d/app.ini \
-        && echo 'date.timezone = UTC' >> $PHP_INI_DIR/conf.d/app.ini \
-        && echo 'expose_php = 0' >> $PHP_INI_DIR/conf.d/app.ini
-COPY ./docker/app-fpm.conf /usr/local/etc/php-fpm.d/zz-app-fpm.conf
+# gd is only needed at runtime, and the php-fpm stage installs it
+ENV COMPOSER_IGNORE_PLATFORM_REQ=ext-gd
 
 WORKDIR /var/www/html
 
@@ -96,12 +87,46 @@ RUN chown -R www-data:www-data \
 USER www-data
 
 ARG APP_COMMIT
-ENV APP_COMMIT $APP_COMMIT
+ENV APP_COMMIT=$APP_COMMIT
 
 ARG APP_VERSION
-ENV APP_VERSION $APP_VERSION
+ENV APP_VERSION=$APP_VERSION
 
 RUN php composer.phar docker-build
+
+########################################
+
+FROM php:8.5-fpm-alpine AS php-fpm
+
+RUN apk add --update --no-cache --virtual build-dependencies \
+        autoconf gcc g++ libtool make \
+    && apk add --update --no-cache \
+        mysql-client \
+        libpng-dev \
+        unzip \
+        fcgi \
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-install gd \
+    && docker-php-ext-install pcntl \
+    && apk del build-dependencies
+
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+        && echo 'cgi.fix_pathinfo = 0' >> $PHP_INI_DIR/conf.d/app.ini \
+        && echo 'date.timezone = UTC' >> $PHP_INI_DIR/conf.d/app.ini \
+        && echo 'expose_php = 0' >> $PHP_INI_DIR/conf.d/app.ini
+COPY ./docker/app-fpm.conf /usr/local/etc/php-fpm.d/zz-app-fpm.conf
+
+WORKDIR /var/www/html
+
+COPY --from=app /var/www/html /var/www/html
+
+USER www-data
+
+ARG APP_COMMIT
+ENV APP_COMMIT=$APP_COMMIT
+
+ARG APP_VERSION
+ENV APP_VERSION=$APP_VERSION
 
 HEALTHCHECK --start-period=15s --interval=30s --timeout=5s \
     CMD \
