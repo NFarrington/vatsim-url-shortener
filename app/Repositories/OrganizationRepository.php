@@ -36,4 +36,30 @@ class OrganizationRepository extends Repository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * @param string[] $prefixes
+     * @return array<string, Organization> Organizations with any of the prefixes, keyed by lowercased prefix.
+     */
+    public function findByPrefixesIgnoringCase(array $prefixes): array
+    {
+        $prefixes = array_values(array_unique(array_map('mb_strtolower', $prefixes)));
+        if (empty($prefixes)) {
+            return [];
+        }
+
+        $organizations = $this->createQueryBuilder('o')
+            ->where('LOWER(o.prefix) IN (:prefixes)')
+            ->setParameter('prefixes', $prefixes)
+            ->orderBy('o.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $byPrefix = [];
+        foreach ($organizations as $organization) {
+            $byPrefix[mb_strtolower($organization->getPrefix())] ??= $organization;
+        }
+
+        return $byPrefix;
+    }
 }

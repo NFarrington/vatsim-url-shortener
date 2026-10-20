@@ -839,4 +839,124 @@ class UrlTest extends TestCase
             'organization_id' => $organization->getId(),
         ]);
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_create_url_differing_only_in_case_from_an_existing_url()
+    {
+        $this->withExceptionHandling();
+
+        $existing = create(Url::class, ['url' => 'MixedCase']);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $existing->getDomain()->getId(),
+            'url' => 'mixedcase',
+            'redirect_url' => 'https://example.com',
+            'organization_id' => null,
+        ])->assertSessionHasErrors('url');
+        $this->assertSame(1, $this->countUrlsIgnoringCase('mixedcase'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_create_prefixed_url_differing_only_in_case_from_an_existing_url()
+    {
+        $this->withExceptionHandling();
+
+        $organization = $this->createOrganizationWithPrefix('pfx');
+        create(Url::class, ['organization' => $organization, 'user' => null, 'prefix' => true, 'url' => 'MixedCase']);
+
+        $this->post(route('platform.urls.store'), $this->prefixedUrlRequest($organization, 'mixedcase'))
+            ->assertSessionHasErrors('url');
+        $this->assertSame(1, $this->countUrlsIgnoringCase('mixedcase'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['pfx', 'taken'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['PFX', 'TAKEN'])]
+    function user_cannot_create_url_another_organization_with_the_same_prefix_has($prefix, $url)
+    {
+        $this->withExceptionHandling();
+
+        // Duplicate prefixes can't be approved now, but may already exist.
+        $other = create(Organization::class, ['prefix' => 'pfx']);
+        create(Url::class, ['organization' => $other, 'user' => null, 'prefix' => true, 'url' => 'taken']);
+        $organization = $this->createOrganizationWithPrefix($prefix);
+
+        $this->post(route('platform.urls.store'), $this->prefixedUrlRequest($organization, $url))
+            ->assertSessionHasErrors('url');
+        $this->assertSame(1, $this->countUrlsIgnoringCase('taken'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_can_create_url_another_organization_with_a_different_prefix_has()
+    {
+        $other = create(Organization::class, ['prefix' => 'other']);
+        create(Url::class, ['organization' => $other, 'user' => null, 'prefix' => true, 'url' => 'shared']);
+        $organization = $this->createOrganizationWithPrefix('pfx');
+
+        $this->post(route('platform.urls.store'), $this->prefixedUrlRequest($organization, 'shared'))
+            ->assertSessionHasNoErrors()
+            ->assertSessionHas('success');
+        $this->assertSame(2, $this->countUrlsIgnoringCase('shared'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_can_create_url_that_exists_on_another_domain()
+    {
+        $existing = create(Url::class, ['url' => 'shared']);
+        $domain = create(Domain::class);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $domain->getId(),
+            'url' => 'SHARED',
+            'redirect_url' => 'https://example.com',
+            'organization_id' => null,
+        ])->assertSessionHasNoErrors()
+            ->assertSessionHas('success');
+        $this->assertSame(2, $this->countUrlsIgnoringCase('shared'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['platform'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['Platform'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['ASSETS'])]
+    function user_cannot_create_a_reserved_url($reserved)
+    {
+        $this->withExceptionHandling();
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => create(Domain::class)->getId(),
+            'url' => $reserved,
+            'redirect_url' => 'https://example.com',
+            'organization_id' => null,
+        ])->assertSessionHasErrors('url');
+        $this->assertSame(0, $this->countUrlsIgnoringCase($reserved));
+    }
+
+    protected function createOrganizationWithPrefix(string $prefix): Organization
+    {
+        $organization = create(Organization::class, ['prefix' => $prefix]);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
+
+        return $organization;
+    }
+
+    protected function prefixedUrlRequest(Organization $organization, string $url): array
+    {
+        return [
+            'domain_id' => EntityManager::getRepository(Domain::class)->findAll()[0]->getId(),
+            'prefix' => $organization->getPrefix(),
+            'url' => $url,
+            'redirect_url' => 'https://example.com',
+            'organization_id' => $organization->getId(),
+        ];
+    }
+
+    protected function countUrlsIgnoringCase(string $url): int
+    {
+        return (int) EntityManager::createQuery('SELECT COUNT(u.id) FROM '.Url::class.' u WHERE LOWER(u.url) = LOWER(:url)')
+            ->setParameter('url', $url)
+            ->getSingleScalarResult();
+    }
 }

@@ -121,4 +121,48 @@ class PrefixApplicationTest extends TestCase
             'prefix' => 'platform',
         ])->assertSessionHasErrors('prefix');
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function list_flags_applications_for_a_prefix_another_organization_has()
+    {
+        $this->signInAdmin();
+        $owner = create(Organization::class, ['prefix' => 'pfx']);
+        create(OrganizationPrefixApplication::class, ['prefix' => 'PFX']);
+        create(OrganizationPrefixApplication::class, ['prefix' => 'free']);
+
+        $this->get(route('platform.admin.prefix-applications.index'))
+            ->assertStatus(200)
+            ->assertSee('Already used by', false)
+            ->assertSee('href="'.route('platform.admin.organizations.show', $owner).'"', false);
+        $this->assertSame(1, substr_count(
+            $this->get(route('platform.admin.prefix-applications.index'))->getContent(),
+            'Already used by'
+        ));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function review_page_flags_a_prefix_another_organization_has()
+    {
+        $this->signInAdmin();
+        $owner = create(Organization::class, ['prefix' => 'pfx']);
+        $application = create(OrganizationPrefixApplication::class, ['prefix' => 'Pfx']);
+
+        $this->get(route('platform.admin.prefix-applications.edit', $application))
+            ->assertStatus(200)
+            ->assertSee('This prefix is already used by', false)
+            ->assertSee('href="'.route('platform.admin.organizations.show', $owner).'"', false)
+            ->assertSee(e($owner->getName()), false);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function review_page_does_not_flag_an_unused_prefix()
+    {
+        $this->signInAdmin();
+        create(Organization::class, ['prefix' => 'other']);
+        $application = create(OrganizationPrefixApplication::class, ['prefix' => 'pfx']);
+
+        $this->get(route('platform.admin.prefix-applications.edit', $application))
+            ->assertStatus(200)
+            ->assertDontSee('This prefix is already used by', false);
+    }
 }

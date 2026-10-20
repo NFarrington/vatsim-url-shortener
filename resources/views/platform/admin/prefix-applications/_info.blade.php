@@ -31,6 +31,13 @@
         <p class="form-control-plaintext">
             {{ $prefixApplication->getPrefix() }}
         </p>
+        @if($prefixOwner)
+            <div class="alert alert-danger mb-0">
+                This prefix is already used by
+                <a href="{{ route('platform.admin.organizations.show', $prefixOwner) }}">{{ $prefixOwner->getName() }}</a>.
+                It can't be approved for another organization.
+            </div>
+        @endif
     </div>
 </div>
 

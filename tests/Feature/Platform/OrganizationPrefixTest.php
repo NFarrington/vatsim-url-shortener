@@ -108,9 +108,10 @@ class OrganizationPrefixTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     #[\PHPUnit\Framework\Attributes\TestWith(['taken'])]
     #[\PHPUnit\Framework\Attributes\TestWith(['TAKEN'])]
-    function application_cannot_use_a_prefix_another_organization_has($prefix)
+    function application_can_use_a_prefix_another_organization_has($prefix)
     {
-        $this->withExceptionHandling();
+        // Applicants aren't told which prefixes are taken. Admins see this when reviewing.
+        Notification::fake();
 
         create(Organization::class, ['prefix' => 'taken']);
         $organization = $this->createOwnedOrganization();
@@ -118,8 +119,10 @@ class OrganizationPrefixTest extends TestCase
         $this->post(route('platform.organizations.prefix.store', $organization), [
             'identity_url' => 'https://example.com',
             'prefix' => $prefix,
-        ])->assertSessionHasErrors('prefix');
-        $this->assertDatabaseMissing(EntityManager::getClassMetadata(OrganizationPrefixApplication::class)->getTableName(), [
+        ])->assertSessionHasNoErrors()
+            ->assertSessionHas('success');
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(OrganizationPrefixApplication::class)->getTableName(), [
+            'organization_id' => $organization->getId(),
             'prefix' => $prefix,
         ]);
     }

@@ -103,6 +103,32 @@ class UrlRepository extends Repository
         return $query->execute();
     }
 
+    /**
+     * Whether a URL exists with the same full URL, ignoring case. A prefixed URL matches
+     * any organization with the prefix, since prefixes may not be unique.
+     */
+    public function existsIgnoringCase(string $domain, string $url, ?string $prefix): bool
+    {
+        $queryBuilder = $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->join('u.domain', 'd')
+            ->leftJoin('u.organization', 'o')
+            ->where('LOWER(d.url) = LOWER(:domain)')
+            ->andWhere('LOWER(u.url) = LOWER(:url)')
+            ->setParameter('domain', $domain)
+            ->setParameter('url', $url);
+
+        if ($prefix !== null) {
+            $queryBuilder->andWhere('u.prefix = true')
+                ->andWhere('LOWER(o.prefix) = LOWER(:prefix)')
+                ->setParameter('prefix', $prefix);
+        } else {
+            $queryBuilder->andWhere('u.prefix = false');
+        }
+
+        return $queryBuilder->getQuery()->getSingleScalarResult() > 0;
+    }
+
     public function findByDomainAndUrlAndPrefix(string $domain, string $url, ?string $prefix): ?Url
     {
         $dql = <<<DQL

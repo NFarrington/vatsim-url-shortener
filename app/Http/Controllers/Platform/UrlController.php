@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\DomainRepository;
 use App\Repositories\OrganizationRepository;
 use App\Repositories\UrlRepository;
+use App\Rules\AvailableShortUrl;
 use App\Services\UrlService;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\Middleware;
@@ -19,9 +20,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\RequestInterface;
 
@@ -126,7 +125,7 @@ class UrlController extends Controller
                     'min:3',
                     'max:30',
                     'regex:/^[0-9a-zA-Z_-]+$/',
-                    Rule::notIn(Url::RESERVED_PATHS),
+                    new AvailableShortUrl($request->input('domain_id'), $request->input('prefix')),
                 ],
                 'redirect_url' => 'required|url:http,https|max:1000',
                 'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
@@ -134,23 +133,6 @@ class UrlController extends Controller
             [
                 'url.regex' => 'The url may only include alphanumeric characters, dashes and underscores.',
             ]
-        )->sometimes(
-            'url',
-            Rule::unique(Url::class, 'url')
-                ->where('domain', $request->input('domain_id'))
-                ->where('prefix', 1)
-                ->where('organization', $request->input('organization_id')),
-            function (Fluent $input) {
-                return (bool) $input->get('prefix');
-            }
-        )->sometimes(
-            'url',
-            Rule::unique(Url::class, 'url')
-                ->where('domain', $request->input('domain_id'))
-                ->where('prefix', 0),
-            function (Fluent $input) {
-                return !(bool) $input->get('prefix');
-            }
         )->validate();
 
         $this->validate(

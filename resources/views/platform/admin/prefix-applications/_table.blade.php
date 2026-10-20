@@ -13,7 +13,15 @@
                 <tr>
                     <td>{{ $prefixApplication->getId() }}</td>
                     <td>{{ $prefixApplication->getOrganization()->getName() }}</td>
-                    <td>{{ $prefixApplication->getPrefix() }}</td>
+                    <td>
+                        {{ $prefixApplication->getPrefix() }}
+                        @if($prefixOwner = $prefixOwners[mb_strtolower($prefixApplication->getPrefix())] ?? null)
+                            <br><small class="text-danger">
+                                Already used by
+                                <a href="{{ route('platform.admin.organizations.show', $prefixOwner) }}">{{ $prefixOwner->getName() }}</a>
+                            </small>
+                        @endif
+                    </td>
                     <td>{{ $prefixApplication->getUser()->getId() }}</td>
                     <td>{{ $prefixApplication->getUser()->getFullName() }}</td>
                     <td><a href="{{ route('platform.admin.prefix-applications.edit', $prefixApplication) }}">Review</a></td>

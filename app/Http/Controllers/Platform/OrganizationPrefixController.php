@@ -55,7 +55,9 @@ class OrganizationPrefixController extends Controller
 
         $attributes = $this->validate($request, [
             'identity_url' => 'required|url:http,https|max:1000',
-            'prefix' => ['required', 'alpha_num', 'max:50', new AvailablePrefix()],
+            // Don't tell applicants which prefixes other organizations have. Admins see
+            // duplicates when reviewing, and approval rejects them.
+            'prefix' => ['required', 'alpha_num', 'max:50', new AvailablePrefix(checkTaken: false)],
         ]);
 
         $application = new OrganizationPrefixApplication();
