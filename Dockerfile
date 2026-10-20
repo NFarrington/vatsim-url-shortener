@@ -87,10 +87,10 @@ RUN chown -R www-data:www-data \
 USER www-data
 
 ARG APP_COMMIT
-ENV APP_COMMIT $APP_COMMIT
+ENV APP_COMMIT=$APP_COMMIT
 
 ARG APP_VERSION
-ENV APP_VERSION $APP_VERSION
+ENV APP_VERSION=$APP_VERSION
 
 RUN php composer.phar docker-build
 
@@ -123,10 +123,10 @@ COPY --from=app /var/www/html /var/www/html
 USER www-data
 
 ARG APP_COMMIT
-ENV APP_COMMIT $APP_COMMIT
+ENV APP_COMMIT=$APP_COMMIT
 
 ARG APP_VERSION
-ENV APP_VERSION $APP_VERSION
+ENV APP_VERSION=$APP_VERSION
 
 HEALTHCHECK --start-period=15s --interval=30s --timeout=5s \
     CMD \
