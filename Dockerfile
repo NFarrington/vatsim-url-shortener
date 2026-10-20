@@ -1,5 +1,5 @@
-# The compiled assets are the same on every platform, so build them once,
-# natively, instead of under emulation for each target platform.
+# The compiled assets are the same on every platform, so in a multi-platform
+# build they're built once, natively, instead of under emulation for each one.
 FROM --platform=$BUILDPLATFORM node:14-alpine AS resources
 
 WORKDIR /home/node/app

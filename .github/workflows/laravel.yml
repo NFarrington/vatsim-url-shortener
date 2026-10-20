@@ -7,9 +7,14 @@ on:
     - cron: "0 8 * * 6" # 8AM Saturdays
   workflow_dispatch:
 
+env:
+  # Images are built for arm64 natively on arm64 runners. Set to "true" to also
+  # build amd64 images, which run under QEMU emulation and are much slower.
+  BUILD_AMD64: "false"
+
 jobs:
   laravel-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       matrix:
@@ -72,7 +77,7 @@ jobs:
         if: ${{ failure() }}
         run: cat storage/logs/laravel.log
   docker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     needs: laravel-tests
     env:
         IMAGE_NAME: nfarrington/vatsim-url-shortener
@@ -87,7 +92,10 @@ jobs:
           echo "IMAGE_VERSION=$IMAGE_VERSION" >> $GITHUB_ENV
       - name: Configure IMAGE_TAG
         run: echo "IMAGE_TAG=$IMAGE_NAME:$IMAGE_VERSION" >> $GITHUB_ENV
+      - name: Configure PLATFORMS
+        run: echo "PLATFORMS=linux/arm64${{ env.BUILD_AMD64 == 'true' && ',linux/amd64' || '' }}" >> $GITHUB_ENV
       - name: Set up QEMU
+        if: ${{ env.BUILD_AMD64 == 'true' }}
         uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -100,7 +108,7 @@ jobs:
         id: docker_build_nginx
         uses: docker/build-push-action@v7
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ env.PLATFORMS }}
           push: true
           tags: ${{ env.IMAGE_TAG }}-nginx
           build-args: |
@@ -117,7 +125,7 @@ jobs:
         id: docker_build_php_fpm
         uses: docker/build-push-action@v7
         with:
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ env.PLATFORMS }}
           push: true
           tags: ${{ env.IMAGE_TAG }}-php-fpm
           build-args: |
