@@ -28,6 +28,9 @@ class RouteServiceProvider extends ServiceProvider
     {
         parent::boot();
 
+        // Not in map(), which is skipped when routes are cached.
+        $this->configureRateLimiting();
+
         if ($forceScheme = config('app.force_scheme')) {
             $this->app['url']->forceScheme($forceScheme);
         }
@@ -45,8 +48,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map()
     {
-        $this->configureRateLimiting();
-
         $this->mapApiRoutes();
 
         $this->mapPlatformRoutes();
