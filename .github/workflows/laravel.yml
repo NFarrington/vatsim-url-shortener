@@ -75,6 +75,12 @@ jobs:
         run: vendor/bin/phpunit --configuration phpunit.xml
       - name: Execute tests via PHPUnit (MariaDB)
         run: vendor/bin/phpunit --configuration phpunit.mysql.xml
+      # Production caches routes, which skips RouteServiceProvider::map().
+      - name: Execute tests via PHPUnit (SQLite, routes cached)
+        run: |
+          php artisan route:cache
+          vendor/bin/phpunit --configuration phpunit.xml
+          php artisan route:clear
       - name: Display logs after a failure
         if: ${{ failure() }}
         run: cat storage/logs/laravel.log
