@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Platform;
 use App\Entities\Organization;
 use App\Entities\OrganizationPrefixApplication;
 use App\Events\PrefixApplicationCreatedEvent;
-use App\Rules\AvailablePrefix;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 
@@ -55,9 +54,9 @@ class OrganizationPrefixController extends Controller
 
         $attributes = $this->validate($request, [
             'identity_url' => 'required|url:http,https|max:1000',
-            // Don't tell applicants which prefixes other organizations have. Admins see
-            // duplicates when reviewing, and approval rejects them.
-            'prefix' => ['required', 'alpha_num', 'max:50', new AvailablePrefix(checkTaken: false)],
+            // Admins check that the prefix is available when approving, so applicants
+            // aren't told which prefixes are taken or reserved.
+            'prefix' => 'required|alpha_num|max:50',
         ]);
 
         $application = new OrganizationPrefixApplication();

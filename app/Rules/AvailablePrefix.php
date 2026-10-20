@@ -9,17 +9,13 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Str;
 
 /**
- * An organization prefix that isn't reserved and, optionally, that no other organization has.
+ * An organization prefix that isn't reserved and that no other organization has, ignoring case.
  *
  * Short URLs are stored in SimpleDB and DynamoDB by their lowercased full URL, so two
  * organizations sharing a prefix could overwrite each other's URLs there.
  */
 class AvailablePrefix implements ValidationRule
 {
-    public function __construct(private bool $checkTaken = true)
-    {
-    }
-
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (!is_string($value)) {
@@ -32,7 +28,7 @@ class AvailablePrefix implements ValidationRule
             return;
         }
 
-        if ($this->checkTaken && app(OrganizationRepository::class)->findOneByPrefixIgnoringCase($value)) {
+        if (app(OrganizationRepository::class)->findOneByPrefixIgnoringCase($value)) {
             $fail('The :attribute is already used by another organization.');
         }
     }

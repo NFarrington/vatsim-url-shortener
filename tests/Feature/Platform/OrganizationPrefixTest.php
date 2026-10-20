@@ -108,9 +108,11 @@ class OrganizationPrefixTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     #[\PHPUnit\Framework\Attributes\TestWith(['taken'])]
     #[\PHPUnit\Framework\Attributes\TestWith(['TAKEN'])]
-    function application_can_use_a_prefix_another_organization_has($prefix)
+    #[\PHPUnit\Framework\Attributes\TestWith(['platform'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['Assets'])]
+    function application_can_use_a_prefix_that_is_taken_or_reserved($prefix)
     {
-        // Applicants aren't told which prefixes are taken. Admins see this when reviewing.
+        // Applicants aren't told which prefixes are taken or reserved. Admin approval checks this.
         Notification::fake();
 
         create(Organization::class, ['prefix' => 'taken']);
@@ -125,21 +127,6 @@ class OrganizationPrefixTest extends TestCase
             'organization_id' => $organization->getId(),
             'prefix' => $prefix,
         ]);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    #[\PHPUnit\Framework\Attributes\TestWith(['platform'])]
-    #[\PHPUnit\Framework\Attributes\TestWith(['Assets'])]
-    function application_cannot_use_a_reserved_prefix($prefix)
-    {
-        $this->withExceptionHandling();
-
-        $organization = $this->createOwnedOrganization();
-
-        $this->post(route('platform.organizations.prefix.store', $organization), [
-            'identity_url' => 'https://example.com',
-            'prefix' => $prefix,
-        ])->assertSessionHasErrors('prefix');
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
