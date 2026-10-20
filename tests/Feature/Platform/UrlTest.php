@@ -757,4 +757,86 @@ class UrlTest extends TestCase
 
         return $mock;
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['ftp://example.com/file'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['file://localhost/etc/passwd'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['data://text/html,hello'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['ms-settings://privacy'])]
+    function user_cannot_create_url_redirecting_to_a_non_http_url($redirectUrl)
+    {
+        $this->withExceptionHandling();
+
+        $url = make(Url::class);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $url->getDomain()->getId(),
+            'url' => $url->getUrl(),
+            'redirect_url' => $redirectUrl,
+            'organization_id' => null,
+        ])->assertSessionHasErrors('redirect_url');
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'url' => $url->getUrl(),
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_edit_url_to_redirect_to_a_non_http_url()
+    {
+        $this->withExceptionHandling();
+
+        $url = create(Url::class, ['user' => $this->user]);
+
+        $this->put(route('platform.urls.update', $url), [
+            'redirect_url' => 'file://localhost/etc/passwd',
+            'organization_id' => null,
+        ])->assertSessionHasErrors('redirect_url');
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'id' => $url->getId(),
+            'redirect_url' => $url->getRedirectUrl(),
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_create_existing_url_with_a_prefix()
+    {
+        $this->withExceptionHandling();
+
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        $existing = create(Url::class, ['organization' => $organization, 'prefix' => true]);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $existing->getDomain()->getId(),
+            'prefix' => $organization->getPrefix(),
+            'url' => $existing->getUrl(),
+            'redirect_url' => 'https://example.com',
+            'organization_id' => $organization->getId(),
+        ])->assertSessionHasErrors('url');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_can_create_url_with_a_prefix_matching_an_unprefixed_url()
+    {
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        $existing = create(Url::class);
+        EntityManager::refresh($organization);
+        EntityManager::refresh($this->user);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $existing->getDomain()->getId(),
+            'prefix' => $organization->getPrefix(),
+            'url' => $existing->getUrl(),
+            'redirect_url' => 'https://example.com',
+            'organization_id' => $organization->getId(),
+        ])->assertSessionHas('success');
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'url' => $existing->getUrl(),
+            'prefix' => true,
+            'organization_id' => $organization->getId(),
+        ]);
+    }
 }

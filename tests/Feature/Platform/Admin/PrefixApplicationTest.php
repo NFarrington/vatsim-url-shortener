@@ -3,6 +3,7 @@
 namespace Tests\Feature\Platform\Admin;
 
 use App\Entities\News;
+use App\Entities\Organization;
 use App\Entities\OrganizationPrefixApplication;
 use App\Notifications\NewPrefixApplicationNotification;
 use App\Notifications\PrefixApplicationApprovedNotification;
@@ -86,5 +87,38 @@ class PrefixApplicationTest extends TestCase
             'id' => $application->getOrganization()->getId(),
             'prefix' => null,
         ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function application_cannot_be_approved_with_a_prefix_another_organization_has()
+    {
+        $this->withExceptionHandling();
+        Notification::fake();
+
+        $this->signInAdmin();
+        create(Organization::class, ['prefix' => 'pfx']);
+        $application = create(OrganizationPrefixApplication::class);
+
+        $this->post(route('platform.admin.prefix-applications.approve', $application), [
+            'prefix' => 'PFX',
+        ])->assertSessionHasErrors('prefix');
+        Notification::assertNothingSent();
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Organization::class)->getTableName(), [
+            'id' => $application->getOrganization()->getId(),
+            'prefix' => null,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function application_cannot_be_approved_with_a_reserved_prefix()
+    {
+        $this->withExceptionHandling();
+
+        $this->signInAdmin();
+        $application = create(OrganizationPrefixApplication::class);
+
+        $this->post(route('platform.admin.prefix-applications.approve', $application), [
+            'prefix' => 'platform',
+        ])->assertSessionHasErrors('prefix');
     }
 }

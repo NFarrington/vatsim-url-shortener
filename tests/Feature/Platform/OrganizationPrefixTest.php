@@ -104,4 +104,63 @@ class OrganizationPrefixTest extends TestCase
             'prefix' => $applicationTemplate->getPrefix(),
         ]);
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['taken'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['TAKEN'])]
+    function application_cannot_use_a_prefix_another_organization_has($prefix)
+    {
+        $this->withExceptionHandling();
+
+        create(Organization::class, ['prefix' => 'taken']);
+        $organization = $this->createOwnedOrganization();
+
+        $this->post(route('platform.organizations.prefix.store', $organization), [
+            'identity_url' => 'https://example.com',
+            'prefix' => $prefix,
+        ])->assertSessionHasErrors('prefix');
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(OrganizationPrefixApplication::class)->getTableName(), [
+            'prefix' => $prefix,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['platform'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['Assets'])]
+    function application_cannot_use_a_reserved_prefix($prefix)
+    {
+        $this->withExceptionHandling();
+
+        $organization = $this->createOwnedOrganization();
+
+        $this->post(route('platform.organizations.prefix.store', $organization), [
+            'identity_url' => 'https://example.com',
+            'prefix' => $prefix,
+        ])->assertSessionHasErrors('prefix');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['ftp://example.com/identity'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['file://localhost/etc/passwd'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['view-source://example.com'])]
+    function application_identity_url_must_use_http_or_https($identityUrl)
+    {
+        $this->withExceptionHandling();
+
+        $organization = $this->createOwnedOrganization();
+
+        $this->post(route('platform.organizations.prefix.store', $organization), [
+            'identity_url' => $identityUrl,
+            'prefix' => 'pfx',
+        ])->assertSessionHasErrors('identity_url');
+    }
+
+    protected function createOwnedOrganization(): Organization
+    {
+        $organization = create(Organization::class);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
+
+        return $organization;
+    }
 }

@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Psr\Http\Message\RequestInterface;
 
@@ -125,9 +126,9 @@ class UrlController extends Controller
                     'min:3',
                     'max:30',
                     'regex:/^[0-9a-zA-Z_-]+$/',
-                    'not_in:about,contact,platform,support,abuse,info,terms-of-use,privacy-policy,assets',
+                    Rule::notIn(Url::RESERVED_PATHS),
                 ],
-                'redirect_url' => 'required|url|max:1000',
+                'redirect_url' => 'required|url:http,https|max:1000',
                 'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
             ],
             [
@@ -135,15 +136,18 @@ class UrlController extends Controller
             ]
         )->sometimes(
             'url',
-            'unique:'.Url::class.',url,NULL,id,domain,'.$request->input(
-                'domain_id'
-            ).',prefix,1,organization,'.$request->input('organization_id'),
+            Rule::unique(Url::class, 'url')
+                ->where('domain', $request->input('domain_id'))
+                ->where('prefix', 1)
+                ->where('organization', $request->input('organization_id')),
             function (Fluent $input) {
                 return (bool) $input->get('prefix');
             }
         )->sometimes(
             'url',
-            'unique:'.Url::class.',url,NULL,id,domain,'.$request->input('domain_id').',prefix,0',
+            Rule::unique(Url::class, 'url')
+                ->where('domain', $request->input('domain_id'))
+                ->where('prefix', 0),
             function (Fluent $input) {
                 return !(bool) $input->get('prefix');
             }
@@ -271,7 +275,7 @@ class UrlController extends Controller
         $attributes = $this->validate(
             $request,
             [
-                'redirect_url' => 'required|url|max:1000',
+                'redirect_url' => 'required|url:http,https|max:1000',
                 'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
             ]
         );

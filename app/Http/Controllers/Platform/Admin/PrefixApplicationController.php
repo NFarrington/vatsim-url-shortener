@@ -6,6 +6,7 @@ use App\Entities\OrganizationPrefixApplication;
 use App\Events\PrefixApplicationApprovedEvent;
 use App\Events\PrefixApplicationRejectedEvent;
 use App\Repositories\PrefixApplicationRepository;
+use App\Rules\AvailablePrefix;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
@@ -51,7 +52,7 @@ class PrefixApplicationController extends Controller
     public function approve(Request $request, OrganizationPrefixApplication $prefixApplication)
     {
         $attributes = $this->validate($request, [
-            'prefix' => 'required|alpha_num|max:50',
+            'prefix' => ['required', 'alpha_num', 'max:50', new AvailablePrefix()],
         ]);
 
         $organization = $prefixApplication->getOrganization();

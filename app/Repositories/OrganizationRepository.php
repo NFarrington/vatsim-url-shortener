@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Entities\Organization;
 use App\Entities\User;
 
 class OrganizationRepository extends Repository
@@ -24,5 +25,15 @@ class OrganizationRepository extends Repository
         }
 
         return $query->execute();
+    }
+
+    public function findOneByPrefixIgnoringCase(string $prefix): ?Organization
+    {
+        return $this->createQueryBuilder('o')
+            ->where('LOWER(o.prefix) = LOWER(:prefix)')
+            ->setParameter('prefix', $prefix)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }

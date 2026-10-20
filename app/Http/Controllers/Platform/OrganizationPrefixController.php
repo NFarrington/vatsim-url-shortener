@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Platform;
 use App\Entities\Organization;
 use App\Entities\OrganizationPrefixApplication;
 use App\Events\PrefixApplicationCreatedEvent;
+use App\Rules\AvailablePrefix;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 
@@ -53,8 +54,8 @@ class OrganizationPrefixController extends Controller
         }
 
         $attributes = $this->validate($request, [
-            'identity_url' => 'required|url|max:1000',
-            'prefix' => 'required|alpha_num|max:50',
+            'identity_url' => 'required|url:http,https|max:1000',
+            'prefix' => ['required', 'alpha_num', 'max:50', new AvailablePrefix()],
         ]);
 
         $application = new OrganizationPrefixApplication();
