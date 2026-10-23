@@ -70,7 +70,7 @@
 </div>
 
 @include('common.environment-js')
-<script src="/assets/{{ config('app.version.name') }}/js/app.js"></script>
+<script type="module" src="/assets/{{ config('app.version.name') }}/js/app.js"></script>
 @stack('scripts')
 
 </body>

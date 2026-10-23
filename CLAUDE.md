@@ -40,7 +40,11 @@ Keep entries short, put them in the matching section, and remove anything that's
 ## Front end
 
 - Vue 3 with Bootstrap 4 (and its jQuery and Popper), built by Vite (`vite.config.mjs`) from `resources/js/app.js` and `resources/sass`. `npm run production` builds them; `npm run development` and `npm run watch` do unminified builds.
-- The build writes fixed, unhashed files to `public/assets/build` (`js/app.js`, `css/app.css`, `css/cover.css`, `fonts/`). The layouts link to them as `/assets/<version>/…`, so keep these paths when changing the build. CSS URLs point at `/assets/build/…`.
+- The build writes fixed, unhashed files to `public/assets/build` (`js/app.js`, `css/app.css`, `css/cover.css`, `fonts/`). The layouts link to them as `/assets/<version>/…`, so keep these paths when changing the build.
+- In production, the deploy (`deploy-public-assets.sh` in the `docker-configuration` repo) uploads `public/assets/build` to S3 as `assets/<version>/`, and the rest of `public/assets` as `assets/`. CloudFront serves `assets/*` from S3. So:
+  - URLs inside the CSS must be relative (`../fonts/…`); `renderBuiltUrl` in `vite.config.mjs` does this.
+  - `/assets/build/…` doesn't exist in production.
+- The layouts load `app.js` with `type="module"`, which keeps its top-level variables out of the global scope. The bundle is a single ES module chunk.
 - Only the runtime build of Vue ships, without the template compiler. The `.vue` components are compiled at build time.
 - **Never compile server-rendered HTML as a Vue template.** `{{ }}` in user-supplied text (an organization name, say) would run as JavaScript, and Blade's escaping doesn't stop this. `resources/js/mount-components.js` renders each registered component tag through its compiled render function instead, passing the tag's attributes as string props and its text (not markup) as the default slot. Register new components in the `components` map in `app.js`. Slots are plain text only.
 

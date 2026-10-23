@@ -3,13 +3,20 @@ import vue from '@vitejs/plugin-vue';
 
 // Builds the same files at the same paths as Laravel Mix did, without hashes:
 // the layouts link to /assets/<version>/js/app.js, css/app.css and
-// css/cover.css, which are served from public/assets/build.
+// css/cover.css. The deploy uploads public/assets/build to /assets/<version>/
+// in S3, which CloudFront serves.
 export default defineConfig({
     plugins: [vue()],
-    // URLs in the CSS (the Font Awesome fonts) point here, as nginx serves
-    // public/assets/build directly.
-    base: '/assets/build/',
     publicDir: false,
+    experimental: {
+        // Make URLs in the CSS (the Font Awesome fonts) relative to the CSS
+        // files in css/, so they resolve under /assets/<version>/ too.
+        renderBuiltUrl(filename, { hostType }) {
+            if (hostType === 'css') {
+                return `../${filename}`;
+            }
+        },
+    },
     build: {
         outDir: 'public/assets/build',
         emptyOutDir: true,
