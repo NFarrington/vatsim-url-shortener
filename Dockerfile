@@ -20,13 +20,12 @@ RUN npm run production
 
 ########################################
 
-FROM nginxinc/nginx-unprivileged:1.19-alpine AS nginx
+# The 1.30 tag follows the current stable nginx branch's patch releases. Move to
+# the next stable branch (an even minor version) when it's released.
+FROM nginxinc/nginx-unprivileged:1.30-alpine AS nginx
 
-USER root
-
-RUN apk add --update --no-cache \
-        su-exec \
-        curl
+# The base image runs as the unprivileged nginx user and includes curl.
+USER 101
 
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/server.conf /etc/nginx/conf.d/default.conf
