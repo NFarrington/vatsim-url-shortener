@@ -11,8 +11,8 @@
                     <p>To continue, please enter your email address.</p>
                 @endif
 
-                <div class="form-group">
-                    <label for="inputEmail">Email</label>
+                <div class="mb-3">
+                    <label for="inputEmail" class="form-label">Email</label>
                     <input type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
                            id="inputEmail" name="email" value="{{ old('email') ?: $user->getEmail() }}" placeholder="Email"
                            required autofocus>
@@ -23,7 +23,7 @@
                     @endif
                 </div>
 
-                <div class="form-group">
+                <div class="mb-3">
                     @if($user->getEmail())
                         <button type="submit" class="btn btn-primary">Resend Verification Email</button>
                     @else

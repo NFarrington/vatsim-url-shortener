@@ -1,7 +1,7 @@
 <div class="card mb-4">
     <div class="card-header">
         <span class="lead">News</span>
-        <ul class="nav nav-tabs card-header-tabs float-right">
+        <ul class="nav nav-tabs card-header-tabs float-end">
             <li class="nav-item">
                 <a class="nav-link{{ Request::routeIs('platform.admin.news.index') ? ' active' : '' }}"
                    href="{{ route('platform.admin.news.index') }}">

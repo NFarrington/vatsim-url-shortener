@@ -1,4 +1,4 @@
-<div class="form-group row">
+<div class="row mb-3">
     <div class="offset-md-2 col-md-10">
         <div class="alert alert-danger">
             <p class="form-control-plaintext">
@@ -17,7 +17,7 @@
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label class="col-sm-2 col-form-label">Organization</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
@@ -26,7 +26,7 @@
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label for="inputIdentityUrl" class="col-sm-2 col-form-label">Identity Verification URL</label>
     <div class="col-sm-10">
         <input type="text" class="form-control{{ $errors->has('identity_url') ? ' is-invalid' : '' }}"
@@ -38,14 +38,14 @@
                 {{ $errors->first('identity_url') }}
             </div>
         @endif
-        <small class="form-text text-muted">
+        <div class="form-text">
             This must link to a page on your organization's official website which positively identifies you as the head
             of the organization.
-        </small>
+        </div>
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label for="inputName" class="col-sm-2 col-form-label">Requested Prefix</label>
     <div class="col-sm-10">
         <input type="text" class="form-control{{ $errors->has('prefix') ? ' is-invalid' : '' }}"
@@ -56,9 +56,9 @@
                 {{ $errors->first('prefix') }}
             </div>
         @endif
-        <small class="form-text text-muted">
+        <div class="form-text">
             This should typically be your organization's VATSIM 'code', e.g. VATEUR would request the prefix 'eur'. This
             may be changed to a more suitable value before your prefix application is approved.
-        </small>
+        </div>
     </div>
 </div>

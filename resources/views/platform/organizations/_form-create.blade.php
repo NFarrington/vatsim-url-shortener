@@ -1,4 +1,4 @@
-<div class="form-group row">
+<div class="row mb-3">
     <label for="inputName" class="col-sm-2 col-form-label">Name</label>
     <div class="col-sm-10">
         <input type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}"

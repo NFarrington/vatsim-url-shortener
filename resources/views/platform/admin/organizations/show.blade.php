@@ -3,7 +3,7 @@
 @section('content')
     @component('platform.admin.organizations._card')
         <div class="card-body">
-            <div class="form-group row">
+            <div class="row mb-3">
                 <label class="col-sm-2 col-form-label">ID</label>
                 <div class="col-sm-10">
                     <p class="form-control-plaintext">
@@ -12,7 +12,7 @@
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <label class="col-sm-2 col-form-label">Name</label>
                 <div class="col-sm-10">
                     <p class="form-control-plaintext">
@@ -21,7 +21,7 @@
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <label class="col-sm-2 col-form-label">Prefix</label>
                 <div class="col-sm-10">
                     <p class="form-control-plaintext">

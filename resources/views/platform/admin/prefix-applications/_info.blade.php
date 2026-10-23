@@ -1,4 +1,4 @@
-<div class="form-group row">
+<div class="row mb-3">
     <label class="col-sm-2 col-form-label">ID</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
@@ -7,7 +7,7 @@
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label class="col-sm-2 col-form-label">Organization Name</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
@@ -16,7 +16,7 @@
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label class="col-sm-2 col-form-label">Identity URL</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
@@ -25,7 +25,7 @@
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label class="col-sm-2 col-form-label">Requested Prefix</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
@@ -41,7 +41,7 @@
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label class="col-sm-2 col-form-label">Applicant ID</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
@@ -50,7 +50,7 @@
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label class="col-sm-2 col-form-label">Applicant Name</label>
     <div class="col-sm-10">
         <p class="form-control-plaintext">
@@ -59,7 +59,7 @@
     </div>
 </div>
 
-<div class="form-group row">
+<div class="row mb-3">
     <label class="col-sm-2 col-form-label">Organization Users</label>
     @forelse($prefixApplication->getOrganization()->getOrganizationUsers() as $organizationUser)
     <div class="{{ !$loop->first ? 'offset-sm-2' : '' }} col-sm-10">

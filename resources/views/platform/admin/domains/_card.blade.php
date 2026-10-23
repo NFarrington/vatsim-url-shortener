@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-header">
         <span class="lead">Domains</span>
-        <ul class="nav nav-tabs card-header-tabs float-right">
+        <ul class="nav nav-tabs card-header-tabs float-end">
             <li class="nav-item">
                 <a class="nav-link{{ Request::routeIs('platform.admin.domains.index') ? ' active' : '' }}"
                    href="{{ route('platform.admin.domains.index') }}">
