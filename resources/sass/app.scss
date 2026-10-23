@@ -11,6 +11,10 @@ $fa-font-path: "../../node_modules/@fortawesome/fontawesome-free/webfonts";
 @import '@fortawesome/fontawesome-free/scss/fontawesome';
 @import '@fortawesome/fontawesome-free/scss/solid';
 
+body {
+  background-color: $page-bg;
+}
+
 .material-icons {
   vertical-align: text-bottom;
 }
