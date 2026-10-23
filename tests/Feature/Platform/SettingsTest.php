@@ -67,6 +67,7 @@ class SettingsTest extends TestCase
     function user_can_configure_two_factor_auth()
     {
         $mock = $this->createStub(Google2FA::class);
+        $mock->method('generateSecretKey')->willReturn('SECRETSECRETSECR');
         $mock->method('verifyKeyNewer')->willReturn(58000000);
         $this->app->instance(Google2FA::class, $mock);
 
@@ -82,15 +83,62 @@ class SettingsTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     function user_can_remove_two_factor_auth()
     {
+        $mock = $this->createStub(Google2FA::class);
+        $mock->method('verifyKeyNewer')->willReturn(58000001);
+        $this->app->instance(Google2FA::class, $mock);
+
         $this->signIn($user = create(User::class, ['totpSecret' => Str::random(16), 'totpTimestamp' => 58000000]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.settings'));
-        $this->delete(route('platform.settings.two-factor'))
+        $this->delete(route('platform.settings.two-factor'), ['code' => '123456'])
             ->assertRedirect(route('platform.settings'))
             ->assertSessionHas('success')
             ->assertSessionMissing(['auth.two-factor', 'totp-secret']);
         $this->assertDatabaseHas(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $user->getId(), 'totp_secret' => null, 'totp_timestamp' => null]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_remove_two_factor_auth_with_an_invalid_code()
+    {
+        $this->withExceptionHandling();
+
+        $mock = $this->createStub(Google2FA::class);
+        $mock->method('verifyKeyNewer')->willReturn(false);
+        $this->app->instance(Google2FA::class, $mock);
+
+        $this->signIn($user = create(User::class, ['totpSecret' => Str::random(16), 'totpTimestamp' => 58000000]));
+        Session::put('auth.two-factor', new Carbon());
+
+        $this->get(route('platform.settings'));
+        $this->delete(route('platform.settings.two-factor'), ['code' => '123456'])
+            ->assertSessionHasErrors('code');
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $user->getId(), 'totp_secret' => null]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function user_cannot_remove_two_factor_auth_without_a_code()
+    {
+        $this->withExceptionHandling();
+
+        $this->signIn($user = create(User::class, ['totpSecret' => Str::random(16)]));
+        Session::put('auth.two-factor', new Carbon());
+
+        $this->get(route('platform.settings'));
+        $this->delete(route('platform.settings.two-factor'))
+            ->assertSessionHasErrors('code');
+        $this->assertDatabaseMissing(EntityManager::getClassMetadata(User::class)->getTableName(), ['id' => $user->getId(), 'totp_secret' => null]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function two_factor_auth_configuration_without_loading_the_setup_page_fails_validation()
+    {
+        $this->withExceptionHandling();
+
+        $this->signIn();
+
+        $this->post(route('platform.settings.two-factor'), ['code' => '123456'])
+            ->assertSessionHasErrors('code');
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

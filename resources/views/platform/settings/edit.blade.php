@@ -49,10 +49,9 @@
                         <p class="form-control-plaintext">
                             @if($user->getTotpSecret())
                                 Active &mdash;
-                                <delete-resource link-only route="{{ route('platform.settings.two-factor') }}"
-                                                 message="Are you sure you want to disable two factor authentication?">
-                                    Disable
-                                </delete-resource>
+                                <a href="#disable-two-factor" data-toggle="collapse" role="button"
+                                   aria-expanded="{{ $errors->has('code') ? 'true' : 'false' }}"
+                                   aria-controls="disable-two-factor">Disable</a>
                             @elseif($user->getEmail())
                                 Disabled &mdash;
                                 <a href="{{ route('platform.settings.two-factor') }}">Configure</a>
@@ -67,6 +66,32 @@
                     </div>
                 </div>
             </form>
+
+            @if($user->getTotpSecret())
+                <form method="POST" action="{{ route('platform.settings.two-factor') }}" id="disable-two-factor"
+                      class="collapse{{ $errors->has('code') ? ' show' : '' }}">
+                    {{ csrf_field() }}
+                    {{ method_field('delete') }}
+
+                    <div class="form-group row">
+                        <label for="inputDisableCode" class="col-sm-2 col-form-label">Disable Two Factor</label>
+                        <div class="col-sm-10">
+                            <input type="number" class="form-control{{ $errors->has('code') ? ' is-invalid' : '' }}"
+                                   id="inputDisableCode" name="code" min="0" max="999999" placeholder="123456"
+                                   required>
+                            @if($errors->has('code'))
+                                <div class="invalid-feedback">
+                                    {{ $errors->first('code') }}
+                                </div>
+                            @endif
+                            <small class="form-text text-muted">
+                                Enter the six-digit code from your authenticator to disable two factor authentication.
+                            </small>
+                            <button type="submit" class="btn btn-danger mt-2">Disable</button>
+                        </div>
+                    </div>
+                </form>
+            @endif
         </div>
     </div>
 @endsection
