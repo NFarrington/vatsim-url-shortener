@@ -60,7 +60,7 @@ class UrlController extends Controller
         $attributes = $this->validate(
             $request,
             [
-                'sort' => 'nullable|string|alpha_dash',
+                'sort' => 'nullable|string|in:id,fullUrl,redirectUrl,organization.name,updatedAt',
                 'direction' => 'nullable|string|in:asc,desc',
             ]
         );
@@ -134,6 +134,7 @@ class UrlController extends Controller
                 'url.regex' => 'The url may only include alphanumeric characters, dashes and underscores.',
             ]
         )->validate();
+        $attributes['organization_id'] ??= null;
 
         $this->validate(
             $request,
@@ -261,6 +262,7 @@ class UrlController extends Controller
                 'organization_id' => 'nullable|integer|exists:'.Organization::class.',id',
             ]
         );
+        $attributes['organization_id'] ??= null;
         if ($attributes['organization_id'] !== null) {
             $attributes['organization_id'] = (int) $attributes['organization_id'];
         }

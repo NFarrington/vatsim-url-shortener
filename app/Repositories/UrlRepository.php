@@ -22,6 +22,9 @@ class UrlRepository extends Repository
         } elseif ($orderBy === 'redirectUrl') {
             $extraSelect = ', REPLACE(REPLACE(u.redirectUrl, \'https://\', \'\'), \'http://\', \'\') as HIDDEN sortableRedirectUrl';
             $orderByQuery = "ORDER BY sortableRedirectUrl $order";
+        } elseif ($orderBy === 'organization.name') {
+            $extraSelect = '';
+            $orderByQuery = "ORDER BY o.name $order";
         } else {
             $extraSelect = '';
             $orderByQuery = "ORDER BY u.$orderBy $order";

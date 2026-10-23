@@ -77,6 +77,53 @@ class UrlTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['id'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['organization.name'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['updatedAt'])]
+    function index_page_loads_and_sorts_urls_by_every_sortable_column($sort)
+    {
+        $url = create(Url::class, ['user' => $this->user]);
+        $this->get(route('platform.urls.index', ['sort' => $sort, 'direction' => 'desc']))
+            ->assertStatus(200)
+            ->assertSee($url->getUrl());
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function index_page_rejects_an_unknown_sort_column()
+    {
+        $this->withExceptionHandling();
+
+        $this->get(route('platform.urls.index', ['sort' => 'doesNotExist']))
+            ->assertSessionHasErrors('sort');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function url_can_be_created_without_an_organization_id()
+    {
+        $domain = create(Domain::class);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $domain->getId(),
+            'url' => 'noorg',
+            'redirect_url' => 'https://example.com',
+        ])->assertSessionHas('success');
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(Url::class)->getTableName(), [
+            'url' => 'noorg',
+            'organization_id' => null,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function url_can_be_edited_without_an_organization_id()
+    {
+        $url = create(Url::class, ['user' => $this->user]);
+
+        $this->put(route('platform.urls.update', $url), ['redirect_url' => 'https://example.com/changed'])
+            ->assertSessionHas('success');
+        $this->assertSame('https://example.com/changed', $url->getRedirectUrl());
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_loads_public_urls()
     {
         $url = create(Url::class, [
