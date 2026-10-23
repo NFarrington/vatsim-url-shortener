@@ -9,7 +9,7 @@ Bugsnag.start({
 });
 
 /**
- * Bootstrap's JavaScript (navbar collapse, dropdowns and so on), which needs
- * jQuery and Popper.
+ * Bootstrap's JavaScript. Importing it registers the data-bs-* behaviour (navbar
+ * collapse, dropdowns, alerts and so on). Dropdowns and tooltips use Popper.
  */
 import 'bootstrap';

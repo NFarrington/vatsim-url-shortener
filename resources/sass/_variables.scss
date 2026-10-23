@@ -5,3 +5,13 @@ $body-bg: #f5f8fa;
 $font-family-sans-serif: 'Raleway', sans-serif;
 $font-size-base: 0.9rem;
 $line-height-base: 1.6;
+
+// Links, underlined on hover only, as in Bootstrap 4
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+// Breadcrumbs, on a grey bar as in Bootstrap 4
+$breadcrumb-bg: #e9ecef;
+$breadcrumb-padding-y: .75rem;
+$breadcrumb-padding-x: 1rem;
+$breadcrumb-border-radius: .25rem;
