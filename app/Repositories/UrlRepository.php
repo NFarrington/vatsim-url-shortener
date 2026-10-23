@@ -132,6 +132,20 @@ class UrlRepository extends Repository
         return $queryBuilder->getQuery()->getSingleScalarResult() > 0;
     }
 
+    /**
+     * Whether a non-prefixed URL on any domain equals the given path, ignoring case.
+     */
+    public function existsUnprefixedOnAnyDomainIgnoringCase(string $url): bool
+    {
+        return $this->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('LOWER(u.url) = LOWER(:url)')
+            ->andWhere('u.prefix = false')
+            ->setParameter('url', $url)
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
+    }
+
     public function findByDomainAndUrlAndPrefix(string $domain, string $url, ?string $prefix): ?Url
     {
         $dql = <<<DQL

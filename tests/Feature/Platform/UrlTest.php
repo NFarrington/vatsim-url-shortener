@@ -1006,4 +1006,23 @@ class UrlTest extends TestCase
             ->setParameter('url', $url)
             ->getSingleScalarResult();
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['bravo'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['BRAVO'])]
+    function user_cannot_create_root_url_matching_an_organization_prefix($url)
+    {
+        $this->withExceptionHandling();
+
+        create(Organization::class, ['prefix' => 'bravo']);
+        $domain = create(Domain::class);
+
+        $this->post(route('platform.urls.store'), [
+            'domain_id' => $domain->getId(),
+            'url' => $url,
+            'redirect_url' => 'https://example.com',
+            'organization_id' => null,
+        ])->assertSessionHasErrors('url');
+        $this->assertSame(0, $this->countUrlsIgnoringCase('bravo'));
+    }
 }
