@@ -1,7 +1,30 @@
-// Body
-$body-bg: #f5f8fa;
+// Body. Bootstrap 5 also uses $body-bg for cards, tables, inputs and dropdowns,
+// which stay white, so the page background is set in app.scss instead.
+$page-bg: #f5f8fa;
 
 // Typography
 $font-family-sans-serif: 'Raleway', sans-serif;
 $font-size-base: 0.9rem;
 $line-height-base: 1.6;
+
+// Links, underlined on hover only, as in Bootstrap 4
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+// Card padding, as in Bootstrap 4
+$card-spacer-y: 1.25rem;
+$card-spacer-x: 1.25rem;
+$card-cap-padding-y: .75rem;
+
+// Table cell padding, as in Bootstrap 4
+$table-cell-padding-y: .75rem;
+$table-cell-padding-x: .75rem;
+
+// Checkbox border, darker than Bootstrap 5's, which is faint on white
+$form-check-input-border: 1px solid #adb5bd;
+
+// Breadcrumbs, on a grey bar as in Bootstrap 4
+$breadcrumb-bg: #e9ecef;
+$breadcrumb-padding-y: .75rem;
+$breadcrumb-padding-x: 1rem;
+$breadcrumb-border-radius: .25rem;

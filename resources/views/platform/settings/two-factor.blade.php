@@ -21,8 +21,8 @@
             <form method="POST" action="{{ route('platform.settings.two-factor') }}">
                 {{ csrf_field() }}
 
-                <div class="form-group">
-                    <label for="code" class="control-label">Enter the six-digit code from your
+                <div class="mb-3">
+                    <label for="code" class="form-label">Enter the six-digit code from your
                         authenticator</label>
 
                     <input id="code" type="number" class="form-control{{ $errors->has('code') ? ' is-invalid' : '' }}"
@@ -32,10 +32,10 @@
                             {{ $errors->first('code') }}
                         </div>
                     @endif
-                    <small class="form-text text-muted">
+                    <div class="form-text">
                         After scanning the barcode image, the app will display a six-digit code that you can enter
                         above.
-                    </small>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Enable</button>

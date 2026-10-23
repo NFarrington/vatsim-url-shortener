@@ -11,6 +11,10 @@ $fa-font-path: "../../node_modules/@fortawesome/fontawesome-free/webfonts";
 @import '@fortawesome/fontawesome-free/scss/fontawesome';
 @import '@fortawesome/fontawesome-free/scss/solid';
 
+body {
+  background-color: $page-bg;
+}
+
 .material-icons {
   vertical-align: text-bottom;
 }
@@ -45,9 +49,11 @@ $fa-font-path: "../../node_modules/@fortawesome/fontawesome-free/webfonts";
 }
 
 .card {
-  > .table-responsive > .table > tbody:first-child > tr:first-child th,
-  > .table-responsive > .table > tbody:first-child > tr:first-child td {
-    border-top: 0;
+  // Bootstrap 5 borders the bottom of each table row, so drop the last one,
+  // which would double up with the card's border or sit above the pagination.
+  > .table-responsive > .table > tbody:last-child > tr:last-child > *,
+  > .table > tbody:last-child > tr:last-child > * {
+    border-bottom-width: 0;
   }
 
   > .table-responsive > .table,

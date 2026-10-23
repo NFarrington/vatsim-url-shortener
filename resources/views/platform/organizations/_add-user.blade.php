@@ -4,7 +4,7 @@
         <form method="POST" action="{{ $action }}">
             {{ csrf_field() }}
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <label for="inputId" class="col-sm-2 col-form-label">CID</label>
                 <div class="col-sm-10">
                     <input type="number" class="form-control{{ $errors->has('id') ? ' is-invalid' : '' }}"
@@ -15,17 +15,17 @@
                             {{ $errors->first('id') }}
                         </div>
                     @endif
-                    <small class="form-text text-muted">
+                    <div class="form-text">
                         The user's VATSIM CID.
-                    </small>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <label for="role_id" class="col-sm-2 col-form-label">Role</label>
                 <div class="col-sm-10">
                     <select id="role_id" name="role_id"
-                            class="custom-select{{ $errors->has('role_id') ? ' is-invalid' : '' }}">
+                            class="form-select{{ $errors->has('role_id') ? ' is-invalid' : '' }}">
                         <option value="{{ \App\Entities\OrganizationUser::ROLE_OWNER }}"
                                 {{ (old('role_id') ?: \App\Entities\OrganizationUser::ROLE_MEMBER) == \App\Entities\OrganizationUser::ROLE_OWNER ? 'selected' : '' }}>
                             Owner
@@ -44,14 +44,14 @@
                             {{ $errors->first('role_id') }}
                         </div>
                     @endif
-                    <small class="form-text text-muted">
+                    <div class="form-text">
                         Members can modify where URLs redirect to. Managers can transfer URL ownership and delete
                         URLs. Owners manage the organization and its members.
-                    </small>
+                    </div>
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <div class="offset-sm-2 col-sm-10">
                     <button type="submit" class="btn btn-primary">Add User</button>
                 </div>

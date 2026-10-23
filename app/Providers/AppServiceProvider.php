@@ -37,6 +37,9 @@ class AppServiceProvider extends ServiceProvider
             return CarbonMacros::diffForHumansAt($this);
         });
 
-        Paginator::useBootstrap();
+        // The Bootstrap 4 pagination markup is valid Bootstrap 5. Laravel's
+        // Bootstrap 5 template adds a "Showing x to y of z results" summary,
+        // which sits against the card edge in the platform's tables.
+        Paginator::useBootstrapFour();
     }
 }

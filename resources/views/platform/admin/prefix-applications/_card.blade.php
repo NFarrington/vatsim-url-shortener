@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-header">
         <span class="lead">Prefix Applications</span>
-        <ul class="nav nav-tabs card-header-tabs float-right">
+        <ul class="nav nav-tabs card-header-tabs float-end">
             <li class="nav-item">
                 <a class="nav-link{{ Request::routeIs('platform.admin.prefix-applications.index') ? ' active' : '' }}"
                    href="{{ route('platform.admin.prefix-applications.index') }}">

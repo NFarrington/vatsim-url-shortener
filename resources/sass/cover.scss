@@ -2,6 +2,9 @@
 @import url("https://fonts.googleapis.com/css?family=Raleway:300,400,600");
 // Variables
 //@import "variables";
+// Links, underlined on hover only, as in Bootstrap 4
+$link-decoration: none;
+$link-hover-decoration: underline;
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
 

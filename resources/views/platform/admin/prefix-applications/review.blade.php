@@ -16,7 +16,7 @@
         <form method="POST" action="{{ route('platform.admin.prefix-applications.approve', $prefixApplication) }}">
             {{ csrf_field() }}
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <label for="inputPrefix" class="col-sm-2 col-form-label">Prefix</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control{{ $errors->has('prefix') ? ' is-invalid' : '' }}"
@@ -30,7 +30,7 @@
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <div class="offset-sm-2 col-sm-10">
                     <button type="submit" class="btn btn-success">Approve</button>
                 </div>
@@ -49,7 +49,7 @@
         <form method="POST" action="{{ route('platform.admin.prefix-applications.reject', $prefixApplication) }}">
             {{ csrf_field() }}
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <label for="inputReason" class="col-sm-2 col-form-label">Reason</label>
                 <div class="col-sm-10">
                     <textarea type="text" class="form-control{{ $errors->has('reason') ? ' is-invalid' : '' }}"
@@ -63,7 +63,7 @@
                 </div>
             </div>
 
-            <div class="form-group row">
+            <div class="row mb-3">
                 <div class="offset-sm-2 col-sm-10">
                     <button type="submit" class="btn btn-danger">Reject</button>
                 </div>
