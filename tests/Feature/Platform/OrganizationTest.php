@@ -38,6 +38,28 @@ class OrganizationTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['id'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['name'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['updatedAt'])]
+    function index_page_sorts_by_every_sortable_column($sort)
+    {
+        $organization = create(Organization::class);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::refresh($organization);
+        $this->get(route('platform.organizations.index', ['sort' => $sort, 'direction' => 'desc']))
+            ->assertStatus(200);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function index_page_rejects_an_unknown_sort_column()
+    {
+        $this->withExceptionHandling();
+
+        $this->get(route('platform.organizations.index', ['sort' => 'doesNotExist']))
+            ->assertSessionHasErrors('sort');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function create_page_loads_successfully()
     {
         $this->get(route('platform.organizations.create'))

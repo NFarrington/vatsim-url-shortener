@@ -49,4 +49,14 @@ class DashboardTest extends TestCase
         $this->get(route('platform.dashboard'))
             ->assertRedirect(route('platform.login'));
     }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function news_markdown_does_not_render_unsafe_links()
+    {
+        $this->signIn();
+        create(News::class, ['content' => '[click](javascript:alert(1))']);
+
+        $this->get(route('platform.dashboard'))
+            ->assertDontSee('javascript:', false);
+    }
 }

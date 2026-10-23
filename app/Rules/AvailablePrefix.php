@@ -4,12 +4,14 @@ namespace App\Rules;
 
 use App\Entities\Url;
 use App\Repositories\OrganizationRepository;
+use App\Repositories\UrlRepository;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Str;
 
 /**
- * An organization prefix that isn't reserved and that no other organization has, ignoring case.
+ * An organization prefix that isn't reserved and that no other organization or non-prefixed short URL has,
+ * ignoring case.
  *
  * Short URLs are stored in SimpleDB and DynamoDB by their lowercased full URL, so two
  * organizations sharing a prefix could overwrite each other's URLs there.
@@ -30,6 +32,12 @@ class AvailablePrefix implements ValidationRule
 
         if (app(OrganizationRepository::class)->findOneByPrefixIgnoringCase($value)) {
             $fail('The :attribute is already used by another organization.');
+
+            return;
+        }
+
+        if (app(UrlRepository::class)->existsUnprefixedOnAnyDomainIgnoringCase($value)) {
+            $fail('The :attribute is already used by a short URL.');
         }
     }
 }

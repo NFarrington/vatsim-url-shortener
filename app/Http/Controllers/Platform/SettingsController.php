@@ -82,11 +82,8 @@ class SettingsController extends Controller
             'code' => 'required|numeric',
         ]);
 
-        $timestamp = app(Google2FA::class)->verifyKeyNewer(
-            $secret = $request->session()->get('totp-secret'),
-            $attributes['code'],
-            0
-        );
+        $secret = $request->session()->get('totp-secret');
+        $timestamp = $secret ? app(Google2FA::class)->verifyKeyNewer($secret, $attributes['code'], 0) : false;
 
         if ($timestamp === false) {
             throw ValidationException::withMessages([
@@ -108,6 +105,27 @@ class SettingsController extends Controller
 
     public function delete2FA(Request $request)
     {
+        $attributes = $this->validate($request, [
+            'code' => 'required|numeric',
+        ]);
+
+        $user = $request->user();
+
+        // Require a fresh code, newer than the last one used, so a hijacked session can't disable 2FA.
+        if ($user->getTotpSecret()) {
+            $timestamp = app(Google2FA::class)->verifyKeyNewer(
+                $user->getTotpSecret(),
+                $attributes['code'],
+                $user->getTotpTimestamp() ?? 0
+            );
+
+            if ($timestamp === false) {
+                throw ValidationException::withMessages([
+                    'code' => ['Failed to verify code. Please try again.'],
+                ]);
+            }
+        }
+
         $request->user()->setTotpSecret(null);
         $request->user()->setTotpTimestamp(null);
         $this->entityManager->flush();

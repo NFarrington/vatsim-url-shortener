@@ -5,6 +5,7 @@ namespace Tests\Feature\Platform\Admin;
 use App\Entities\News;
 use App\Entities\Organization;
 use App\Entities\OrganizationPrefixApplication;
+use App\Entities\Url;
 use App\Notifications\NewPrefixApplicationNotification;
 use App\Notifications\PrefixApplicationApprovedNotification;
 use App\Notifications\PrefixApplicationRejectedNotification;
@@ -164,5 +165,38 @@ class PrefixApplicationTest extends TestCase
         $this->get(route('platform.admin.prefix-applications.edit', $application))
             ->assertStatus(200)
             ->assertDontSee('This prefix is already used by', false);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith(['taken'])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['TAKEN'])]
+    function application_cannot_be_approved_with_a_prefix_matching_a_root_url($prefix)
+    {
+        $this->withExceptionHandling();
+        Notification::fake();
+
+        $this->signInAdmin();
+        create(Url::class, ['url' => 'Taken']);
+        $application = create(OrganizationPrefixApplication::class);
+
+        $this->post(route('platform.admin.prefix-applications.approve', $application), [
+            'prefix' => $prefix,
+        ])->assertSessionHasErrors('prefix');
+        Notification::assertNothingSent();
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function application_can_be_approved_with_a_prefix_matching_a_prefixed_url()
+    {
+        Notification::fake();
+
+        $this->signInAdmin();
+        $other = create(Organization::class, ['prefix' => 'other']);
+        create(Url::class, ['organization' => $other, 'user' => null, 'prefix' => true, 'url' => 'shared']);
+        $application = create(OrganizationPrefixApplication::class);
+
+        $this->post(route('platform.admin.prefix-applications.approve', $application), [
+            'prefix' => 'shared',
+        ])->assertSessionHasNoErrors();
     }
 }

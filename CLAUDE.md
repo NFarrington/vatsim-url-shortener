@@ -31,11 +31,18 @@ Keep entries short, put them in the matching section, and remove anything that's
 - **Validation goes through Doctrine.** `exists:`/`unique:` rules name entity classes (e.g. `exists:App\Entities\Domain,id`) and are checked by laravel-doctrine's `PresenceVerifierProvider`. Don't re-add `Illuminate\Validation\ValidationServiceProvider` to `config/app.php`: its deferred registration overrides Doctrine's and makes those rules query SQL tables named after the classes.
 - **Build `unique:`/`exists:` rules with conditions from input using `Rule::unique(Entity::class, 'column')->where(...)`**, not string concatenation, so request input can't add commas to the rule. `->where('column', null)` becomes an `IS NULL` check.
 - **Don't rely on the database for case-insensitive comparisons.** MariaDB's `utf8mb4_unicode_ci` collation ignores case, but SQLite doesn't, so a `unique:` rule behaves differently in tests and in production. Compare with `LOWER()` in DQL.
-- **Short URLs must be unique by full URL, ignoring case.** `App\Rules\AvailableShortUrl` checks the domain URL, prefix and URL together, so a prefixed URL clashes with one from any organization that has the same prefix. It also rejects `Url::RESERVED_PATHS`.
-- **Organization prefixes must be unique, ignoring case,** because SimpleDB and DynamoDB key URLs by the lowercased full URL. There's no database index for this (it was dropped in 2019), so validate prefixes with `App\Rules\AvailablePrefix`. It also rejects `Url::RESERVED_PATHS`. Only admin approval applies it. Applicants aren't told a prefix is taken or reserved; instead, the admin list and review pages flag a duplicate with a link to the other organization.
+- **Short URLs must be unique by full URL, ignoring case.** `App\Rules\AvailableShortUrl` checks the domain URL, prefix and URL together, so a prefixed URL clashes with one from any organization that has the same prefix. It also rejects `Url::RESERVED_PATHS`, and a non-prefixed URL equal to any organization's prefix (visitors would assume it belongs to that organization).
+- **Organization prefixes must be unique, ignoring case,** because SimpleDB and DynamoDB key URLs by the lowercased full URL. There's no database index for this (it was dropped in 2019), so validate prefixes with `App\Rules\AvailablePrefix`. It also rejects `Url::RESERVED_PATHS` and a prefix equal to an existing non-prefixed short URL on any domain. Only admin approval applies it. Applicants aren't told a prefix is taken or reserved; instead, the admin list and review pages flag a duplicate with a link to the other organization.
+- **Allow-list `sort` request values.** They go into DQL, so validate them with `in:` against the columns the views sort by (`UrlController::index`, `OrganizationController::index`), not `alpha_dash`, which lets unknown fields through as a 500.
 - Validate user-supplied links with `url:http,https`. Plain `url` accepts about 250 schemes, including `file:` and `data:`.
 - Catch database failures with `Doctrine\DBAL\Exception` (an interface in DBAL 4); `DBALException` no longer exists.
 - **Nullable relations need `?->`.** Entities use getters, and `??` doesn't guard a method call on null: `$url->getOrganization()->getName() ?? 'None'` throws when there's no organization. Write `$url->getOrganization()?->getName() ?? 'None'`. Eloquent-era code such as `$url->organization->name ?? 'None'` was safe, so look out for this where views or code were converted in the Doctrine migration.
+
+## Security conventions
+
+- Domain URLs (admin) are rendered into `href`s, so `Admin\DomainController` requires `url:http,https` plus a scheme-and-host-with-trailing-slash regex.
+- Disabling two factor authentication (`SettingsController::delete2FA`) needs a current TOTP code, checked with `verifyKeyNewer` against the stored timestamp, like the login.
+- `config/markdown.php` keeps `allow_unsafe_links` false, since admin news Markdown is rendered with `{!! !!}`.
 
 ## Front end
 

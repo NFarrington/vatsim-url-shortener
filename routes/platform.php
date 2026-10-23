@@ -52,7 +52,7 @@ Route::get('platform/settings', [SettingsController::class, 'edit'])->name('plat
 Route::put('platform/settings', [SettingsController::class, 'update']);
 Route::get('platform/settings/two-factor', [SettingsController::class, 'show2FAForm'])->name('platform.settings.two-factor');
 Route::post('platform/settings/two-factor', [SettingsController::class, 'register2FA'])->middleware('throttle:two-factor');
-Route::delete('platform/settings/two-factor', [SettingsController::class, 'delete2FA']);
+Route::delete('platform/settings/two-factor', [SettingsController::class, 'delete2FA'])->middleware('throttle:two-factor');
 
 Route::get('platform/admin', [AdminController::class, 'admin'])->name('platform.admin');
 Route::resource('platform/admin/domains', AdminDomainController::class, ['as' => 'platform.admin']);

@@ -25,7 +25,7 @@ class OrganizationController extends Controller
     public function index(Request $request)
     {
         $attributes = $this->validate($request, [
-            'sort' => 'nullable|string|alpha_dash',
+            'sort' => 'nullable|string|in:id,name,updatedAt',
             'direction' => 'nullable|string|in:asc,desc',
         ]);
 

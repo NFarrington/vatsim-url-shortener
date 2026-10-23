@@ -45,7 +45,7 @@ class DomainController extends Controller
     public function store(Request $request)
     {
         $attributes = $this->validate($request, [
-            'url' => 'required|string|max:250',
+            'url' => $this->urlRules(),
             'public' => 'required|boolean',
         ]);
 
@@ -76,16 +76,32 @@ class DomainController extends Controller
     public function update(Request $request, Domain $domain)
     {
         $attributes = $this->validate($request, [
-            'url' => 'required|string|max:250',
+            'url' => $this->urlRules(),
             'public' => 'boolean',
         ]);
 
         $domain->setUrl($attributes['url']);
-        $domain->setPublic($attributes['public']);
+        if (isset($attributes['public'])) {
+            $domain->setPublic($attributes['public']);
+        }
         $this->em->flush();
 
         return redirect()->route('platform.admin.domains.index')
             ->with('success', 'Domain updated.');
+    }
+
+    /**
+     * Domain URLs are rendered into links, so only allow an http(s) scheme and host with a trailing slash.
+     */
+    protected function urlRules(): array
+    {
+        return [
+            'required',
+            'string',
+            'max:250',
+            'url:http,https',
+            'regex:#^https?://[a-z0-9.-]+(:[0-9]+)?/$#i',
+        ];
     }
 
     public function destroy(Domain $domain)
