@@ -13,8 +13,16 @@ abstract class Repository extends EntityRepository
 {
     public function findAllOrdered(string $orderBy = 'id', string $order = 'ASC', ?int $perPage = null, ?int $page = null)
     {
-        $queryBuilder = $this->createQueryBuilder('e')
-            ->orderBy("e.$orderBy", $order);
+        $queryBuilder = $this->createQueryBuilder('e');
+
+        // Keep nulls last in both directions. SQLite and MariaDB put them first when ascending.
+        if ($this->getClassMetadata()->isNullable($orderBy)) {
+            $queryBuilder->addSelect("CASE WHEN e.$orderBy IS NULL THEN 1 ELSE 0 END AS HIDDEN orderByIsNull")
+                ->orderBy('orderByIsNull', 'ASC')
+                ->addOrderBy("e.$orderBy", $order);
+        } else {
+            $queryBuilder->orderBy("e.$orderBy", $order);
+        }
 
         // Break ties on non-unique columns so rows don't shift between pages.
         if ($orderBy !== 'id') {
