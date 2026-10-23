@@ -57,7 +57,9 @@
     </header>
 
     <main role="main" class="inner cover">
+        <!--email_off-->
         @yield('content')
+        <!--/email_off-->
     </main>
 
     <footer class="mastfoot mt-auto">

@@ -47,7 +47,9 @@
     @include('platform.layout-breadcrumbs')
 
     <main class="container mb-4" role="main">
+        <!--email_off-->
         @yield('content')
+        <!--/email_off-->
     </main>
 
     <footer>
