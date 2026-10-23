@@ -66,7 +66,7 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 ## Layout
 
-- `routes/url.php`: the catch-all short URL redirect, `{prefix?}/{short_url?}` → `App\Http\Controllers\UrlController@redirect`.
+- `routes/url.php`: the catch-all short URL redirect, `{prefix?}/{short_url?}` → `App\Http\Controllers\UrlController@redirect`. Its `web-with-optional-sessions` group starts a session only when the request already has the session cookie (`StartOptionalSession`), so anonymous redirects get no session file or `Set-Cookie`, and `LogRequests` can still attribute logged-in users. Nothing on this route may write to `session()` or rely on `$errors`.
 - `routes/platform.php`: the site and management platform (`platform/...`), restricted to the app's own domains in `RouteServiceProvider`.
 - `app/Http/Controllers/Platform`: platform controllers. `Platform/UrlController` handles URL create, update and delete.
 - `app/Repositories`: Doctrine repositories, bound in `RepositoryServiceProvider`.

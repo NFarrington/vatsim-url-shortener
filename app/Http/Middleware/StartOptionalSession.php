@@ -11,7 +11,10 @@ use Illuminate\Support\Facades\Log;
 class StartOptionalSession extends Middleware
 {
     /**
-     * Handle an incoming request.
+     * Resume the visitor's session if the request carries a session cookie.
+     *
+     * Requests without one (anonymous visitors to short URLs) are handled
+     * without a session, so no session is stored and no cookie is set.
      *
      * @param Request $request
      * @param Closure $next
@@ -19,6 +22,10 @@ class StartOptionalSession extends Middleware
      */
     public function handle($request, Closure $next)
     {
+        if (!$request->cookies->has($this->manager->getSessionConfig()['cookie'])) {
+            return $next($request);
+        }
+
         try {
             return parent::handle($request, $next);
         } catch (Exception $e) {
