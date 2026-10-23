@@ -1,6 +1,7 @@
 # The compiled assets are the same on every platform, so in a multi-platform
 # build they're built once, natively, instead of under emulation for each one.
-FROM --platform=$BUILDPLATFORM node:14-alpine AS resources
+# Uses the Node LTS, like CI (.nvmrc).
+FROM --platform=$BUILDPLATFORM node:lts-alpine AS resources
 
 WORKDIR /home/node/app
 RUN chown node:node /home/node/app
@@ -14,19 +15,18 @@ RUN npm ci
 COPY --chown=node:node public /home/node/app/public
 COPY resources/js /home/node/app/resources/js
 COPY resources/sass /home/node/app/resources/sass
-COPY webpack.mix.js /home/node/app/
+COPY vite.config.mjs /home/node/app/
 
 RUN npm run production
 
 ########################################
 
-FROM nginxinc/nginx-unprivileged:1.19-alpine AS nginx
+# The 1.30 tag follows the current stable nginx branch's patch releases. Move to
+# the next stable branch (an even minor version) when it's released.
+FROM nginxinc/nginx-unprivileged:1.30-alpine AS nginx
 
-USER root
-
-RUN apk add --update --no-cache \
-        su-exec \
-        curl
+# The base image runs as the unprivileged nginx user and includes curl.
+USER 101
 
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/server.conf /etc/nginx/conf.d/default.conf

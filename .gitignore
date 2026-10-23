@@ -1,10 +1,7 @@
 /node_modules
+/public/assets/build
 /public/coverage
-/public/css
-/public/hot
-/public/js
 /public/storage
-/public/mix-manifest.json
 /storage/debugbar
 /storage/proxies
 /storage/*.key

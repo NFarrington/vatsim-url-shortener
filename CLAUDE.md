@@ -39,8 +39,14 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 ## Front end
 
-- Vue 2 (full build, with the template compiler), bundled by Laravel Mix from `resources/js/app.js`.
-- **Never mount Vue on a wrapper around server-rendered content.** Vue compiles the HTML it mounts on as a template, so `{{ }}` in user-supplied text (an organization name, say) runs as JavaScript. Blade's escaping doesn't stop this. `resources/js/mount-components.js` mounts each registered component tag on its own instead, so register new components in the `components` map in `app.js`. Static attributes on a component tag are passed as plain strings and are safe, but don't put user-supplied text in a component's slot.
+- Vue 3 with Bootstrap 4 (and its jQuery and Popper), built by Vite (`vite.config.mjs`) from `resources/js/app.js` and `resources/sass`. `npm run production` builds them; `npm run development` and `npm run watch` do unminified builds.
+- The build writes fixed, unhashed files to `public/assets/build` (`js/app.js`, `css/app.css`, `css/cover.css`, `fonts/`). The layouts link to them as `/assets/<version>/…`, so keep these paths when changing the build.
+- In production, the deploy (`deploy-public-assets.sh` in the `docker-configuration` repo) uploads `public/assets/build` to S3 as `assets/<version>/`, and the rest of `public/assets` as `assets/`. CloudFront serves `assets/*` from S3. So:
+  - URLs inside the CSS must be relative (`../fonts/…`); `renderBuiltUrl` in `vite.config.mjs` does this.
+  - `/assets/build/…` doesn't exist in production.
+- The layouts load `app.js` with `type="module"`, which keeps its top-level variables out of the global scope. The bundle is a single ES module chunk.
+- Only the runtime build of Vue ships, without the template compiler. The `.vue` components are compiled at build time.
+- **Never compile server-rendered HTML as a Vue template.** `{{ }}` in user-supplied text (an organization name, say) would run as JavaScript, and Blade's escaping doesn't stop this. `resources/js/mount-components.js` renders each registered component tag through its compiled render function instead, passing the tag's attributes as string props and its text (not markup) as the default slot. Register new components in the `components` map in `app.js`. Slots are plain text only.
 
 ## Layout
 
@@ -80,7 +86,7 @@ How the script works:
   docker volume rm vatsim-url-shortener-vendor vatsim-url-shortener-composer-cache
   ```
 
-JavaScript tests live in `tests/js` and use Node's built-in test runner with jsdom (`npm test`, Node 18+). CI runs them. To run them in Docker:
+JavaScript tests live in `tests/js` and use Node's built-in test runner with jsdom (`npm test`, Node 22+). CI runs them. To run them in Docker:
 
 ```bash
 tar -cf - package.json package-lock.json resources/js tests/js | docker run --rm -i node:lts-alpine sh -c 'mkdir /app && cd /app && tar -xf - && npm ci --no-audit --no-fund -s && npm test'
@@ -155,7 +161,9 @@ Infrastructure is managed in the separate Terraform repo `TheRailroad/terraform`
 
 - GitHub Actions (`.github/workflows/laravel.yml`) runs on push, on pull requests, weekly, and on manual dispatch.
 - The `laravel-tests` job runs PHPUnit on SQLite, then on MariaDB 11.4 (the production version), then on SQLite again with routes cached, as in production. The MariaDB version is set in the job's `matrix.mariadb`.
-- If the tests pass, the `docker` job builds the `nginx` and `php-fpm` targets of the root `Dockerfile` for arm64, natively on `ubuntu-24.04-arm` runners (the tests run on them too). It pushes them to Docker Hub as `nfarrington/vatsim-url-shortener:<branch-or-version>-nginx` and `-php-fpm`. This runs for every branch push, not just `main`.
+- If the tests pass, the `docker-build` job builds the `nginx` and `php-fpm` targets of the root `Dockerfile` for arm64, natively on `ubuntu-24.04-arm` runners (the tests run on them too). It runs on every ref, with no credentials, and doesn't push.
+- On pushes to `main` and `v*` tags only, `docker-publish` rebuilds the images from the cache and pushes them to Docker Hub as `nfarrington/vatsim-url-shortener:<main-or-version>-nginx` and `-php-fpm`. Branches no longer get images. The `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` secrets belong to the GitHub environment `dockerhub`, not the repository, and that environment's deployment rules allow only `main` and `v*` tags. So a branch can't read the token, even by editing the workflow. To publish from another ref, change both the job's `if:` and the environment's rules.
+- The workflow sets `permissions: contents: read`, and actions are pinned to commit SHAs, with the version in a comment. To update an action, change the SHA and the comment together.
 - Production and local development are arm64, so amd64 images are off by default. Set `BUILD_AMD64: "true"` at the top of the workflow to build them too. They run under QEMU, which is many times slower than native, so the `resources` (assets) and `app` (Composer and artisan) stages use `--platform=$BUILDPLATFORM`: they build once, natively, and the per-platform `php-fpm` stage copies their output. Only the `php-fpm` stage, mainly its PHP extension compile, runs emulated. Anything that differs by architecture, such as PHP extensions, must go in the `php-fpm` stage. The `app` stage lacks `ext-gd` and sets `COMPOSER_IGNORE_PLATFORM_REQ=ext-gd`.
 - The layer cache is the GitHub Actions cache (`type=gha`) with `mode=max`, scoped per target. `mode=max` is needed to cache the intermediate stages; `mode=min` keeps only the target's own layers.
 - GitHub disables the scheduled workflow after 60 days of repo inactivity. If pushes stop triggering CI, re-enable it in the Actions tab (or with `gh workflow enable`).
