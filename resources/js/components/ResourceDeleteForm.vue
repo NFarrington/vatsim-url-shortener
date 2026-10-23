@@ -1,5 +1,5 @@
 <template>
-    <div style="display: inline-block;">
+    <div class="d-inline-block">
         <a v-if="linkOnly === ''" v-bind:href="route" v-on:click.prevent="submit()"><slot>Delete</slot></a>
         <button v-else type="submit" class="btn btn-xs btn-danger" v-on:click="submit()"><slot>Delete</slot></button>
         <form class="hidden" method="POST" v-bind:action="route">

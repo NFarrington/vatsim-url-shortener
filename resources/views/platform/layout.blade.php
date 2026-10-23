@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    <script nonce="{{ $cspNonce ?? '' }}">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
                 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
             j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
@@ -38,7 +38,7 @@
 
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T62XX6L"
-                  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+                  height="0" width="0" class="d-none"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 <div id="app">
@@ -70,7 +70,7 @@
 </div>
 
 @include('common.environment-js')
-<script type="module" src="/assets/{{ config('app.version.name') }}/js/app.js"></script>
+<script type="module" nonce="{{ $cspNonce ?? '' }}" src="/assets/{{ config('app.version.name') }}/js/app.js"></script>
 @stack('scripts')
 
 </body>
