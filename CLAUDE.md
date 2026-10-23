@@ -39,8 +39,10 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 ## Front end
 
-- Vue 2 (full build, with the template compiler), bundled by Laravel Mix from `resources/js/app.js`.
-- **Never mount Vue on a wrapper around server-rendered content.** Vue compiles the HTML it mounts on as a template, so `{{ }}` in user-supplied text (an organization name, say) runs as JavaScript. Blade's escaping doesn't stop this. `resources/js/mount-components.js` mounts each registered component tag on its own instead, so register new components in the `components` map in `app.js`. Static attributes on a component tag are passed as plain strings and are safe, but don't put user-supplied text in a component's slot.
+- Vue 3 with Bootstrap 4 (and its jQuery and Popper), built by Vite (`vite.config.mjs`) from `resources/js/app.js` and `resources/sass`. `npm run production` builds them; `npm run development` and `npm run watch` do unminified builds.
+- The build writes fixed, unhashed files to `public/assets/build` (`js/app.js`, `css/app.css`, `css/cover.css`, `fonts/`). The layouts link to them as `/assets/<version>/…`, so keep these paths when changing the build. CSS URLs point at `/assets/build/…`.
+- Only the runtime build of Vue ships, without the template compiler. The `.vue` components are compiled at build time.
+- **Never compile server-rendered HTML as a Vue template.** `{{ }}` in user-supplied text (an organization name, say) would run as JavaScript, and Blade's escaping doesn't stop this. `resources/js/mount-components.js` renders each registered component tag through its compiled render function instead, passing the tag's attributes as string props and its text (not markup) as the default slot. Register new components in the `components` map in `app.js`. Slots are plain text only.
 
 ## Layout
 
@@ -80,7 +82,7 @@ How the script works:
   docker volume rm vatsim-url-shortener-vendor vatsim-url-shortener-composer-cache
   ```
 
-JavaScript tests live in `tests/js` and use Node's built-in test runner with jsdom (`npm test`, Node 18+). CI runs them. To run them in Docker:
+JavaScript tests live in `tests/js` and use Node's built-in test runner with jsdom (`npm test`, Node 22+). CI runs them. To run them in Docker:
 
 ```bash
 tar -cf - package.json package-lock.json resources/js tests/js | docker run --rm -i node:lts-alpine sh -c 'mkdir /app && cd /app && tar -xf - && npm ci --no-audit --no-fund -s && npm test'

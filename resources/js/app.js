@@ -1,18 +1,17 @@
-const Bugsnag = require('@bugsnag/js');
-const mountComponents = require('./mount-components');
+import './bootstrap';
 
-require('./bootstrap');
-
-window.Vue = require('vue').default;
-
-Bugsnag.getPlugin('vue').installVueErrorHandler(Vue);
+import Bugsnag from '@bugsnag/js';
+import Flash from './components/Flash.vue';
+import ResourceDeleteForm from './components/ResourceDeleteForm.vue';
+import RevealText from './components/RevealText.vue';
+import mountComponents from './mount-components';
 
 const components = {
-    'flash': require('./components/Flash.vue').default,
-    'delete-resource': require('./components/ResourceDeleteForm.vue').default,
-    'reveal-text': require('./components/RevealText.vue').default,
+    'flash': Flash,
+    'delete-resource': ResourceDeleteForm,
+    'reveal-text': RevealText,
 };
 
-Object.entries(components).forEach(([name, component]) => Vue.component(name, component));
+const bugsnagVue = Bugsnag.getPlugin('vue');
 
-mountComponents(Vue, document, Object.keys(components));
+mountComponents(document, components, (app) => app.use(bugsnagVue));

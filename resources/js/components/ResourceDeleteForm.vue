@@ -21,7 +21,7 @@
         },
         computed: {
             csrfToken: function () {
-                return $('meta[name=csrf-token]').attr('content');
+                return document.querySelector('meta[name=csrf-token]').content;
             }
         }
     }

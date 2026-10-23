@@ -4,10 +4,12 @@
 // Variables
 @import "variables";
 // Bootstrap
-@import '~bootstrap/scss/bootstrap';
-// Font Awesome
-@import '~@fortawesome/fontawesome-free/scss/fontawesome';
-@import '~@fortawesome/fontawesome-free/scss/solid';
+@import 'bootstrap/scss/bootstrap';
+// Font Awesome, with the font path relative to this file so the build can
+// find and copy the fonts.
+$fa-font-path: "../../node_modules/@fortawesome/fontawesome-free/webfonts";
+@import '@fortawesome/fontawesome-free/scss/fontawesome';
+@import '@fortawesome/fontawesome-free/scss/solid';
 
 .material-icons {
   vertical-align: text-bottom;
@@ -84,4 +86,21 @@ td > ul.list-unstyled, td > ol.list-unstyled {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+// Flash messages (resources/js/components/Flash.vue)
+.alert-flash {
+  position: fixed;
+  right: 25px;
+  top: 25px;
+  margin: 0;
+}
+
+.slide-fade-enter-active, .slide-fade-leave-active {
+  transition: all .5s ease;
+}
+
+.slide-fade-enter-from, .slide-fade-leave-to {
+  transform: translateX(10px);
+  opacity: 0;
 }

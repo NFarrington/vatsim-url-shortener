@@ -1,6 +1,7 @@
 # The compiled assets are the same on every platform, so in a multi-platform
 # build they're built once, natively, instead of under emulation for each one.
-FROM --platform=$BUILDPLATFORM node:14-alpine AS resources
+# Uses the Node LTS, like CI (.nvmrc).
+FROM --platform=$BUILDPLATFORM node:lts-alpine AS resources
 
 WORKDIR /home/node/app
 RUN chown node:node /home/node/app
@@ -14,7 +15,7 @@ RUN npm ci
 COPY --chown=node:node public /home/node/app/public
 COPY resources/js /home/node/app/resources/js
 COPY resources/sass /home/node/app/resources/sass
-COPY webpack.mix.js /home/node/app/
+COPY vite.config.mjs /home/node/app/
 
 RUN npm run production
 
