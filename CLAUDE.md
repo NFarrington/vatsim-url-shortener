@@ -48,6 +48,15 @@ Keep entries short, put them in the matching section, and remove anything that's
 - Only the runtime build of Vue ships, without the template compiler. The `.vue` components are compiled at build time.
 - **Never compile server-rendered HTML as a Vue template.** `{{ }}` in user-supplied text (an organization name, say) would run as JavaScript, and Blade's escaping doesn't stop this. `resources/js/mount-components.js` renders each registered component tag through its compiled render function instead, passing the tag's attributes as string props and its text (not markup) as the default slot. Register new components in the `components` map in `app.js`. Slots are plain text only.
 
+## Security headers
+
+- `App\Http\Middleware\ContentSecurityPolicy` (in the `web` group, so the site and platform pages, not the short URL redirects) sets a CSP with a per-request nonce, shared with views as `$cspNonce`. Every inline `<script>` and the `app.js` module tag needs `nonce="{{ $cspNonce ?? '' }}"`.
+- It's sent as `Content-Security-Policy-Report-Only` unless `CSP_ENFORCE=true` (`config/csp.php`). Watch the browser console for violations before enforcing.
+- The policy has no `'unsafe-inline'` or `'unsafe-eval'`, so don't add inline event handlers (`onclick=`), `style=` attributes or inline scripts. Use Bootstrap classes, or attach behaviour in `resources/js/app.js` (see `data-submit-form` and the tooltips). `script-src` uses `'strict-dynamic'` so Google Tag Manager can load its own scripts. A new third-party origin (analytics, fonts, API) needs adding to the policy in the middleware.
+- `Referrer-Policy` and `Permissions-Policy` are in nginx (`docker/server.conf`) with `always`, next to `X-Frame-Options`. They are static, and nginx also sends them on error pages, redirects and responses PHP never builds. Only the CSP needs PHP, because of the nonce.
+- Cloudflare's Email Address Obfuscation injects an un-nonced `email-decode.min.js` into pages with email addresses, which the policy blocks. The layouts wrap `@yield('content')` in `<!--email_off-->` comments, which Cloudflare honours. Keep them, or turn the setting off in Cloudflare.
+- VATSIM Connect login is a plain link followed by a redirect, so `form-action 'self'` needs no exception. A form that POSTs and is redirected to another origin would.
+
 ## Layout
 
 - `routes/url.php`: the catch-all short URL redirect, `{prefix?}/{short_url?}` → `App\Http\Controllers\UrlController@redirect`.

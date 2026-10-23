@@ -35,8 +35,7 @@
                     </li>
                 @endcan
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('platform.logout') }}"
-                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <a class="nav-link" href="{{ route('platform.logout') }}" data-submit-form="logout-form">
                         Logout
                     </a>
                 </li>
@@ -52,7 +51,7 @@
                 @endif
             @endauth
         </ul>
-        <form id="logout-form" action="{{ route('platform.logout') }}" method="POST" style="display: none;">
+        <form id="logout-form" action="{{ route('platform.logout') }}" method="POST" class="d-none">
             {{ csrf_field() }}
         </form>
 
