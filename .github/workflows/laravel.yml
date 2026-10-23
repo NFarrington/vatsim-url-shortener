@@ -7,6 +7,17 @@ on:
     - cron: "0 8 * * 6" # 8AM Saturdays
   workflow_dispatch:
 
+# Jobs only get read access to the repository. The Docker Hub credentials are
+# secrets of the dockerhub environment (see the docker-publish job).
+permissions:
+  contents: read
+
+# Builds of the same ref run one at a time, so an older build can't finish last
+# and overwrite a newer image. Superseded branch builds are cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/') }}
+
 env:
   # Images are built for arm64 natively on arm64 runners. Set to "true" to also
   # build amd64 images, which run under QEMU emulation and are much slower.
@@ -33,7 +44,9 @@ jobs:
           - 3306:3306
         options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
         with:
           php-version: ${{ matrix.php }}
@@ -41,7 +54,7 @@ jobs:
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -50,10 +63,10 @@ jobs:
       - name: Read .nvmrc
         run: echo NVMRC=`cat .nvmrc` >> $GITHUB_ENV
       - name: Setup node
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ env.NVMRC }}
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -84,9 +97,65 @@ jobs:
       - name: Display logs after a failure
         if: ${{ failure() }}
         run: cat storage/logs/laravel.log
-  docker:
+  # Builds the images on every ref, without credentials, to check they build
+  # and to fill the cache for docker-publish.
+  docker-build:
     runs-on: ubuntu-24.04-arm
     needs: laravel-tests
+    steps:
+      - name: Configure IMAGE_VERSION
+        run: |
+          shopt -s extglob
+          IMAGE_VERSION=${GITHUB_REF}
+          IMAGE_VERSION=${IMAGE_VERSION##refs/?(heads/|tags/)}
+          IMAGE_VERSION=${IMAGE_VERSION//\//-}
+          [[ $IMAGE_VERSION == v[[:digit:]]* ]] && IMAGE_VERSION=${IMAGE_VERSION#v}
+          echo "IMAGE_VERSION=$IMAGE_VERSION" >> $GITHUB_ENV
+      - name: Configure PLATFORMS
+        run: echo "PLATFORMS=linux/arm64${BUILD_AMD64_PLATFORM}" >> $GITHUB_ENV
+        env:
+          BUILD_AMD64_PLATFORM: ${{ env.BUILD_AMD64 == 'true' && ',linux/amd64' || '' }}
+      - name: Set up QEMU
+        if: ${{ env.BUILD_AMD64 == 'true' }}
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - name: Build nginx
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          platforms: ${{ env.PLATFORMS }}
+          push: false
+          build-args: |
+            APP_COMMIT=${{ github.sha }}
+            APP_VERSION=${{ env.IMAGE_VERSION }}
+          target: nginx
+          cache-from: |
+            type=gha,scope=nginx
+            type=gha,scope=php-fpm
+          cache-to: type=gha,scope=nginx,mode=max
+      - name: Build php-fpm
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          platforms: ${{ env.PLATFORMS }}
+          push: false
+          build-args: |
+            APP_COMMIT=${{ github.sha }}
+            APP_VERSION=${{ env.IMAGE_VERSION }}
+          target: php-fpm
+          cache-from: |
+            type=gha,scope=nginx
+            type=gha,scope=php-fpm
+          cache-to: type=gha,scope=php-fpm,mode=max
+
+  # Pushes the images to Docker Hub, only from main and version tags. The
+  # credentials are secrets of the dockerhub environment, whose deployment
+  # rules should allow only main and v* tags, so other branches can't read them
+  # even by changing this workflow.
+  docker-publish:
+    if: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) }}
+    runs-on: ubuntu-24.04-arm
+    needs: docker-build
+    environment: dockerhub
     env:
         IMAGE_NAME: nfarrington/vatsim-url-shortener
     steps:
@@ -101,20 +170,23 @@ jobs:
       - name: Configure IMAGE_TAG
         run: echo "IMAGE_TAG=$IMAGE_NAME:$IMAGE_VERSION" >> $GITHUB_ENV
       - name: Configure PLATFORMS
-        run: echo "PLATFORMS=linux/arm64${{ env.BUILD_AMD64 == 'true' && ',linux/amd64' || '' }}" >> $GITHUB_ENV
+        run: echo "PLATFORMS=linux/arm64${BUILD_AMD64_PLATFORM}" >> $GITHUB_ENV
+        env:
+          BUILD_AMD64_PLATFORM: ${{ env.BUILD_AMD64 == 'true' && ',linux/amd64' || '' }}
       - name: Set up QEMU
         if: ${{ env.BUILD_AMD64 == 'true' }}
-        uses: docker/setup-qemu-action@v4
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
       - name: Login to DockerHub
-        uses: docker/login-action@v4
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # The docker-build job has just built these, so they come from the cache.
       - name: Build and push nginx
         id: docker_build_nginx
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           platforms: ${{ env.PLATFORMS }}
           push: true
@@ -128,10 +200,12 @@ jobs:
             type=gha,scope=php-fpm
           cache-to: type=gha,scope=nginx,mode=max
       - name: Nginx image digest
-        run: echo ${{ steps.docker_build_nginx.outputs.digest }}
+        run: echo "$DIGEST"
+        env:
+          DIGEST: ${{ steps.docker_build_nginx.outputs.digest }}
       - name: Build and push php-fpm
         id: docker_build_php_fpm
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
           platforms: ${{ env.PLATFORMS }}
           push: true
@@ -145,4 +219,6 @@ jobs:
             type=gha,scope=php-fpm
           cache-to: type=gha,scope=php-fpm,mode=max
       - name: php-fpm image digest
-        run: echo ${{ steps.docker_build_php_fpm.outputs.digest }}
+        run: echo "$DIGEST"
+        env:
+          DIGEST: ${{ steps.docker_build_php_fpm.outputs.digest }}
