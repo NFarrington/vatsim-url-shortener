@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Entities\Domain;
 use App\Entities\Url;
 use App\Entities\UrlAnalytics;
+use App\Entities\User;
+use Illuminate\Support\Facades\Auth;
 use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -80,6 +82,51 @@ class UrlTest extends TestCase
         $this->assertDatabaseHas(EntityManager::getClassMetadata(UrlAnalytics::class)->getTableName(), [
             'request_uri' => $url->getUrl(),
             'response_code' => 302,
+        ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function anonymous_short_url_redirect_does_not_start_a_session()
+    {
+        $domain = create(Domain::class, ['url' => config('app.url').'/']);
+        $url = create(Url::class, ['domain' => $domain]);
+
+        $this->get(route('short-url', $url->getUrl()))
+            ->assertRedirect($url->getRedirectUrl())
+            ->assertCookieMissing(config('session.cookie'));
+        $this->assertFalse($this->app['session']->driver()->isStarted());
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function anonymous_short_url_404_does_not_start_a_session()
+    {
+        $this->withExceptionHandling();
+
+        $this->get(route('short-url', Str::random()))
+            ->assertNotFound()
+            ->assertCookieMissing(config('session.cookie'));
+        $this->assertFalse($this->app['session']->driver()->isStarted());
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function short_url_clicks_are_logged_against_the_logged_in_user()
+    {
+        $domain = create(Domain::class, ['url' => config('app.url').'/']);
+        $url = create(Url::class, ['domain' => $domain]);
+        $user = create(User::class);
+
+        // Store a logged-in session, as the platform would, and send its cookie.
+        $session = $this->app['session']->driver();
+        $session->put(Auth::guard('web')->getName(), $user->getAuthIdentifier());
+        $session->save();
+        $session->flush(); // so the request can only find the user in the stored session
+
+        $this->withCookie(config('session.cookie'), $session->getId())
+            ->get(route('short-url', $url->getUrl()))
+            ->assertRedirect($url->getRedirectUrl());
+        $this->assertDatabaseHas(EntityManager::getClassMetadata(UrlAnalytics::class)->getTableName(), [
+            'request_uri' => $url->getUrl(),
+            'user_id' => $user->getId(),
         ]);
     }
 
