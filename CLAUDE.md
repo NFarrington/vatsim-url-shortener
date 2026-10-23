@@ -46,7 +46,10 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 ## Front end
 
-- Vue 3 with Bootstrap 4 (and its jQuery and Popper), built by Vite (`vite.config.mjs`) from `resources/js/app.js` and `resources/sass`. `npm run production` builds them; `npm run development` and `npm run watch` do unminified builds.
+- Vue 3 with Bootstrap 5 (no jQuery; dropdowns and tooltips use `@popperjs/core`), built by Vite (`vite.config.mjs`) from `resources/js/app.js` and `resources/sass`. `npm run production` builds them; `npm run development` and `npm run watch` do unminified builds.
+- Bootstrap's JS behaviour uses `data-bs-*` attributes (`data-bs-toggle="collapse"` and so on). Tooltips need creating, which `app.js` does for every `[data-bs-toggle="tooltip"]`.
+- `resources/sass/_variables.scss` keeps some Bootstrap 4 looks (links underlined on hover only, card and table padding, the grey breadcrumb bar). Don't override `$body-bg`: Bootstrap 5.3 also uses it for cards, tables, inputs and dropdowns, so the grey page background is a `body` rule in `app.scss`.
+- Pagination uses Laravel's Bootstrap 4 template (`Paginator::useBootstrapFour()`), whose markup is valid Bootstrap 5. The Bootstrap 5 template adds a results summary that sits against the card edge in the tables.
 - The build writes fixed, unhashed files to `public/assets/build` (`js/app.js`, `css/app.css`, `css/cover.css`, `fonts/`). The layouts link to them as `/assets/<version>/…`, so keep these paths when changing the build.
 - In production, the deploy (`deploy-public-assets.sh` in the `docker-configuration` repo) uploads `public/assets/build` to S3 as `assets/<version>/`, and the rest of `public/assets` as `assets/`. CloudFront serves `assets/*` from S3. So:
   - URLs inside the CSS must be relative (`../fonts/…`); `renderBuiltUrl` in `vite.config.mjs` does this.
