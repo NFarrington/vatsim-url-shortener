@@ -55,12 +55,12 @@ class LogRequests
             $url = $response->shortUrl;
         }
 
-        $analyticsDisabled = $url && $url->isAnalyticsDisabled();
-
-        if (!$analyticsDisabled) {
+        // Only log redirects to a short URL. Failed lookups (404s) are almost
+        // all bots probing paths like .env and wp-admin, and aren't worth storing.
+        if ($url && !$url->isAnalyticsDisabled()) {
             $urlAnalytic = new UrlAnalytics();
             $urlAnalytic->setUser(Auth::check() ? Auth::user() : null);
-            $urlAnalytic->setUrl($url ? $url : null);
+            $urlAnalytic->setUrl($url);
             $urlAnalytic->setRequestTime($_SERVER['REQUEST_TIME']);
             $urlAnalytic->setHttpHost($request->root());
             $urlAnalytic->setHttpReferer($request->headers->get('referer'));

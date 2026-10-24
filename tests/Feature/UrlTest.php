@@ -86,6 +86,16 @@ class UrlTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function short_url_404s_are_not_logged()
+    {
+        $this->withExceptionHandling();
+
+        $this->get(route('short-url', '.env'))->assertNotFound();
+        $this->get(route('short-url', ['wp-admin', 'setup-config.php']))->assertNotFound();
+        $this->assertSame(0, EntityManager::getRepository(UrlAnalytics::class)->count([]));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function anonymous_short_url_redirect_does_not_start_a_session()
     {
         $domain = create(Domain::class, ['url' => config('app.url').'/']);
