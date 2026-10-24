@@ -73,7 +73,7 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 ## Layout
 
-- `routes/url.php`: the catch-all short URL redirect, `{prefix?}/{short_url?}` → `App\Http\Controllers\UrlController@redirect`. Its `web-with-optional-sessions` group starts a session only when the request already has the session cookie (`StartOptionalSession`), so anonymous redirects get no session file or `Set-Cookie`, and `LogRequests` can still attribute logged-in users. Nothing on this route may write to `session()` or rely on `$errors`.
+- `routes/url.php`: the catch-all short URL redirect, `{prefix?}/{short_url?}` → `App\Http\Controllers\UrlController@redirect`. Its `web-with-optional-sessions` group starts a session only when the request already has the session cookie (`StartOptionalSession`), so anonymous redirects get no session file or `Set-Cookie`. Nothing on this route may write to `session()` or rely on `$errors`. Requests aren't logged: the `url_analytics` table, almost all bot 404s, was dropped in 2026.
 - `routes/platform.php`: the site and management platform (`platform/...`), restricted to the app's own domains in `RouteServiceProvider`.
 - `app/Http/Controllers/Platform`: platform controllers. `Platform/UrlController` handles URL create, update and delete.
 - `app/Repositories`: Doctrine repositories, bound in `RepositoryServiceProvider`.
@@ -179,6 +179,7 @@ Infrastructure is managed in the separate Terraform repo `TheRailroad/terraform`
 - `modules/vatsim-url-shortener` (prod) and `modules/vatsim-url-shortener-dev`: the DynamoDB tables, the SimpleDB domain, the service IAM user `vatsim_url_shortener` and the redirector Lambda.
 - The service user's DynamoDB policy covers every table matching `VatsimUrlShortener*`, so new tables with that prefix need no IAM change.
 - The Lambda role's permissions are granted per table.
+- CloudFront's default behaviour uses an origin group that fails over to the VM when the redirector returns 403, 404 or 5xx. This is deliberate: MariaDB is the source of truth, so if SimpleDB or DynamoDB fall out of sync the VM still serves the URL. Most of that failover traffic is bots probing for paths like `.env`, so the VM sees a steady stream of 404s.
 
 ## CI and deployment
 

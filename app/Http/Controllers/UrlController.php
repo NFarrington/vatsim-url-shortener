@@ -12,7 +12,6 @@ class UrlController extends Controller
 
     public function __construct(UrlService $urlService)
     {
-        $this->middleware('log-requests');
         $this->urlService = $urlService;
     }
 
@@ -38,10 +37,6 @@ class UrlController extends Controller
             $url = $this->urlService->getRedirectForUrl($request->root().'/', $shortUrl, $prefix);
         }
 
-        $response = redirect()->to($url->getRedirectUrl());
-
-        $response->shortUrl = $url; // used by App\Http\Middleware\LogRequests
-
-        return $response;
+        return redirect()->to($url->getRedirectUrl());
     }
 }

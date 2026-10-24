@@ -83,7 +83,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
 
         'admin' => \App\Http\Middleware\IsAdmin::class,
-        'log-requests' => \App\Http\Middleware\LogRequests::class,
         'two-factor' => \App\Http\Middleware\TwoFactorAuth::class,
         'validate-ban-status' => \App\Http\Middleware\CheckBanStatus::class,
         'validate-email' => \App\Http\Middleware\CheckEmailVerified::class,
