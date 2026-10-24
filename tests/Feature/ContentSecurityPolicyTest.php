@@ -10,19 +10,8 @@ class ContentSecurityPolicyTest extends TestCase
     use RefreshDatabase;
 
     #[\PHPUnit\Framework\Attributes\Test]
-    public function pages_report_the_policy_by_default()
+    public function pages_enforce_the_policy_by_default()
     {
-        $response = $this->get(route('site.home'));
-
-        $this->assertNotNull($response->headers->get('Content-Security-Policy-Report-Only'));
-        $this->assertNull($response->headers->get('Content-Security-Policy'));
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    public function pages_enforce_the_policy_when_enabled()
-    {
-        config(['csp.enforce' => true]);
-
         $response = $this->get(route('site.home'));
 
         $this->assertNotNull($response->headers->get('Content-Security-Policy'));
@@ -30,9 +19,20 @@ class ContentSecurityPolicyTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function pages_report_the_policy_when_enforcement_is_disabled()
+    {
+        config(['csp.enforce' => false]);
+
+        $response = $this->get(route('site.home'));
+
+        $this->assertNotNull($response->headers->get('Content-Security-Policy-Report-Only'));
+        $this->assertNull($response->headers->get('Content-Security-Policy'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function the_policy_restricts_scripts_and_embedding()
     {
-        $policy = $this->get(route('site.home'))->headers->get('Content-Security-Policy-Report-Only');
+        $policy = $this->get(route('site.home'))->headers->get('Content-Security-Policy');
 
         $this->assertStringContainsString("object-src 'none'", $policy);
         $this->assertStringContainsString("base-uri 'self'", $policy);
@@ -47,7 +47,7 @@ class ContentSecurityPolicyTest extends TestCase
     {
         $response = $this->get(route('site.home'));
 
-        preg_match("/script-src 'nonce-([^']+)'/", $response->headers->get('Content-Security-Policy-Report-Only'), $matches);
+        preg_match("/script-src 'nonce-([^']+)'/", $response->headers->get('Content-Security-Policy'), $matches);
         $nonce = $matches[1] ?? null;
 
         $this->assertNotEmpty($nonce);
@@ -61,7 +61,7 @@ class ContentSecurityPolicyTest extends TestCase
     {
         $nonces = [];
         foreach ([1, 2] as $i) {
-            $policy = $this->get(route('site.home'))->headers->get('Content-Security-Policy-Report-Only');
+            $policy = $this->get(route('site.home'))->headers->get('Content-Security-Policy');
             preg_match("/'nonce-([^']+)'/", $policy, $matches);
             $nonces[] = $matches[1];
         }
@@ -72,7 +72,7 @@ class ContentSecurityPolicyTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     public function the_policy_allows_data_uri_images_for_the_cover_placeholder()
     {
-        $policy = $this->get(route('site.home'))->headers->get('Content-Security-Policy-Report-Only');
+        $policy = $this->get(route('site.home'))->headers->get('Content-Security-Policy');
 
         $this->assertMatchesRegularExpression("/img-src 'self' [^;]*\bdata:/", $policy);
     }
@@ -82,7 +82,7 @@ class ContentSecurityPolicyTest extends TestCase
     {
         $response = $this->get(route('platform.login'));
 
-        $this->assertNotNull($response->headers->get('Content-Security-Policy-Report-Only'));
+        $this->assertNotNull($response->headers->get('Content-Security-Policy'));
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
