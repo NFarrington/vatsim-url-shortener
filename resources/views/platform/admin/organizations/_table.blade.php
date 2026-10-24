@@ -22,13 +22,7 @@
         </table>
     </div>
 
-    @if(!Request::has('sort'))
-        <div class="mx-auto">{{ $organizations->links() }}</div>
-    @else
-        <div class="mx-auto">
-            {{ $organizations->appends(['sort' => Request::get('sort'), 'direction' => Request::get('direction')])->links() }}
-        </div>
-    @endif
+    <div class="mx-auto">{{ $organizations->withQueryString()->links() }}</div>
 @else
     <div class="card-body text-center">
         <span>Nothing to show.</span>

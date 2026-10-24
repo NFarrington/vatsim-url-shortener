@@ -185,15 +185,41 @@ class UrlTest extends TestCase
     {
         $this->withExceptionHandling();
         $this->signInAdmin();
+        create(Url::class, ['url' => 'bbb', 'updatedAt' => Carbon::parse('2026-01-02')]);
+        create(Url::class, ['url' => 'ccc', 'updatedAt' => Carbon::parse('2026-01-01')]);
+        create(Url::class, ['url' => 'aaa', 'updatedAt' => Carbon::parse('2026-01-03')]);
+
+        // The default order is by last updated, latest first.
+        $this->get(route('platform.admin.urls.index', $query))
+            ->assertStatus(200)
+            ->assertSessionHasNoErrors()
+            ->assertSeeInOrder(['aaa', 'bbb', 'ccc']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function urls_are_listed_latest_updated_first_by_default()
+    {
+        $this->signInAdmin();
+        create(Url::class, ['url' => 'url-older', 'updatedAt' => Carbon::parse('2026-01-01')]);
+        create(Url::class, ['url' => 'url-newest', 'updatedAt' => Carbon::parse('2026-03-01')]);
+        create(Url::class, ['url' => 'url-middle', 'updatedAt' => Carbon::parse('2026-02-01')]);
+
+        $this->get(route('platform.admin.urls.index'))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['url-newest', 'url-middle', 'url-older']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function other_sort_columns_default_to_ascending()
+    {
+        $this->signInAdmin();
         create(Url::class, ['url' => 'bbb']);
         create(Url::class, ['url' => 'ccc']);
         create(Url::class, ['url' => 'aaa']);
 
-        // The default order is by ID.
-        $this->get(route('platform.admin.urls.index', $query))
+        $this->get(route('platform.admin.urls.index', ['sort' => 'fullUrl']))
             ->assertStatus(200)
-            ->assertSessionHasNoErrors()
-            ->assertSeeInOrder(['bbb', 'ccc', 'aaa']);
+            ->assertSeeInOrder(['aaa', 'bbb', 'ccc']);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
