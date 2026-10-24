@@ -37,6 +37,8 @@
                                    href="{{ route('platform.admin.organizations.index') }}">Organizations</a>
                                 <a class="dropdown-item{{ Request::routeIs('platform.admin.prefix-applications.*') ? ' active' : '' }}"
                                    href="{{ route('platform.admin.prefix-applications.index') }}">Prefix Applications</a>
+                                <a class="dropdown-item{{ Request::routeIs('platform.admin.urls.*') ? ' active' : '' }}"
+                                   href="{{ route('platform.admin.urls.index') }}">URLs</a>
                             </div>
                         </li>
                     @endcan

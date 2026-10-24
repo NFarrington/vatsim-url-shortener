@@ -50,6 +50,15 @@ class UrlPolicy
         return $user == $url->getUser();
     }
 
+    /**
+     * Whether an admin can give the URL to another owner. Like moving, this isn't allowed for prefixed URLs, whose
+     * full URL depends on their organization, or for URLs on restricted domains.
+     */
+    public function transfer(User $user, Url $url)
+    {
+        return $user->isAdmin() && $url->getDomain()->isPublic() && !$url->isPrefixed();
+    }
+
     public function delete(User $user, Url $url)
     {
         if ($url->getOrganization()) {

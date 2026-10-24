@@ -6,6 +6,7 @@ use App\Entities\Organization;
 use App\Entities\Url;
 use App\Entities\User;
 use App\Exceptions\NonUniqueUrlException;
+use Illuminate\Support\Str;
 
 class UrlRepository extends Repository
 {
@@ -44,6 +45,73 @@ class UrlRepository extends Repository
         DQL;
 
         $query = $this->getEntityManager()->createQuery($dql)->setParameters(['userId' => $user->getId()]);
+
+        if ($perPage !== null) {
+            return $this->paginateQuery($query, $perPage, $page);
+        }
+
+        return $query->execute();
+    }
+
+    /**
+     * Find all URLs, with their owners, optionally only those whose short URL, redirect URL or owner contains the
+     * search text, ignoring case. A numeric search also matches the owner's CID.
+     */
+    public function search(
+        ?string $search,
+        string $orderBy = 'id',
+        string $order = 'ASC',
+        ?int $perPage = null,
+        ?int $page = null
+    ) {
+        $fullUrl = 'CONCAT(d.url, CASE WHEN u.prefix = true THEN CONCAT(o.prefix, \'/\') ELSE \'\' END, u.url)';
+        $ownerName = 'CASE WHEN o.id IS NOT NULL THEN o.name'
+            .' WHEN user.id IS NOT NULL THEN CONCAT(user.firstName, \' \', user.lastName) ELSE \'\' END';
+
+        $queryBuilder = $this->createQueryBuilder('u')
+            ->select('u', 'd', 'o', 'user')
+            ->join('u.domain', 'd')
+            ->leftJoin('u.organization', 'o')
+            ->leftJoin('u.user', 'user');
+
+        if ($search !== null && $search !== '') {
+            $conditions = [
+                "LOWER($fullUrl) LIKE :search ESCAPE '!'",
+                "LOWER(u.redirectUrl) LIKE :search ESCAPE '!'",
+                "LOWER($ownerName) LIKE :search ESCAPE '!'",
+            ];
+            $queryBuilder->setParameter('search', '%'.addcslashes(Str::lower($search), '!%_').'%');
+
+            if (ctype_digit($search)) {
+                $conditions[] = 'user.id = :searchId';
+                $queryBuilder->setParameter('searchId', (int) $search);
+            }
+
+            $queryBuilder->where($queryBuilder->expr()->orX(...$conditions));
+        }
+
+        if ($orderBy === 'fullUrl') {
+            $queryBuilder->addSelect("$fullUrl AS HIDDEN fullUrl")
+                ->orderBy('fullUrl', $order);
+        } elseif ($orderBy === 'redirectUrl') {
+            $queryBuilder->addSelect('REPLACE(REPLACE(u.redirectUrl, \'https://\', \'\'), \'http://\', \'\') AS HIDDEN sortableRedirectUrl')
+                ->orderBy('sortableRedirectUrl', $order);
+        } elseif ($orderBy === 'owner') {
+            // Keep URLs without an owner last in both directions.
+            $queryBuilder->addSelect('CASE WHEN o.id IS NULL AND user.id IS NULL THEN 1 ELSE 0 END AS HIDDEN hasNoOwner')
+                ->addSelect("LOWER($ownerName) AS HIDDEN ownerName")
+                ->orderBy('hasNoOwner', 'ASC')
+                ->addOrderBy('ownerName', $order);
+        } else {
+            $queryBuilder->orderBy("u.$orderBy", $order);
+        }
+
+        // Break ties on non-unique columns so rows don't shift between pages.
+        if ($orderBy !== 'id') {
+            $queryBuilder->addOrderBy('u.id', 'ASC');
+        }
+
+        $query = $queryBuilder->getQuery();
 
         if ($perPage !== null) {
             return $this->paginateQuery($query, $perPage, $page);
