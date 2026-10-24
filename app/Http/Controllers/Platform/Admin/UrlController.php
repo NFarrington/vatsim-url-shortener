@@ -60,7 +60,8 @@ class UrlController extends Controller
         [$orderBy, $order] = $this->listingOrder(
             $request,
             ['id', 'fullUrl', 'redirectUrl', 'owner', 'updatedAt'],
-            'id'
+            'updatedAt',
+            'desc'
         );
         $search = is_string($request->query('q')) ? trim($request->query('q')) : null;
 

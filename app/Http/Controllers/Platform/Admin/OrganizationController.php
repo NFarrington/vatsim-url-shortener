@@ -36,10 +36,13 @@ class OrganizationController extends Controller
         // Sorting by ID isn't offered in the view, but it's the default.
         [$orderBy, $order] = $this->listingOrder($request, ['prefix'], 'id');
 
-        $organizations = $this->organizationRepository->findAllOrdered($orderBy, $order, 100, Paginator::resolveCurrentPage());
+        $search = is_string($request->query('q')) ? trim($request->query('q')) : null;
+
+        $organizations = $this->organizationRepository->search($search, $orderBy, $order, 100, Paginator::resolveCurrentPage());
 
         return view('platform.admin.organizations.index')->with([
             'organizations' => $organizations,
+            'search' => $search,
             'memberCounts' => $this->organizationUserRepository->countByOrganizations($organizations->items()),
             'urlCounts' => $this->urlRepository->countByOrganizations($organizations->items()),
         ]);
