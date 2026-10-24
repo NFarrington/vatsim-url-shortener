@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Platform;
 use App\Entities\Domain;
 use App\Entities\Organization;
 use App\Entities\Url;
+use App\Http\Controllers\Concerns\ReadsListingOrder;
 use App\Http\Controllers\Controller;
 use App\Repositories\DomainRepository;
 use App\Repositories\OrganizationRepository;
@@ -26,6 +27,8 @@ use Psr\Http\Message\RequestInterface;
 
 class UrlController extends Controller
 {
+    use ReadsListingOrder;
+
     protected SimpleDbClient $simpleDbClient;
     protected DynamoDbClient $dynamoDbClient;
     protected EntityManagerInterface $entityManager;
@@ -57,16 +60,11 @@ class UrlController extends Controller
 
     public function index(Request $request)
     {
-        $attributes = $this->validate(
+        [$orderBy, $order] = $this->listingOrder(
             $request,
-            [
-                'sort' => 'nullable|string|in:id,fullUrl,redirectUrl,organization.name,updatedAt',
-                'direction' => 'nullable|string|in:asc,desc',
-            ]
+            ['id', 'fullUrl', 'redirectUrl', 'organization.name', 'updatedAt'],
+            'fullUrl'
         );
-
-        $orderBy = $attributes['sort'] ?? 'fullUrl';
-        $order = $attributes['direction'] ?? 'asc';
 
         $urls = $this->urlRepository
             ->findByUserOrTheirOrganizations($request->user(), $orderBy, $order, 20, Paginator::resolveCurrentPage());

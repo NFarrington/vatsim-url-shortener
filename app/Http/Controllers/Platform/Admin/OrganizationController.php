@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Platform\Admin;
 
 use App\Entities\Organization;
+use App\Http\Controllers\Concerns\ReadsListingOrder;
 use App\Repositories\OrganizationRepository;
 use App\Repositories\OrganizationUserRepository;
 use App\Repositories\UrlRepository;
@@ -11,6 +12,8 @@ use Illuminate\Pagination\Paginator;
 
 class OrganizationController extends Controller
 {
+    use ReadsListingOrder;
+
     protected OrganizationRepository $organizationRepository;
     protected OrganizationUserRepository $organizationUserRepository;
     protected UrlRepository $urlRepository;
@@ -30,13 +33,8 @@ class OrganizationController extends Controller
 
     public function index(Request $request)
     {
-        $attributes = $this->validate($request, [
-            'sort' => 'nullable|string|in:prefix',
-            'direction' => 'nullable|string|in:asc,desc',
-        ]);
-
-        $orderBy = $attributes['sort'] ?? 'id';
-        $order = $attributes['direction'] ?? 'asc';
+        // Sorting by ID isn't offered in the view, but it's the default.
+        [$orderBy, $order] = $this->listingOrder($request, ['prefix'], 'id');
 
         $organizations = $this->organizationRepository->findAllOrdered($orderBy, $order, 100, Paginator::resolveCurrentPage());
 
