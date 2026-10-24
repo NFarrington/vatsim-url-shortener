@@ -15,6 +15,8 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 [VATS.IM](https://vats.im/) is a URL shortener for [VATSIM](https://vatsim.net/). It serves short URLs across several domains (e.g. `vats.im`, `vts.im`), supports organisation URL prefixes (`vats.im/<prefix>/<url>`), and has a management "platform" where users and organisations create and manage their URLs.
 
+If you have access to [`NFarrington/vatsim-url-shortener-issues`](https://github.com/NFarrington/vatsim-url-shortener-issues), read it too, starting with its `AGENTS.md`.
+
 ## Stack
 
 - PHP 8.5, Laravel 13, PHPUnit 13
