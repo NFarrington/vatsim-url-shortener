@@ -51,12 +51,44 @@ class OrganizationTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    function index_page_rejects_an_unknown_sort_column()
+    function index_page_sorts_organizations_in_the_requested_order()
+    {
+        $this->createOrganizationsToSort();
+
+        $this->get(route('platform.organizations.index', ['sort' => 'name', 'direction' => 'desc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['Sort Org C', 'Sort Org B', 'Sort Org A']);
+        $this->get(route('platform.organizations.index', ['sort' => 'id', 'direction' => 'asc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['Sort Org B', 'Sort Org C', 'Sort Org A']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'doesNotExist']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'id,u.redirectUrl']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => '../etc']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => ['id']]])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['direction' => 'sideways']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['direction' => 'desc, u.id']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'doesNotExist', 'direction' => 'sideways']])]
+    function index_page_ignores_an_invalid_sort_or_direction($query)
     {
         $this->withExceptionHandling();
+        $this->createOrganizationsToSort();
 
-        $this->get(route('platform.organizations.index', ['sort' => 'doesNotExist']))
-            ->assertSessionHasErrors('sort');
+        $this->get(route('platform.organizations.index', $query))
+            ->assertStatus(200)
+            ->assertSessionHasNoErrors()
+            ->assertSeeInOrder(['Sort Org A', 'Sort Org B', 'Sort Org C']);
+    }
+
+    private function createOrganizationsToSort(): void
+    {
+        foreach (['Sort Org B', 'Sort Org C', 'Sort Org A'] as $name) {
+            $organization = create(Organization::class, ['name' => $name]);
+            create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+            EntityManager::refresh($organization);
+        }
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

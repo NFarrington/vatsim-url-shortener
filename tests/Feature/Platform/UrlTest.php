@@ -106,12 +106,42 @@ class UrlTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    function index_page_rejects_an_unknown_sort_column()
+    function index_page_sorts_urls_in_the_requested_order()
+    {
+        $this->createUrlsToSort();
+
+        $this->get(route('platform.urls.index', ['sort' => 'fullUrl', 'direction' => 'desc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['sortccc', 'sortbbb', 'sortaaa']);
+        $this->get(route('platform.urls.index', ['sort' => 'id', 'direction' => 'asc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['sortbbb', 'sortccc', 'sortaaa']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'doesNotExist']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'id,u.redirectUrl']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => '../etc']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => ['id']]])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['direction' => 'sideways']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['direction' => 'desc, u.id']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'doesNotExist', 'direction' => 'sideways']])]
+    function index_page_ignores_an_invalid_sort_or_direction($query)
     {
         $this->withExceptionHandling();
+        $this->createUrlsToSort();
 
-        $this->get(route('platform.urls.index', ['sort' => 'doesNotExist']))
-            ->assertSessionHasErrors('sort');
+        $this->get(route('platform.urls.index', $query))
+            ->assertStatus(200)
+            ->assertSessionHasNoErrors()
+            ->assertSeeInOrder(['sortaaa', 'sortbbb', 'sortccc']);
+    }
+
+    private function createUrlsToSort(): void
+    {
+        foreach (['sortbbb', 'sortccc', 'sortaaa'] as $url) {
+            create(Url::class, ['user' => $this->user, 'url' => $url]);
+        }
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

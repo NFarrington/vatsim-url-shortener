@@ -59,13 +59,26 @@ class OrganizationTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    function organizations_cannot_be_sorted_by_unsupported_fields()
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'name']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'id,u.redirectUrl']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => '../etc']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => ['id']]])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['direction' => 'sideways']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['direction' => 'desc, u.id']])]
+    #[\PHPUnit\Framework\Attributes\TestWith([['sort' => 'doesNotExist', 'direction' => 'sideways']])]
+    function organizations_list_ignores_an_invalid_sort_or_direction($query)
     {
         $this->withExceptionHandling();
         $this->signInAdmin();
+        create(Organization::class, ['prefix' => 'bbb']);
+        create(Organization::class, ['prefix' => 'ccc']);
+        create(Organization::class, ['prefix' => 'aaa']);
 
-        $this->get(route('platform.admin.organizations.index', ['sort' => 'name']))
-            ->assertSessionHasErrors('sort');
+        // The default order is by ID.
+        $this->get(route('platform.admin.organizations.index', $query))
+            ->assertStatus(200)
+            ->assertSessionHasNoErrors()
+            ->assertSeeInOrder(['bbb', 'ccc', 'aaa']);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

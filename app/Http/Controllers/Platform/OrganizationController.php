@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Platform;
 
 use App\Entities\Organization;
 use App\Entities\OrganizationUser;
+use App\Http\Controllers\Concerns\ReadsListingOrder;
 use App\Repositories\OrganizationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Session;
 
 class OrganizationController extends Controller
 {
+    use ReadsListingOrder;
+
     protected OrganizationRepository $organizationRepository;
     protected EntityManagerInterface $em;
 
@@ -24,13 +27,7 @@ class OrganizationController extends Controller
 
     public function index(Request $request)
     {
-        $attributes = $this->validate($request, [
-            'sort' => 'nullable|string|in:id,name,updatedAt',
-            'direction' => 'nullable|string|in:asc,desc',
-        ]);
-
-        $orderBy = $attributes['sort'] ?? 'name';
-        $order = $attributes['direction'] ?? 'asc';
+        [$orderBy, $order] = $this->listingOrder($request, ['id', 'name', 'updatedAt'], 'name');
 
         $organizations = $this->organizationRepository->findByUser($request->user(), $orderBy, $order, 20, Paginator::resolveCurrentPage());
 
