@@ -151,7 +151,7 @@ This works whether or not the fix is committed. Don't use `git stash` for this. 
 
 ## Short URL storage (DynamoDB)
 
-The redirect path is served by a separate AWS Lambda (repo `vatsim-url-shortener-short-url-redirector-lambda`, function `vatsim_url_shortener_short_url_redirector`), which reads a key-value copy of the URLs from DynamoDB. This app keeps that copy up to date. The copy used to be in SimpleDB. Until they're cleaned up, the old SimpleDB domain and the service user's SimpleDB policy still exist in AWS and Terraform, but nothing uses them.
+The redirect path is served by a separate AWS Lambda (repo `vatsim-url-shortener-short-url-redirector-lambda`, function `vatsim_url_shortener_short_url_redirector`), which reads a key-value copy of the URLs from DynamoDB. This app keeps that copy up to date.
 
 - `App\Services\UrlStoreService` writes to DynamoDB. `Platform\UrlController` and `Platform\Admin\UrlController` call it on every create and update, and to delete on delete.
 - Item shape:
