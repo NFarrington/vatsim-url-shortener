@@ -179,6 +179,7 @@ Infrastructure is managed in the separate Terraform repo `TheRailroad/terraform`
 - `modules/vatsim-url-shortener` (prod) and `modules/vatsim-url-shortener-dev`: the DynamoDB tables, the SimpleDB domain, the service IAM user `vatsim_url_shortener` and the redirector Lambda.
 - The service user's DynamoDB policy covers every table matching `VatsimUrlShortener*`, so new tables with that prefix need no IAM change.
 - The Lambda role's permissions are granted per table.
+- CloudFront's default behaviour uses an origin group that fails over to the VM when the redirector returns 403, 404 or 5xx. This is deliberate: MariaDB is the source of truth, so if SimpleDB or DynamoDB fall out of sync the VM still serves the URL. Most of that failover traffic is bots probing for paths like `.env`, so the VM sees a steady stream of 404s.
 
 ## CI and deployment
 
