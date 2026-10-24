@@ -19,7 +19,7 @@ class TwoFactorAuthTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     function two_factor_auth_verification_page_loads_successfully()
     {
-        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));
 
         $this->get(route('platform.login.two-factor'))
             ->assertStatus(200);
@@ -37,7 +37,7 @@ class TwoFactorAuthTest extends TestCase
     #[\PHPUnit\Framework\Attributes\Test]
     function user_is_not_redirected_to_verification_page_if_authenticated()
     {
-        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.dashboard'))
@@ -51,7 +51,7 @@ class TwoFactorAuthTest extends TestCase
         $mock->method('verifyKeyNewer')->willReturn(58000000);
         $this->app->instance(Google2FA::class, $mock);
 
-        $this->signIn($user = create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn($user = create(User::class, ['totpSecret' => Str::random(16)]));
 
         $this->get(route('platform.login.two-factor'));
         $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
@@ -95,7 +95,7 @@ class TwoFactorAuthTest extends TestCase
         $mock->method('verifyKeyNewer')->willReturn(false);
         $this->app->instance(Google2FA::class, $mock);
 
-        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));
 
         $this->get(route('platform.login.two-factor'));
         for ($i = 0; $i < 5; $i++) {
@@ -115,7 +115,7 @@ class TwoFactorAuthTest extends TestCase
         $mock->method('verifyKeyNewer')->willReturn(false);
         $this->app->instance(Google2FA::class, $mock);
 
-        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));
 
         $this->get(route('platform.login.two-factor'));
         $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
@@ -124,9 +124,21 @@ class TwoFactorAuthTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function user_without_two_factor_auth_is_redirected_from_verification_page()
+    {
+        $this->signIn(create(User::class));
+
+        $this->get(route('platform.login.two-factor'))
+            ->assertRedirect(route('platform.dashboard'));
+        $this->post(route('platform.login.two-factor'), ['code' => mt_rand(0, 999999)])
+            ->assertRedirect(route('platform.dashboard'));
+        $this->assertFalse(Session::has('auth.two-factor'));
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function test_user_cannot_authenticate_if_already_authenticated()
     {
-        $this->signIn(create(User::class, ['totp_secret' => Str::random(16)]));
+        $this->signIn(create(User::class, ['totpSecret' => Str::random(16)]));
         Session::put('auth.two-factor', new Carbon());
 
         $this->get(route('platform.login.two-factor'))

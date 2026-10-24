@@ -3,8 +3,10 @@
 namespace Tests\Feature\Platform;
 
 use App\Entities\Organization;
+use App\Entities\OrganizationPrefixApplication;
 use App\Entities\OrganizationUser;
 use App\Entities\Url;
+use App\Entities\User;
 use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\TestCase;
 use Tests\Traits\RefreshDatabase;
@@ -164,6 +166,47 @@ class OrganizationTest extends TestCase
         $this->assertSoftDeleted(EntityManager::getClassMetadata(get_class($organization))->getTableName(), [
             'id' => $organization->getId(),
         ]);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function deleting_an_organization_removes_its_pending_prefix_application()
+    {
+        $organization = create(Organization::class);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        $application = create(OrganizationPrefixApplication::class, ['organization' => $organization, 'user' => $this->user]);
+        EntityManager::clear();
+
+        $this->delete(route('platform.organizations.destroy', $organization))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+        $this->assertSoftDeleted(EntityManager::getClassMetadata(OrganizationPrefixApplication::class)->getTableName(), [
+            'id' => $application->getId(),
+        ]);
+        EntityManager::clear();
+
+        // The admin list used to fail loading the deleted organization of a still-pending application.
+        $this->signInAdmin();
+        $this->get(route('platform.admin.prefix-applications.index'))
+            ->assertStatus(200);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
+    function members_of_a_deleted_organization_can_still_use_the_platform()
+    {
+        $member = create(User::class);
+        $organization = create(Organization::class);
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        create(OrganizationUser::class, ['user' => $member, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_MEMBER]);
+        EntityManager::clear();
+
+        $this->delete(route('platform.organizations.destroy', $organization))
+            ->assertSessionHas('success');
+        EntityManager::clear();
+
+        $this->signIn(EntityManager::find(User::class, $member->getId()));
+        $this->get(route('platform.urls.create'))->assertStatus(200);
+        $this->get(route('platform.urls.index'))->assertStatus(200);
+        $this->get(route('platform.organizations.index'))->assertStatus(200);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

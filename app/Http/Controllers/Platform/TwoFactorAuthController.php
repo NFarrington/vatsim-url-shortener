@@ -23,6 +23,10 @@ class TwoFactorAuthController extends Controller
                     ->with('error', 'You have already provided your two factor authentication code.');
             }
 
+            if (!$request->user()->getTotpSecret()) {
+                return redirect()->intended(route('platform.dashboard'));
+            }
+
             return $next($request);
         })->only(['showForm', 'login']);
         $this->entityManager = $entityManager;
