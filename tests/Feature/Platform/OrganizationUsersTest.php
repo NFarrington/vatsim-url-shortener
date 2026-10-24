@@ -146,6 +146,20 @@ class OrganizationUsersTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function removing_a_user_who_is_not_in_the_organization_shows_an_error()
+    {
+        $user = create(User::class);
+        $organization = entity(Organization::class)->states('prefix')->create();
+        create(OrganizationUser::class, ['user' => $this->user, 'organization' => $organization, 'roleId' => OrganizationUser::ROLE_OWNER]);
+        EntityManager::clear();
+
+        $this->get(route('platform.organizations.edit', $organization));
+        $this->delete(route('platform.organizations.users.destroy', [$organization, $user]))
+            ->assertRedirect(route('platform.organizations.edit', $organization))
+            ->assertSessionHas('error');
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function user_cannot_remove_themselves_from_an_organization()
     {
         $organization = entity(Organization::class)->states('prefix')->create();

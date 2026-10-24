@@ -77,7 +77,13 @@ class OrganizationUsersController extends Controller
                 ->with('error', 'You cannot remove yourself.');
         }
 
-        $this->entityManager->remove($this->organizationUserRepository->findByUserAndOrganization($user, $organization));
+        $organizationUser = $this->organizationUserRepository->findByUserAndOrganization($user, $organization);
+        if (!$organizationUser) {
+            return redirect()->route('platform.organizations.edit', $organization)
+                ->with('error', 'That user is not in this organization.');
+        }
+
+        $this->entityManager->remove($organizationUser);
         $this->entityManager->flush();
 
         return redirect()->route('platform.organizations.edit', $organization)

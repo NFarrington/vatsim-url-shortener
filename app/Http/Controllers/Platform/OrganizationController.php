@@ -107,6 +107,11 @@ class OrganizationController extends Controller
                 ->with('error', 'This organization has URLs associated with it.');
         }
 
+        // A pending prefix application would otherwise point at the deleted organization.
+        if ($prefixApplication = $organization->getPrefixApplication()) {
+            $this->em->remove($prefixApplication);
+        }
+
         $this->em->remove($organization);
         $this->em->flush();
 
