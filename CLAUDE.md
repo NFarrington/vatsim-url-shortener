@@ -17,7 +17,7 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 ## Stack
 
-- PHP 8.5, Laravel 13, PHPUnit 12
+- PHP 8.5, Laravel 13, PHPUnit 13
 - Doctrine ORM via `laravel-doctrine/orm`, not Eloquent. Entities live in `app/Entities` and use PHP attribute mapping (`#[ORM\Entity]`), with Gedmo extensions such as soft deletes.
 - MariaDB 11.4 in production. Tests run on SQLite, and in CI also on MariaDB.
 - AWS SDK for PHP: DynamoDB, and SimpleDB through `aws/aws-sdk-php-v3-bridge`.
@@ -138,13 +138,13 @@ This works whether or not the fix is committed. Don't use `git stash` for this. 
 
 ### Writing tests
 
-- Tests live in `tests/Unit` and `tests/Feature`. Mark test methods with `#[\PHPUnit\Framework\Attributes\Test]`, since PHPUnit 12 no longer reads `@test` doc comments.
+- Tests live in `tests/Unit` and `tests/Feature`. Mark test methods with `#[\PHPUnit\Framework\Attributes\Test]`, since PHPUnit 12 and later don't read `@test` doc comments.
 - Create entities with the global helpers `create(Class::class, [...])`, `make(...)` and `entity(Class::class)->states('org', 'prefix')->create(...)`. The factories are in `database/factories`.
 - Factory attributes are entity property names (`'totpSecret' => ...`). Snake_case column names (`'totp_secret'`) are silently ignored.
 - Use `Tests\Traits\RefreshDatabase` (the project's own trait, not Laravel's) for database tests, and `$this->signIn()` / `$this->signInAdmin()` to authenticate.
 - `Tests\TestCase` calls `withoutExceptionHandling()` by default. Call `$this->withExceptionHandling()` when a test expects validation errors or HTTP error responses.
 - `tests/CreatesApplication.php` replaces the AWS clients with permissive Mockery mocks, so tests never call AWS. To assert on AWS calls, bind a strict mock in the test. See `mockDynamoDb()` in `tests/Feature/Platform/UrlTest.php`.
-- Use `$this->createStub()` for PHPUnit test doubles that only return values. `createMock()` without expectations triggers PHPUnit 12 notices.
+- Use `$this->createStub()` for PHPUnit test doubles that only return values. `createMock()` without expectations triggers PHPUnit notices (since PHPUnit 12).
 - Use Laravel's `$this->assertThrows(fn () => ..., Exception::class, 'message')`. The closure comes first, and the message check is a case-sensitive substring match.
 - To assert notifications, call `Notification::fake()` and then `Notification::assertSentTo()` or `assertSentOnDemand()`. The old `expectsNotification()` helper no longer exists.
 

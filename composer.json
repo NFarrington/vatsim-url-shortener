@@ -9,11 +9,11 @@
     ],
     "license": "MIT",
     "require": {
+        "php": "^8.5",
         "ext-gd": "*",
         "ext-json": "*",
         "ext-pdo": "*",
         "ext-simplexml": "*",
-        "php": "^8.5",
         "aws/aws-sdk-php": "^3.300",
         "aws/aws-sdk-php-v3-bridge": "^0.4.0",
         "bacon/bacon-qr-code": "^3.1",
@@ -21,7 +21,7 @@
         "bugsnag/bugsnag-laravel": "^2.31",
         "gedmo/doctrine-extensions": "^3.22",
         "graham-campbell/markdown": "^16.1",
-        "guzzlehttp/guzzle": "^7.10",
+        "guzzlehttp/guzzle": "^8.3",
         "kyslik/column-sortable": "^8.0",
         "laravel-doctrine/extensions": "^2.0",
         "laravel-doctrine/orm": "^3.3",
@@ -39,7 +39,7 @@
         "laravel/sail": "^1.69",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.9",
-        "phpunit/phpunit": "^12.5",
+        "phpunit/phpunit": "^13.4",
         "spatie/laravel-ignition": "^2.12"
     },
     "config": {
