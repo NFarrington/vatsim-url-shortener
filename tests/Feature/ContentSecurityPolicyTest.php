@@ -70,6 +70,14 @@ class ContentSecurityPolicyTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    public function the_policy_allows_data_uri_images_for_the_cover_placeholder()
+    {
+        $policy = $this->get(route('site.home'))->headers->get('Content-Security-Policy-Report-Only');
+
+        $this->assertMatchesRegularExpression("/img-src 'self' [^;]*\bdata:/", $policy);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     public function platform_pages_also_get_the_policy()
     {
         $response = $this->get(route('platform.login'));
