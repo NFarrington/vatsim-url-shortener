@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8cb364c7bdd667170703cc343a9289d4",
+    "content-hash": "eda35904cfe06aaf4e0cf67196381edf",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -156,58 +156,6 @@
                 "source": "https://github.com/aws/aws-sdk-php/tree/3.402.0"
             },
             "time": "2026-10-22T18:09:05+00:00"
-        },
-        {
-            "name": "aws/aws-sdk-php-v3-bridge",
-            "version": "0.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/aws/aws-sdk-php-v3-bridge.git",
-                "reference": "1510e6042d842089e83cb751bcc6ec6ada0f8b83"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php-v3-bridge/zipball/1510e6042d842089e83cb751bcc6ec6ada0f8b83",
-                "reference": "1510e6042d842089e83cb751bcc6ec6ada0f8b83",
-                "shasum": ""
-            },
-            "require": {
-                "aws/aws-sdk-php": "^3.105.0"
-            },
-            "require-dev": {
-                "behat/behat": "^3.0",
-                "phpunit/phpunit": "^4.8"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Aws\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "Apache-2.0"
-            ],
-            "authors": [
-                {
-                    "name": "Amazon Web Services",
-                    "homepage": "http://aws.amazon.com"
-                }
-            ],
-            "description": "A compatibility pack for using Amazon SimpleDB with v3 of the AWS SDK for PHP",
-            "keywords": [
-                "amazon",
-                "aws",
-                "sdb",
-                "sdk",
-                "simpledb"
-            ],
-            "support": {
-                "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
-                "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php-v3-bridge/tree/0.4.0"
-            },
-            "time": "2023-04-03T19:27:42+00:00"
         },
         {
             "name": "bacon/bacon-qr-code",
