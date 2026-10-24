@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Entities\Domain;
 use App\Entities\Url;
-use App\Entities\UrlAnalytics;
 use App\Entities\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use LaravelDoctrine\ORM\Facades\EntityManager;
 use Tests\Traits\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -73,29 +73,6 @@ class UrlTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    function short_url_clicks_are_logged()
-    {
-        $domain = create(Domain::class, ['url' => config('app.url').'/']);
-        $url = create(Url::class, ['domain' => $domain]);
-
-        $this->get(route('short-url', $url->getUrl()));
-        $this->assertDatabaseHas(EntityManager::getClassMetadata(UrlAnalytics::class)->getTableName(), [
-            'request_uri' => $url->getUrl(),
-            'response_code' => 302,
-        ]);
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
-    function short_url_404s_are_not_logged()
-    {
-        $this->withExceptionHandling();
-
-        $this->get(route('short-url', '.env'))->assertNotFound();
-        $this->get(route('short-url', ['wp-admin', 'setup-config.php']))->assertNotFound();
-        $this->assertSame(0, EntityManager::getRepository(UrlAnalytics::class)->count([]));
-    }
-
-    #[\PHPUnit\Framework\Attributes\Test]
     function anonymous_short_url_redirect_does_not_start_a_session()
     {
         $domain = create(Domain::class, ['url' => config('app.url').'/']);
@@ -119,7 +96,7 @@ class UrlTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    function short_url_clicks_are_logged_against_the_logged_in_user()
+    function short_url_redirects_for_a_logged_in_user()
     {
         $domain = create(Domain::class, ['url' => config('app.url').'/']);
         $url = create(Url::class, ['domain' => $domain]);
@@ -134,25 +111,12 @@ class UrlTest extends TestCase
         $this->withCookie(config('session.cookie'), $session->getId())
             ->get(route('short-url', $url->getUrl()))
             ->assertRedirect($url->getRedirectUrl());
-        $this->assertDatabaseHas(EntityManager::getClassMetadata(UrlAnalytics::class)->getTableName(), [
-            'request_uri' => $url->getUrl(),
-            'user_id' => $user->getId(),
-        ]);
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
-    function short_url_clicks_for_ignored_urls_are_not_logged()
+    function url_analytics_table_is_dropped()
     {
-        $domain = create(Domain::class, ['url' => config('app.url').'/']);
-        $loggedUrl = create(Url::class, ['domain' => $domain]);
-        $ignoredUrl = entity(Url::class)->states('analytics_disabled')
-            ->create(['domain' => $domain]);
-
-        $this->get(route('short-url', $loggedUrl->getUrl()));
-        $this->get(route('short-url', $ignoredUrl->getUrl()));
-        $this->assertDatabaseMissing(EntityManager::getClassMetadata(UrlAnalytics::class)->getTableName(), [
-            'request_uri' => $ignoredUrl->getUrl(),
-        ]);
+        $this->assertFalse(Schema::hasTable('url_analytics'));
     }
 
     #[\PHPUnit\Framework\Attributes\Test]

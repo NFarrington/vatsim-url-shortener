@@ -7,8 +7,6 @@ namespace App\Entities;
 use App\Entities\Traits\RecordsCreatedAt;
 use App\Entities\Traits\RecordsUpdatedAt;
 use App\Entities\Traits\SoftDeletes;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
@@ -65,14 +63,6 @@ class Url extends Entity
 
     #[ORM\Column(type: 'boolean', options: ['default' => 0])]
     protected bool $analyticsDisabled = false;
-
-    #[ORM\OneToMany(targetEntity: UrlAnalytics::class, mappedBy: 'url')]
-    protected Collection $analytics;
-
-    public function __construct()
-    {
-        $this->analytics = new ArrayCollection();
-    }
 
     public function getId(): int
     {
