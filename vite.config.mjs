@@ -36,10 +36,10 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
-                // Bootstrap 5 and Font Awesome 5 use Sass features that are now
-                // deprecated, such as @import and global functions. quietDeps
-                // hides the warnings from inside them. They still need loading
-                // with @import, so that's silenced in our own files too.
+                // Bootstrap 5 uses Sass features that are now deprecated, such
+                // as @import and global functions. quietDeps hides the warnings
+                // from inside it. It still needs loading with @import, so that's
+                // silenced in our own files too.
                 quietDeps: true,
                 silenceDeprecations: ['import'],
             },

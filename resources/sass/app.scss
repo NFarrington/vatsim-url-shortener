@@ -2,11 +2,8 @@
 @import "variables";
 // Bootstrap
 @import 'bootstrap/scss/bootstrap';
-// Font Awesome, with the font path relative to this file so the build can
-// find and copy the fonts.
-$fa-font-path: "../../node_modules/@fortawesome/fontawesome-free/webfonts";
-@import '@fortawesome/fontawesome-free/scss/fontawesome';
-@import '@fortawesome/fontawesome-free/scss/solid';
+// Font Awesome
+@import "font-awesome";
 
 body {
   background-color: $page-bg;

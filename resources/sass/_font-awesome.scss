@@ -1,0 +1,9 @@
+// Font Awesome (solid icons only). Font Awesome 7 is loaded as Sass modules, so
+// it lives in this partial: app.scss still uses @import, and a file can't have
+// @use rules after @import rules. The font path is relative to app.scss, so the
+// build can find and copy the fonts.
+@use '@fortawesome/fontawesome-free/scss/variables' with (
+  $font-path: '../../node_modules/@fortawesome/fontawesome-free/webfonts'
+);
+@use '@fortawesome/fontawesome-free/scss/fontawesome';
+@use '@fortawesome/fontawesome-free/scss/solid';
