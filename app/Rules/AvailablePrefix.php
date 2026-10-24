@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
  * An organization prefix that isn't reserved and that no other organization or non-prefixed short URL has,
  * ignoring case.
  *
- * Short URLs are stored in SimpleDB and DynamoDB by their lowercased full URL, so two
+ * Short URLs are stored in DynamoDB by their lowercased full URL, so two
  * organizations sharing a prefix could overwrite each other's URLs there.
  */
 class AvailablePrefix implements ValidationRule

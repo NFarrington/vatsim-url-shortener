@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 /**
  * A short URL that isn't reserved and that no existing URL has, ignoring case.
  *
- * URLs are stored in SimpleDB and DynamoDB by their lowercased full URL, so this compares
+ * URLs are stored in DynamoDB by their lowercased full URL, so this compares
  * the full URL (domain, prefix and URL) rather than relying on the database's collation
  * or on which organization owns a prefix. A URL without a prefix also can't equal an
  * organization's prefix.

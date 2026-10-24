@@ -20,7 +20,7 @@ Keep entries short, put them in the matching section, and remove anything that's
 - PHP 8.5, Laravel 13, PHPUnit 13
 - Doctrine ORM via `laravel-doctrine/orm`, not Eloquent. Entities live in `app/Entities` and use PHP attribute mapping (`#[ORM\Entity]`), with Gedmo extensions such as soft deletes.
 - MariaDB 11.4 in production. Tests run on SQLite, and in CI also on MariaDB.
-- AWS SDK for PHP: DynamoDB, and SimpleDB through `aws/aws-sdk-php-v3-bridge`.
+- AWS SDK for PHP, for DynamoDB.
 - The app keeps the pre-Laravel 11 structure: `App\Http\Kernel`, `App\Console\Kernel`, `App\Exceptions\Handler`, and service providers listed in `config/app.php`. Laravel 13 still supports this, so put middleware, providers and so on there rather than in `bootstrap/app.php`.
 
 ## Doctrine gotchas
@@ -32,7 +32,7 @@ Keep entries short, put them in the matching section, and remove anything that's
 - **Build `unique:`/`exists:` rules with conditions from input using `Rule::unique(Entity::class, 'column')->where(...)`**, not string concatenation, so request input can't add commas to the rule. `->where('column', null)` becomes an `IS NULL` check.
 - **Don't rely on the database for case-insensitive comparisons.** MariaDB's `utf8mb4_unicode_ci` collation ignores case, but SQLite doesn't, so a `unique:` rule behaves differently in tests and in production. Compare with `LOWER()` in DQL.
 - **Short URLs must be unique by full URL, ignoring case.** `App\Rules\AvailableShortUrl` checks the domain URL, prefix and URL together, so a prefixed URL clashes with one from any organization that has the same prefix. It also rejects `Url::RESERVED_PATHS`, and a non-prefixed URL equal to any organization's prefix (visitors would assume it belongs to that organization).
-- **Organization prefixes must be unique, ignoring case,** because SimpleDB and DynamoDB key URLs by the lowercased full URL. There's no database index for this (it was dropped in 2019), so validate prefixes with `App\Rules\AvailablePrefix`. It also rejects `Url::RESERVED_PATHS` and a prefix equal to an existing non-prefixed short URL on any domain. Only admin approval applies it. Applicants aren't told a prefix is taken or reserved; instead, the admin list and review pages flag a duplicate with a link to the other organization.
+- **Organization prefixes must be unique, ignoring case,** because DynamoDB keys URLs by the lowercased full URL. There's no database index for this (it was dropped in 2019), so validate prefixes with `App\Rules\AvailablePrefix`. It also rejects `Url::RESERVED_PATHS` and a prefix equal to an existing non-prefixed short URL on any domain. Only admin approval applies it. Applicants aren't told a prefix is taken or reserved; instead, the admin list and review pages flag a duplicate with a link to the other organization.
 - **Allow-list `sort` and `direction` request values.** They go into DQL, so read them with `listingOrder()` (`App\Http\Controllers\Concerns\ReadsListingOrder`), passing the columns the view sorts by and the default. It returns only allow-listed values and falls back to the defaults for anything else, so a bad listing URL gets the default order rather than a validation redirect (which loops for clients that don't follow it, since the failed GET becomes the "previous" URL).
 - DQL reserves keywords such as `member` (from `MEMBER OF`) and `order`, so they can't be used as aliases. The error is a confusing `[Syntax Error] ... got 'member'`.
 - Validate user-supplied links with `url:http,https`. Plain `url` accepts about 250 schemes, including `file:` and `data:`.
@@ -80,7 +80,7 @@ Keep entries short, put them in the matching section, and remove anything that's
 - `app/Repositories`: Doctrine repositories, bound in `RepositoryServiceProvider`.
 - `app/Services/UrlService.php`: URL lookup and caching for redirects.
 - `app/Policies`: authorisation for URLs, domains and organisations.
-- `app/Providers/AwsServiceProvider.php`: registers the `SimpleDbClient` and `DynamoDbClient` singletons.
+- `app/Providers/AwsServiceProvider.php`: registers the `DynamoDbClient` singleton.
 - `database/migrations`: Laravel migrations (schema). `database/factories`: entity factories.
 - `docker/`: production nginx and php-fpm config. `docker/test/` holds the local test runner.
 
@@ -149,38 +149,28 @@ This works whether or not the fix is committed. Don't use `git stash` for this. 
 - Use Laravel's `$this->assertThrows(fn () => ..., Exception::class, 'message')`. The closure comes first, and the message check is a case-sensitive substring match.
 - To assert notifications, call `Notification::fake()` and then `Notification::assertSentTo()` or `assertSentOnDemand()`. The old `expectsNotification()` helper no longer exists.
 
-## Short URL storage: SimpleDB → DynamoDB migration (in progress)
+## Short URL storage (DynamoDB)
 
-The redirect path is served by a separate AWS Lambda (repo `vatsim-url-shortener-short-url-redirector-lambda`, function `vatsim_url_shortener_short_url_redirector`), which reads a key-value copy of the URLs. This app keeps that copy up to date.
+The redirect path is served by a separate AWS Lambda (repo `vatsim-url-shortener-short-url-redirector-lambda`, function `vatsim_url_shortener_short_url_redirector`), which reads a key-value copy of the URLs from DynamoDB. This app keeps that copy up to date. The copy used to be in SimpleDB. Until they're cleaned up, the old SimpleDB domain and the service user's SimpleDB policy still exist in AWS and Terraform, but nothing uses them.
 
-**Stage 1 (current):** URLs are written to both SimpleDB and DynamoDB.
-
-- `App\Services\UrlStoreService` writes to SimpleDB and then DynamoDB. `Platform\UrlController` and `Platform\Admin\UrlController` call it on every create and update, and to delete from both on delete.
-- Both stores use the same item shape:
-  - Key: the lowercased full URL (`Str::lower($url->getFullUrl())`), stored as the SimpleDB item name and as the DynamoDB attribute `Url`.
+- `App\Services\UrlStoreService` writes to DynamoDB. `Platform\UrlController` and `Platform\Admin\UrlController` call it on every create and update, and to delete on delete.
+- Item shape:
+  - Key: the lowercased full URL (`Str::lower($url->getFullUrl())`), in the attribute `Url`.
   - Attributes: `RedirectUrl` and `UpdatedAt` (an ISO 8601 Zulu string).
   - URLs at a domain root are stored with a double slash, e.g. `https://vts.im//`. The Lambda relies on this.
-- `php artisan simpledb:sync` rewrites every URL to SimpleDB, deletes stale items, then runs `php artisan dynamodb:sync` to do the same for DynamoDB. Use these to backfill or reconcile the stores.
-- Config is in `config/services.php`:
-  - `services.simpledb`, domain `VatsimUrlShortenerUrls`.
-  - `services.dynamodb`, table set by `DYNAMODB_URLS_TABLE` (default `VatsimUrlShortenerUrls`), with optional `DYNAMODB_ENDPOINT`.
-  - Both use the standard `AWS_*` credentials.
+- `php artisan dynamodb:sync` rewrites every URL to DynamoDB and deletes items not updated in the run. Use it to backfill or reconcile the table. Nothing schedules it.
+- Config is `services.dynamodb` in `config/services.php`: table set by `DYNAMODB_URLS_TABLE` (default `VatsimUrlShortenerUrls`), optional `DYNAMODB_ENDPOINT`, and the standard `AWS_*` credentials.
 
-**Stage 2 (to do):** once the Lambda reads from DynamoDB in production, remove SimpleDB:
-
-- From this repo: the SimpleDB code, `SyncSimpleDb`, `services.simpledb`, and the `aws/aws-sdk-php-v3-bridge` package. Point any scheduled sync at `dynamodb:sync`.
-- From Terraform: the SimpleDB domain and policies.
-
-When changing how URLs are keyed or stored, keep this app, both sync commands and the Lambda consistent.
+When changing how URLs are keyed or stored, keep this app, `dynamodb:sync` and the Lambda consistent.
 
 ## Infrastructure
 
 Infrastructure is managed in the separate Terraform repo `TheRailroad/terraform`:
 
-- `modules/vatsim-url-shortener` (prod) and `modules/vatsim-url-shortener-dev`: the DynamoDB tables, the SimpleDB domain, the service IAM user `vatsim_url_shortener` and the redirector Lambda.
+- `modules/vatsim-url-shortener` (prod) and `modules/vatsim-url-shortener-dev`: the DynamoDB tables, the service IAM user `vatsim_url_shortener` and the redirector Lambda.
 - The service user's DynamoDB policy covers every table matching `VatsimUrlShortener*`, so new tables with that prefix need no IAM change.
 - The Lambda role's permissions are granted per table.
-- CloudFront's default behaviour uses an origin group that fails over to the VM when the redirector returns 403, 404 or 5xx. This is deliberate: MariaDB is the source of truth, so if SimpleDB or DynamoDB fall out of sync the VM still serves the URL. Most of that failover traffic is bots probing for paths like `.env`, so the VM sees a steady stream of 404s.
+- CloudFront's default behaviour uses an origin group that fails over to the VM when the redirector returns 403, 404 or 5xx. This is deliberate: MariaDB is the source of truth, so if DynamoDB falls out of sync the VM still serves the URL. Most of that failover traffic is bots probing for paths like `.env`, so the VM sees a steady stream of 404s.
 
 ## CI and deployment
 
