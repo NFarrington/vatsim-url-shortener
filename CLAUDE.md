@@ -75,7 +75,7 @@ Keep entries short, put them in the matching section, and remove anything that's
 
 - `routes/url.php`: the catch-all short URL redirect, `{prefix?}/{short_url?}` → `App\Http\Controllers\UrlController@redirect`. Its `web-with-optional-sessions` group starts a session only when the request already has the session cookie (`StartOptionalSession`), so anonymous redirects get no session file or `Set-Cookie`. Nothing on this route may write to `session()` or rely on `$errors`. Requests aren't logged: the `url_analytics` table, almost all bot 404s, was dropped in 2026.
 - `routes/platform.php`: the site and management platform (`platform/...`), restricted to the app's own domains in `RouteServiceProvider`.
-- `app/Http/Controllers/Platform`: platform controllers. `Platform/UrlController` handles URL create, update and delete.
+- `app/Http/Controllers/Platform`: platform controllers. `Platform/UrlController` handles URL create, update and delete. `Platform/Admin/UrlController` lets admins list, search, edit, transfer and delete any URL; transfers follow `UrlPolicy::transfer` (not for prefixed URLs or restricted domains).
 - `app/Repositories`: Doctrine repositories, bound in `RepositoryServiceProvider`.
 - `app/Services/UrlService.php`: URL lookup and caching for redirects.
 - `app/Policies`: authorisation for URLs, domains and organisations.
@@ -154,7 +154,7 @@ The redirect path is served by a separate AWS Lambda (repo `vatsim-url-shortener
 
 **Stage 1 (current):** URLs are written to both SimpleDB and DynamoDB.
 
-- `Platform\UrlController` writes to SimpleDB and then DynamoDB on every create and update, and deletes from both on delete.
+- `App\Services\UrlStoreService` writes to SimpleDB and then DynamoDB. `Platform\UrlController` and `Platform\Admin\UrlController` call it on every create and update, and to delete from both on delete.
 - Both stores use the same item shape:
   - Key: the lowercased full URL (`Str::lower($url->getFullUrl())`), stored as the SimpleDB item name and as the DynamoDB attribute `Url`.
   - Attributes: `RedirectUrl` and `UpdatedAt` (an ISO 8601 Zulu string).

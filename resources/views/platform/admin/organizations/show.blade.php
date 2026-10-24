@@ -89,6 +89,7 @@
                         <th>URL</th>
                         <th>Redirect URL</th>
                         <th>Last Updated</th>
+                        <th></th>
                     </tr>
                     @foreach($urls as $url)
                         <tr>
@@ -96,6 +97,7 @@
                             <td class="break-all"><a href="{{ url($url->getFullUrl()) }}">{{ preg_replace('#^https?://#', '', $url->getFullUrl()) }}</a></td>
                             <td class="break-all"><a href="{{ $url->getRedirectUrl() }}">{{ preg_replace('#^https?://#', '', $url->getRedirectUrl()) }}</a></td>
                             <td>{{ hyphen_nobreak($url->getUpdatedAt()) }}</td>
+                            <td><a href="{{ route('platform.admin.urls.edit', $url) }}">Edit</a></td>
                         </tr>
                     @endforeach
                 </table>
