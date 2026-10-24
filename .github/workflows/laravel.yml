@@ -222,3 +222,34 @@ jobs:
         run: echo "$DIGEST"
         env:
           DIGEST: ${{ steps.docker_build_php_fpm.outputs.digest }}
+
+  # Creates a GitHub release for full version tags (v1.36, v1.36.1), not
+  # snapshots (v1.36-snapshot.1) or other tags, once the images are published.
+  # The notes are generated as by "Generate release notes" in the UI, from the
+  # previous full version tag.
+  github-release:
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: ubuntu-24.04-arm
+    needs: docker-publish
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+      FULL_VERSION_PATTERN: '^v[0-9]+(\.[0-9]+)+$'
+    steps:
+      - name: Create release
+        run: |
+          if [[ ! $TAG =~ $FULL_VERSION_PATTERN ]]; then
+            echo "$TAG is not a full version tag, so no release is created."
+            exit 0
+          fi
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "A release for $TAG already exists."
+            exit 0
+          fi
+          PREVIOUS_TAG=$(gh api --paginate "repos/$GH_REPO/git/matching-refs/tags/v" --jq '.[].ref | ltrimstr("refs/tags/")' \
+            | grep -E "$FULL_VERSION_PATTERN" | sort -V \
+            | awk -v tag="$TAG" '$0 == tag { print previous; exit } { previous = $0 }')
+          gh release create "$TAG" --verify-tag --title "$TAG" --generate-notes ${PREVIOUS_TAG:+--notes-start-tag "$PREVIOUS_TAG"}
