@@ -43,6 +43,22 @@ class OrganizationTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function organizations_without_a_prefix_are_sorted_last()
+    {
+        $this->signInAdmin();
+        create(Organization::class, ['name' => 'Organization One', 'prefix' => 'aaa']);
+        create(Organization::class, ['name' => 'Organization Two']);
+        create(Organization::class, ['name' => 'Organization Three', 'prefix' => 'bbb']);
+
+        $this->get(route('platform.admin.organizations.index', ['sort' => 'prefix', 'direction' => 'asc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['Organization One', 'Organization Three', 'Organization Two']);
+        $this->get(route('platform.admin.organizations.index', ['sort' => 'prefix', 'direction' => 'desc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['Organization Three', 'Organization One', 'Organization Two']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function organizations_cannot_be_sorted_by_unsupported_fields()
     {
         $this->withExceptionHandling();

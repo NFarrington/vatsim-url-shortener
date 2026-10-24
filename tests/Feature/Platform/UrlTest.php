@@ -89,6 +89,23 @@ class UrlTest extends TestCase
     }
 
     #[\PHPUnit\Framework\Attributes\Test]
+    function index_page_sorts_urls_without_an_organization_last()
+    {
+        $alpha = create(Organization::class, ['name' => 'Alpha']);
+        $beta = create(Organization::class, ['name' => 'Beta']);
+        create(Url::class, ['user' => $this->user, 'url' => 'sort-test-beta', 'organization' => $beta]);
+        create(Url::class, ['user' => $this->user, 'url' => 'sort-test-none']);
+        create(Url::class, ['user' => $this->user, 'url' => 'sort-test-alpha', 'organization' => $alpha]);
+
+        $this->get(route('platform.urls.index', ['sort' => 'organization.name', 'direction' => 'asc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['sort-test-alpha', 'sort-test-beta', 'sort-test-none']);
+        $this->get(route('platform.urls.index', ['sort' => 'organization.name', 'direction' => 'desc']))
+            ->assertStatus(200)
+            ->assertSeeInOrder(['sort-test-beta', 'sort-test-alpha', 'sort-test-none']);
+    }
+
+    #[\PHPUnit\Framework\Attributes\Test]
     function index_page_rejects_an_unknown_sort_column()
     {
         $this->withExceptionHandling();
