@@ -1,5 +1,3 @@
-// Fonts
-@import url("https://fonts.googleapis.com/css?family=Raleway:300,400,600");
 // Variables
 //@import "variables";
 // Links, underlined on hover only, as in Bootstrap 4
@@ -37,9 +35,10 @@ html {
   background-color: #333;
 }
 
-body {
-  background-color: rgba(0, 34, 97, 1);
-}
+// Until the cover photo loads, the page shows its average colour, then this
+// blurred 24x16 copy of it (an SVG blur over an inline JPEG). img-src in the
+// CSP allows data: URIs. The photo is preloaded in site/layout.blade.php.
+$cover-placeholder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16' preserveAspectRatio='none'%3E%3Cfilter id='b' color-interpolation-filters='sRGB'%3E%3CfeGaussianBlur stdDeviation='1'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='1 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Cimage width='24' height='16' preserveAspectRatio='none' filter='url(%23b)' href='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAQABgDAREAAhEBAxEB/8QAFwABAAMAAAAAAAAAAAAAAAAAAwIHCP/EACYQAAIBAwMCBwEAAAAAAAAAAAEDAgAEBQYRIUFxEjFRUmGBkqH/xAAYAQADAQEAAAAAAAAAAAAAAAACAwQFBv/EACIRAAIBBAIBBQAAAAAAAAAAAAECAAMEETEUIYEiQVFhkf/aAAwDAQACEQMRAD8AqCejclEne1Z+a7Y2BmJy1+YitD5ecBNdk2YPtG5HceYpDW60zhjiGtcuPT3GVozKCXhnZuifQwIpyWqtoj9gmvjc0VLUa+sR03IhHYUPGx7yYt9SLchjcqgLyCllZPBKeY9iOQfkbUqpbkdb8xiON68QkptoMgMfnr23t9+EySHxP2wk/wBqR7FtgSlLkDrM/9k='/%3E%3C/svg%3E");
 
 html {
   height: 100%;
@@ -59,9 +58,22 @@ body {
   color: #fff;
   text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
   box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
-  background-image: url("/assets/img/cover.jpg");
+  background-color: rgb(79, 116, 186);
+  background-image: url("/assets/img/cover.jpg"), $cover-placeholder;
   background-position: center;
   background-size: cover;
+}
+
+// The AVIF is under a third of the JPEG's size, and browsers show it once it
+// has fully loaded rather than drawing it from the top down (WebP can't be
+// progressive). Both are encoded from the photo in public/assets/img/originals.
+// This is an @supports block, not a second declaration in the rule above,
+// because the minifier merges the two into a -webkit-image-set() that browsers
+// without type() support drop.
+@supports (background-image: image-set(url("/assets/img/cover.avif") type("image/avif"))) {
+  body {
+    background-image: image-set(url("/assets/img/cover.avif") type("image/avif"), url("/assets/img/cover.jpg") type("image/jpeg")), $cover-placeholder;
+  }
 }
 
 .cover-container {

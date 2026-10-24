@@ -31,6 +31,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <link rel="stylesheet" href="/assets/{{ config('app.version.name') }}/css/cover.css">
+    <link rel="preload" href="/assets/img/cover.avif" as="image" type="image/avif" fetchpriority="high">
 
     @stack('meta')
 </head>
